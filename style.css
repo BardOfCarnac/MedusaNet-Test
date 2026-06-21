@@ -358,126 +358,30 @@ textarea {
   letter-spacing: 0.12em;
 }
 
-@media screen and (max-width: 900px) {
-  .container {
-    padding: 14px;
-  }
+/* FINAL RESPONSIVE OVERRIDE */
 
-  .system-line {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .masthead h1 {
-    font-size: clamp(3rem, 15vw, 6rem);
-    font-weight: 300;
-    letter-spacing: 0.005em;
-    line-height: 1;
-    white-space: nowrap;
-  }
-
-  .tagline {
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-  }
-
-  .command-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .mobile-drawer {
-    display: block;
-    margin-bottom: 16px;
-  }
-
+@media screen and (min-width: 768px) {
   .news-layout {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 18px;
+  }
+
+  .inspector {
     display: block !important;
   }
 
-  .inspector {
-    display: none !important;
-  }
-
   .feed {
-    width: 100% !important;
-    border: none;
-    padding: 0;
-  }
-
-  .story {
-    padding: 22px 0;
-  }
-
-  .story h2 {
-    font-size: clamp(2.3rem, 12vw, 4.8rem);
-  }
-
-  .filter-tab,
-  .filter-option,
-  .utility-btn,
-  .time-option {
-    flex: 1 1 auto;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-grid {
-    grid-template-columns: 1fr;
+    border: 1px solid #182634 !important;
+    padding: 18px !important;
   }
 }
 
-@media screen and (min-width: 1400px) {
-  .news-layout {
-    gap: 24px;
+@media screen and (max-width: 767px) {
+  .masthead h1 {
+    font-size: clamp(3rem, 15vw, 6rem);
+    letter-spacing: 0.005em;
   }
-
-  .feed,
-  .inspector {
-    padding: 24px;
-  }
-
-  .story h2 {
-    font-size: clamp(2rem, 2.4vw, 3.2rem);
-  }
-
-  .inspector h2 {
-    font-size: clamp(3rem, 3vw, 5rem);
-  }
-}
-/* NEWSWIRE HEADER */
-
-.story-topline {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.story-time {
-  color: #8defff;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.priority-badge {
-  border: 1px solid currentColor;
-  padding: 3px 8px;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.story h2 {
-  font-size: clamp(1.6rem, 2.4vw, 2.6rem);
-}
-
-/* Mobile headline scaling */
-@media screen and (max-width: 1000px) {
 
   .news-layout {
     display: block !important;
