@@ -29,8 +29,8 @@ function startNightCityNews() {
   let selectedSourceTypes = new Set(["Broadcast", "Community Bulletin", "Corporate Release", "Anonymous Leak", "Police Scanner", "Pirate Broadcast", "Witness Report", "Rumour", "Public Notice"]);
 
   function isDesktop() {
-    return window.matchMedia("(min-width: 901px)").matches;
-  }
+  return window.matchMedia("(min-width: 1001px)").matches;
+}
 
   function priorityClass(priority) {
     return `priority-${priority.toLowerCase()}`;
