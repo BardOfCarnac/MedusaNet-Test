@@ -496,7 +496,7 @@ textarea {
   .story.selected h2 {
     color: inherit;
   }
-}@media screen and (max-width: 900px) {
+}@media screen and (max-width: 1000px) {
   .news-layout {
     display: block !important;
   }
@@ -511,3 +511,4 @@ textarea {
     padding: 0 !important;
   }
 }
+@
