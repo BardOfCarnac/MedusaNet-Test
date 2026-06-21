@@ -477,26 +477,8 @@ textarea {
 }
 
 /* Mobile headline scaling */
+@media screen and (max-width: 1000px) {
 
-@media screen and (max-width: 900px) {
-
-  .story h2 {
-    font-size: clamp(1.8rem, 8vw, 3rem);
-  }
-
-  .story-topline {
-    margin-bottom: 8px;
-  }
-
-}@media screen and (max-width: 900px) {
-  .story-detail h2 {
-    display: none;
-  }
-
-  .story.selected h2 {
-    color: inherit;
-  }
-}@media screen and (max-width: 1000px) {
   .news-layout {
     display: block !important;
   }
@@ -510,5 +492,20 @@ textarea {
     border: none !important;
     padding: 0 !important;
   }
+
+  .story-detail h2 {
+    display: none;
+  }
+
+  .story.selected h2 {
+    color: inherit;
+  }
+
+  .story h2 {
+    font-size: clamp(1.8rem, 8vw, 3rem);
+  }
+
+  .story-topline {
+    margin-bottom: 8px;
+  }
 }
-@
