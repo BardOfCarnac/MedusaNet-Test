@@ -360,24 +360,22 @@ textarea {
 
 /* FINAL RESPONSIVE OVERRIDE */
 
-@media screen and (min-width: 768px) {
-  .news-layout {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 18px;
-  }
-
-  .inspector {
-    display: block !important;
-  }
-
-  .feed {
-    border: 1px solid #182634 !important;
-    padding: 18px !important;
-  }
+.news-layout {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 18px;
 }
 
-@media screen and (max-width: 767px) {
+.inspector {
+  display: block !important;
+}
+
+.feed {
+  border: 1px solid #182634 !important;
+  padding: 18px !important;
+}
+
+@media screen and (max-width: 600px) {
   .masthead h1 {
     font-size: clamp(3rem, 15vw, 6rem);
     letter-spacing: 0.005em;
@@ -407,9 +405,5 @@ textarea {
 
   .story h2 {
     font-size: clamp(1.8rem, 8vw, 3rem);
-  }
-
-  .story-topline {
-    margin-bottom: 8px;
   }
 }
