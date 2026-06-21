@@ -376,6 +376,10 @@ textarea {
 }
 
 @media screen and (max-width: 600px) {
+ .mobile-drawer {
+  display: block !important;
+  margin-bottom: 16px;
+ }
   .masthead h1 {
     font-size: clamp(3rem, 15vw, 6rem);
     letter-spacing: 0.005em;
