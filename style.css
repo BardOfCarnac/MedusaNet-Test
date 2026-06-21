@@ -496,4 +496,18 @@ textarea {
   .story.selected h2 {
     color: inherit;
   }
+}@media screen and (max-width: 900px) {
+  .news-layout {
+    display: block !important;
+  }
+
+  .inspector {
+    display: none !important;
+  }
+
+  .feed {
+    width: 100% !important;
+    border: none !important;
+    padding: 0 !important;
+  }
 }
