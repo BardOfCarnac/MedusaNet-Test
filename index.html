@@ -1,0 +1,226 @@
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>NCN v.8</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <div class="container">
+
+  <header class="masthead">
+    <div class="system-line">
+      <span>NIGHT CITY • SAT JUN 21 2045 • 02:17</span>
+      <span>VER 0.8 ALPHA</span>
+    </div>
+
+    <h1>NIGHT CITY NEWS</h1>
+
+    <p class="tagline">The Headlines of Tomorrow, Today</p>
+  </header>
+
+  <section class="command-bar">
+    <button id="show-filters" class="command-button">Filters</button>
+    <button id="show-submit" class="command-button transmit-command">+ Transmit</button>
+  </section>
+
+  <section id="mobile-drawer" class="mobile-drawer"></section>
+
+  <main class="news-layout">
+    <section id="feed" class="feed"></section>
+    <aside id="inspector" class="inspector"></aside>
+  </main>
+
+</div>
+
+<template id="filters-template">
+  <section class="controls">
+
+    <div class="filter-bar">
+      <button class="filter-tab" data-panel="category-panel">Category</button>
+      <button class="filter-tab" data-panel="area-panel">Area</button>
+      <button class="filter-tab" data-panel="priority-panel">Priority</button>
+      <button class="filter-tab" data-panel="source-panel">Source</button>
+      <button class="filter-tab" data-panel="time-panel">Time</button>
+    </div>
+
+    <div class="filter-panels">
+
+      <div id="category-panel" class="filter-panel">
+        <button class="utility-btn" data-action="select-all" data-group="category">Select All</button>
+        <button class="utility-btn" data-action="clear" data-group="category">Clear</button>
+        <button class="filter-option active" data-group="category" data-value="Corporate">Corporate</button>
+        <button class="filter-option active" data-group="category" data-value="Gang">Gang</button>
+        <button class="filter-option active" data-group="category" data-value="Crime">Crime</button>
+        <button class="filter-option active" data-group="category" data-value="Politics">Politics</button>
+        <button class="filter-option active" data-group="category" data-value="Infrastructure">Infrastructure</button>
+      </div>
+
+      <div id="area-panel" class="filter-panel">
+        <button class="utility-btn" data-action="select-all" data-group="area">Select All</button>
+        <button class="utility-btn" data-action="clear" data-group="area">Clear</button>
+        <button class="filter-option active" data-group="area" data-value="Citywide">Citywide</button>
+        <button class="filter-option active" data-group="area" data-value="Downtown">Downtown</button>
+        <button class="filter-option active" data-group="area" data-value="Waterfront">Waterfront</button>
+        <button class="filter-option active" data-group="area" data-value="University">University</button>
+        <button class="filter-option active" data-group="area" data-value="Combat Zone">Combat Zone</button>
+      </div>
+
+      <div id="priority-panel" class="filter-panel">
+        <button class="utility-btn" data-action="select-all" data-group="priority">Select All</button>
+        <button class="utility-btn" data-action="clear" data-group="priority">Clear</button>
+        <button class="filter-option active" data-group="priority" data-value="Critical">Critical</button>
+        <button class="filter-option active" data-group="priority" data-value="Major">Major</button>
+        <button class="filter-option active" data-group="priority" data-value="Significant">Significant</button>
+        <button class="filter-option active" data-group="priority" data-value="Noteworthy">Noteworthy</button>
+        <button class="filter-option active" data-group="priority" data-value="Routine">Routine</button>
+      </div>
+
+      <div id="source-panel" class="filter-panel">
+        <button class="utility-btn" data-action="select-all" data-group="sourceType">Select All</button>
+        <button class="utility-btn" data-action="clear" data-group="sourceType">Clear</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Broadcast">Broadcast</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Community Bulletin">Community Bulletin</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Corporate Release">Corporate Release</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Anonymous Leak">Anonymous Leak</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Police Scanner">Police Scanner</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Pirate Broadcast">Pirate Broadcast</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Witness Report">Witness Report</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Rumour">Rumour</button>
+        <button class="filter-option active" data-group="sourceType" data-value="Public Notice">Public Notice</button>
+      </div>
+
+      <div id="time-panel" class="filter-panel">
+        <button class="time-option active" data-time="Now">Now</button>
+        <button class="time-option" data-time="Last Day">Last Day</button>
+        <button class="time-option" data-time="All Time">All Time</button>
+      </div>
+
+    </div>
+
+    <input id="search" type="search" placeholder="Search headlines...">
+
+  </section>
+</template>
+
+<template id="submit-template">
+  <section class="submit-panel">
+    <form id="submit-form" class="submit-form">
+
+      <input id="submit-headline" type="text" placeholder="Headline" required>
+      <textarea id="submit-body" placeholder="Body text (optional)"></textarea>
+
+      <div class="form-grid">
+        <select id="submit-category">
+          <option>Corporate</option>
+          <option>Gang</option>
+          <option>Crime</option>
+          <option>Politics</option>
+          <option>Infrastructure</option>
+        </select>
+
+        <select id="submit-area">
+          <option>Citywide</option>
+          <option>Downtown</option>
+          <option>Waterfront</option>
+          <option>University</option>
+          <option>Combat Zone</option>
+        </select>
+
+        <select id="submit-source-type">
+          <option>Broadcast</option>
+          <option>Community Bulletin</option>
+          <option>Corporate Release</option>
+          <option>Anonymous Leak</option>
+          <option>Police Scanner</option>
+          <option>Pirate Broadcast</option>
+          <option>Witness Report</option>
+          <option>Rumour</option>
+          <option>Public Notice</option>
+        </select>
+
+        <select id="submit-priority">
+          <option>Routine</option>
+          <option>Noteworthy</option>
+          <option>Significant</option>
+          <option>Major</option>
+          <option>Critical</option>
+        </select>
+      </div>
+
+      <input
+        id="submit-source"
+        type="text"
+        placeholder="Source (e.g. N54 Nightcast, Neon Prophet, Dockside Scanner)"
+      >
+
+      <button type="submit">Transmit</button>
+      <div id="submit-message" class="submit-message"></div>
+
+    </form>
+  </section>
+</template>
+
+<script type="application/json" id="stories-data">
+[
+  {
+    "id": "bertram-hook",
+    "headline": "Bertram Hook reelected in Militech sweep",
+    "body": "Bertram Hook secured another term following a heavily contested Militech board election.",
+    "category": "Politics",
+    "area": "Citywide",
+    "source": "N54 Nightcast",
+    "sourceType": "Broadcast",
+    "priority": "Major",
+    "timeScope": "Now",
+    "date": "Sat Jun 21 2045",
+    "time": "22:17"
+  },
+  {
+    "id": "kiroshi-clinics",
+    "headline": "Kiroshi closes three budget clinics",
+    "body": "Kiroshi Optical has shuttered three low-cost eye clinics citing unsustainable operating conditions.",
+    "category": "Corporate",
+    "area": "Downtown",
+    "source": "N54 Nightcast",
+    "sourceType": "Broadcast",
+    "priority": "Significant",
+    "timeScope": "Now",
+    "date": "Sat Jun 21 2045",
+    "time": "22:14"
+  },
+  {
+    "id": "boosters-metro",
+    "headline": "Three boosters found dead in old metro tunnels",
+    "body": "Scanner traffic reports three unidentified boosters discovered beneath a sealed transit spur.",
+    "category": "Crime",
+    "area": "Combat Zone",
+    "source": "NCNE Scanner",
+    "sourceType": "Police Scanner",
+    "priority": "Major",
+    "timeScope": "Now",
+    "date": "Sat Jun 21 2045",
+    "time": "22:11"
+  },
+  {
+    "id": "blackouts-university",
+    "headline": "Rolling blackouts spread to university district",
+    "body": "CityGrid Watch confirms cascading relay failures affecting dormitories, clinics and private research blocks.",
+    "category": "Infrastructure",
+    "area": "University",
+    "source": "CityGrid Watch",
+    "sourceType": "Public Notice",
+    "priority": "Critical",
+    "timeScope": "Now",
+    "date": "Sat Jun 21 2045",
+    "time": "22:05"
+  }
+]
+</script>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
