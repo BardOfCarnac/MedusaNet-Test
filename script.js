@@ -268,7 +268,6 @@ const supabaseClient = supabase.createClient(
     submitPanel.addEventListener("click", event => {
       event.stopPropagation();
     });
-  }
 }
 
   showFiltersButton.addEventListener("click", () => {
