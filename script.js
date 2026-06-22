@@ -22,7 +22,36 @@ const supabaseClient = supabase.createClient(
   }
 
   let stories = JSON.parse(storiesData.textContent);
+async function loadStoriesFromSupabase() {
+  const { data, error } = await supabaseClient
+    .from("stories")
+    .select("*")
+    .order("created_at", { ascending: false });
 
+  if (error) {
+    console.error("Supabase load failed:", error);
+    return;
+  }
+
+  if (!data || !data.length) return;
+
+  stories = data.map(row => ({
+    id: String(row.id),
+    headline: row.headline,
+    body: row.body,
+    category: row.category,
+    area: row.area,
+    source: row.source,
+    sourceType: row.source_type,
+    priority: row.priority,
+    timeScope: row.time_scope,
+    date: row.story_date,
+    time: row.story_time
+  }));
+
+  selectedStoryId = stories[0]?.id || null;
+  renderFeed();
+}
   let selectedStoryId = stories[0]?.id || null;
   let expandedStoryId = null;
   let inspectorMode = "story";
