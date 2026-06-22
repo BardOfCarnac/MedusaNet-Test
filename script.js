@@ -29,11 +29,14 @@ async function loadStoriesFromSupabase() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Supabase load failed:", error);
-    return;
-  }
+  console.error("Supabase load failed:", error);
+  alert("Supabase load failed: " + JSON.stringify(error));
+  return;
+}
 
-  if (!data || !data.length) return;
+alert("Loaded rows: " + (data ? data.length : "no data"));
+
+if (!data || !data.length) return;
 
   stories = data.map(row => ({
     id: String(row.id),
