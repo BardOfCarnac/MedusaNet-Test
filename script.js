@@ -274,6 +274,38 @@ const supabaseClient = supabase.createClient(
   submitForm.addEventListener("submit", async event => {
     event.preventDefault();
 
+    const newStory = {
+      headline: target.querySelector("#submit-headline").value,
+      body: target.querySelector("#submit-body").value,
+      category: target.querySelector("#submit-category").value,
+      area: target.querySelector("#submit-area").value,
+      source: target.querySelector("#submit-source").value || "Anonymous Source",
+      source_type: target.querySelector("#submit-source-type").value,
+      priority: target.querySelector("#submit-priority").value,
+      time_scope: "Now",
+      story_date: new Date().toDateString(),
+      story_time: new Date().toTimeString().slice(0, 5),
+      approved: true
+    };
+
+    const { error } = await supabaseClient
+      .from("stories")
+      .insert([newStory]);
+
+    if (error) {
+      if (submitMessage) submitMessage.textContent = "Transmission failed.";
+      console.error(error);
+      return;
+    }
+
+    if (submitMessage) submitMessage.textContent = "Transmission received.";
+    submitForm.reset();
+  });
+}
+
+  submitForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
     const formData = new FormData(submitForm);
 
     const newStory = {
