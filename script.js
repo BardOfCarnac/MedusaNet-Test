@@ -259,9 +259,17 @@ const supabaseClient = supabase.createClient(
   }
 
   function renderSubmitInto(target) {
-    target.innerHTML = "";
-    target.appendChild(submitTemplate.content.cloneNode(true));
+  target.innerHTML = "";
+  target.appendChild(submitTemplate.content.cloneNode(true));
+
+  const submitPanel = target.querySelector(".submit-panel");
+
+  if (submitPanel) {
+    submitPanel.addEventListener("click", event => {
+      event.stopPropagation();
+    });
   }
+}
 
   showFiltersButton.addEventListener("click", () => {
     const active = showFiltersButton.classList.contains("active");
