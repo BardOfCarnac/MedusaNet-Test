@@ -269,7 +269,7 @@ const supabaseClient = supabase.createClient(
       event.stopPropagation();
     });
 }
-
+  }
   showFiltersButton.addEventListener("click", () => {
     const active = showFiltersButton.classList.contains("active");
 
