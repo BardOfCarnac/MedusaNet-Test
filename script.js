@@ -1,5 +1,5 @@
-const SUPABASE_URL = "YOUR_URL_HERE";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+const SUPABASE_URL = "https://qfylqdpcbfyzijsgofjp.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_gTnZUIn-1ed99MSh1E3ryg__9V2ZxE6";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
