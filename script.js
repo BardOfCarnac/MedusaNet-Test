@@ -253,9 +253,8 @@ if (!data || !data.length) return;
 
         if (set.has(value)) set.delete(value);
         else set.add(value);
-
-        renderFeed();
-        if (isDesktop()) renderFiltersInto(inspector);
+renderFeed();
+renderFiltersInto(target);
       });
     });
 
@@ -272,15 +271,14 @@ if (!data || !data.length) return;
         }
 
         renderFeed();
-        if (isDesktop()) renderFiltersInto(inspector);
-      });
+renderFiltersInto(target);   });
     });
 
     timeButtons.forEach(button => {
       button.addEventListener("click", () => {
         currentTimeFilter = button.dataset.time;
         renderFeed();
-        if (isDesktop()) renderFiltersInto(inspector);
+renderFiltersInto(target);
       });
     });
 
