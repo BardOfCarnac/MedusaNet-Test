@@ -262,14 +262,48 @@ const supabaseClient = supabase.createClient(
   target.innerHTML = "";
   target.appendChild(submitTemplate.content.cloneNode(true));
 
-  const submitPanel = target.querySelector(".submit-panel");
+  const submitForm = target.querySelector(".submit-form");
+  const submitMessage = target.querySelector(".submit-message");
 
-  if (submitPanel) {
-    submitPanel.addEventListener("click", event => {
-      event.stopPropagation();
-    });
+  if (!submitForm) return;
+
+  submitForm.addEventListener("click", event => {
+    event.stopPropagation();
+  });
+
+  submitForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const formData = new FormData(submitForm);
+
+    const newStory = {
+      headline: formData.get("headline"),
+      body: formData.get("body"),
+      category: formData.get("category"),
+      area: formData.get("area"),
+      source: formData.get("source"),
+      source_type: formData.get("sourceType"),
+      priority: formData.get("priority"),
+      time_scope: "Now",
+      story_date: new Date().toDateString(),
+      story_time: new Date().toTimeString().slice(0, 5),
+      approved: true
+    };
+
+    const { error } = await supabaseClient
+      .from("stories")
+      .insert([newStory]);
+
+    if (error) {
+      if (submitMessage) submitMessage.textContent = "Transmission failed.";
+      console.error(error);
+      return;
+    }
+
+    if (submitMessage) submitMessage.textContent = "Transmission received.";
+    submitForm.reset();
+  });
 }
-  }
   showFiltersButton.addEventListener("click", () => {
     const active = showFiltersButton.classList.contains("active");
 
