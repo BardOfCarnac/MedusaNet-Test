@@ -393,6 +393,10 @@ window.addEventListener("resize", () => {
   renderFeed();
 });
 
+renderFeed();
+loadStoriesFromSupabase();
+}
+
   renderFeed();
 }
 
