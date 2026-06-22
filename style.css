@@ -411,3 +411,11 @@ textarea {
     font-size: clamp(1.8rem, 8vw, 3rem);
   }
 }
+.story,
+.story *,
+button,
+button *,
+a,
+a * {
+  -webkit-tap-highlight-color: transparent;
+}
