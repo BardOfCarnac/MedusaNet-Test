@@ -45,9 +45,9 @@ if (!data || !data.length) return;
     category: row.category,
     area: row.area,
     source: row.source,
-    sourceType: row.source_type,
+    sourceType: row.source_type?.replaceAll("_", " ") || "Broadcast",
     priority: row.priority,
-    timeScope: row.time_scope,
+    timeScope: row.time_scope || "Now",
     date: row.story_date,
     time: row.story_time
   }));
