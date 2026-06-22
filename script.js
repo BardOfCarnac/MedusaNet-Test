@@ -400,10 +400,7 @@ renderFeed();
 loadStoriesFromSupabase();
 }
 
-  renderFeed();
-}
-
-if (document.readyState === "loading") {
+  if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", startNightCityNews);
 } else {
   startNightCityNews();
