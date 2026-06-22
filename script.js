@@ -314,13 +314,21 @@ const supabaseClient = supabase.createClient(
     }
   });
 
-  window.addEventListener("resize", () => {
-    mobileDrawer.innerHTML = "";
-    clearCommandButtons();
-    inspectorMode = "story";
-    expandedStoryId = null;
-    renderFeed();
-  });
+  let wasDesktop = isDesktop();
+
+window.addEventListener("resize", () => {
+  const nowDesktop = isDesktop();
+
+  if (nowDesktop === wasDesktop) return;
+
+  wasDesktop = nowDesktop;
+
+  mobileDrawer.innerHTML = "";
+  clearCommandButtons();
+  inspectorMode = "story";
+  expandedStoryId = null;
+  renderFeed();
+});
 
   renderFeed();
 }
