@@ -535,17 +535,23 @@ a * {
     display: block !important;
   }
 }
-/* TEST: glowing bumper-light priority bars */
+/* TEST: glowing bumper-light priority bars - mobile safe */
 
 .story {
-  align-items: stretch;
+  position: relative !important;
+  padding-left: 22px !important;
 }
 
 .story-priority-bar {
+  position: absolute !important;
+  left: 0 !important;
+  top: 18px !important;
+  bottom: 18px !important;
   width: 6px !important;
-  min-width: 6px;
-  margin-right: 22px;
-  border-radius: 999px;
+  min-width: 6px !important;
+  margin-right: 0 !important;
+  border-radius: 999px !important;
+  align-self: auto !important;
 }
 
 .story-priority-bar.priority-bulletin {
