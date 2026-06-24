@@ -400,22 +400,3 @@ if (document.readyState === "loading") {
 } else {
   startNightCityNews();
       }
-.story.priority-emergency {
-  border-left: 12px solid red !important;
-}
-
-.story.priority-warning {
-  border-left: 12px solid orange !important;
-}
-
-.story.priority-alert {
-  border-left: 12px solid yellow !important;
-}
-
-.story.priority-advisory {
-  border-left: 12px solid cyan !important;
-}
-
-.story.priority-bulletin {
-  border-left: 12px solid lime !important;
-}
