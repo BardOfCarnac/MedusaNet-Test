@@ -745,79 +745,7 @@ body::before {
     transform: translateX(-2px);
   }
 }
-/* ================================
-   NCN VARIABLE CRT DAMAGE
-   mostly readable, occasionally awful
-================================ */
 
-/* normal state: barely there */
-body::before {
-  opacity: 0.18;
-  animation: ncn-scan-variable 31s infinite;
-}
-
-body::after {
-  opacity: 0.2;
-  animation: ncn-glass-variable 43s infinite;
-}
-
-.container {
-  animation: ncn-system-failure 37s infinite;
-}
-
-/* scanlines: absent → visible → nasty → gone */
-@keyframes ncn-scan-variable {
-  0%, 18% {
-    opacity: 0.05;
-  }
-
-  25%, 55% {
-    opacity: 0.18;
-  }
-
-  61% {
-    opacity: 0.75;
-  }
-
-  62% {
-    opacity: 0.95;
-  }
-
-  64% {
-    opacity: 0.12;
-  }
-
-  100% {
-    opacity: 0.05;
-  }
-}
-
-/* vignette: mostly normal, occasional tube collapse */
-@keyframes ncn-glass-variable {
-  0%, 30% {
-    opacity: 0.05;
-  }
-
-  38%, 66% {
-    opacity: 0.22;
-  }
-
-  72% {
-    opacity: 0.75;
-  }
-
-  73% {
-    opacity: 0.35;
-  }
-
-  74% {
-    opacity: 0.9;
-  }
-
-  76%, 100% {
-    opacity: 0.08;
-  }
-}
 
 /* the proper bad moments */
 @keyframes ncn-system-failure {
@@ -870,5 +798,113 @@ body::after {
   66%, 100% {
     transform: none;
     filter: none;
+  }
+}
+/* ================================
+   NCN PHASED CRT DAMAGE
+   mostly normal, rotating failures
+================================ */
+
+/* baseline: almost clean */
+body::before {
+  opacity: 0.03;
+  animation: ncn-scan-phase 47s infinite;
+}
+
+body::after {
+  opacity: 0.04;
+  animation: ncn-glass-phase 61s infinite;
+}
+
+.container {
+  animation:
+    ncn-colour-phase 29s infinite,
+    ncn-warp-phase 53s infinite,
+    ncn-failure-phase 71s infinite;
+}
+
+/* scanlines come and go */
+@keyframes ncn-scan-phase {
+  0%, 20%, 100% { opacity: 0.02; }
+  28%, 42% { opacity: 0.12; }
+  44% { opacity: 0.75; }
+  45% { opacity: 0.08; }
+  70%, 90% { opacity: 0.03; }
+}
+
+/* glass/vignette has a different rhythm */
+@keyframes ncn-glass-phase {
+  0%, 25%, 100% { opacity: 0.03; }
+  33%, 48% { opacity: 0.18; }
+  74% { opacity: 0.65; }
+  76% { opacity: 0.04; }
+}
+
+/* colour split phases separately */
+@keyframes ncn-colour-phase {
+  0%, 32%, 100% {
+    filter: none;
+  }
+
+  40% {
+    filter:
+      drop-shadow(1px 0 rgba(255,0,0,0.18))
+      drop-shadow(-1px 0 rgba(0,255,255,0.18));
+  }
+
+  43% {
+    filter: none;
+  }
+
+  82% {
+    filter:
+      drop-shadow(3px 0 rgba(255,0,0,0.7))
+      drop-shadow(-3px 0 rgba(0,255,255,0.7));
+  }
+
+  83% {
+    filter: none;
+  }
+}
+
+/* physical wobble phases separately */
+@keyframes ncn-warp-phase {
+  0%, 50%, 100% {
+    transform: none;
+  }
+
+  57% {
+    transform: translateX(-2px) skewX(-0.4deg);
+  }
+
+  58% {
+    transform: translateX(3px) skewX(0.5deg);
+  }
+
+  59% {
+    transform: none;
+  }
+}
+
+/* rare nasty failure */
+@keyframes ncn-failure-phase {
+  0%, 80%, 100% {
+    filter: none;
+    transform: none;
+  }
+
+  86% {
+    filter: contrast(2.2) saturate(2) brightness(0.75) blur(1px);
+    transform: translateX(-5px) skewX(-1deg);
+  }
+
+  87% {
+    filter: contrast(1.6) saturate(1.6) brightness(1.4);
+    transform: translateX(4px) skewX(1deg);
+  }
+
+  88% {
+    filter: none;
+    transform: none;
   }
 }
