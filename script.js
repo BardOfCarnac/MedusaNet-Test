@@ -118,35 +118,33 @@ function startNightCityNews() {
   }
 
   function renderInspector() {
-    if (!isDesktop()) {
-      inspector.innerHTML = "";
-      return;
-    }
+  inspector.className = "inspector";
 
-    if (inspectorMode === "filters") {
-      renderFiltersInto(inspector);
-      return;
-    }
+  if (!isDesktop()) {
+    inspector.innerHTML = "";
+    return;
+  }
 
-    if (inspectorMode === "submit") {
-      renderSubmitInto(inspector);
-      return;
-    }
+  if (inspectorMode === "filters") {
+    renderFiltersInto(inspector);
+    return;
+  }
 
-    const selectedStory = getSelectedStory();
+  if (inspectorMode === "submit") {
+    renderSubmitInto(inspector);
+    return;
+  }
 
+  const selectedStory = getSelectedStory();
 
+  if (selectedStory) {
+    inspector.classList.add(
+      `inspector-${priorityClass(selectedStory.priority)}`
+    );
+  }
 
-inspector.className = "inspector";
-
-if (selectedStory) {
-  inspector.classList.add(
-    `inspector-${priorityClass(selectedStory.priority)}`
-  );
-}
-
-inspector.innerHTML = renderStoryDetail(selectedStory);
-}
+  inspector.innerHTML = renderStoryDetail(selectedStory);
+  }
   function renderFeed() {
     const visibleStories = getVisibleStories();
 
