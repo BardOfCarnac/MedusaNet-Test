@@ -616,3 +616,16 @@ a * {
     display: block !important;
   }
 }
+@media screen and (max-width: 600px) {
+  .story.open .story-detail {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-top: 18px !important;
+    padding-top: 18px !important;
+    border-top: 1px solid #126c78 !important;
+  }
+}
