@@ -1103,3 +1103,45 @@ a * {
     border-top: 1px solid #126c78 !important;
   }
 }
+/* FORCE INSPECTOR PRIORITY BAR */
+
+.inspector {
+  position: relative !important;
+  padding-left: 42px !important;
+  overflow: visible !important;
+}
+
+.inspector::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 18px !important;
+  top: 18px !important;
+  bottom: 18px !important;
+  width: 6px !important;
+  z-index: 10 !important;
+}
+
+.inspector-priority-bulletin::before {
+  background: #38dfff !important;
+  box-shadow: 0 0 8px #38dfff, 0 0 18px rgba(56, 223, 255, 0.8) !important;
+}
+
+.inspector-priority-advisory::before {
+  background: #00aaff !important;
+  box-shadow: 0 0 8px #00aaff, 0 0 18px rgba(0, 170, 255, 0.8) !important;
+}
+
+.inspector-priority-alert::before {
+  background: #6f5cff !important;
+  box-shadow: 0 0 8px #6f5cff, 0 0 18px rgba(111, 92, 255, 0.8) !important;
+}
+
+.inspector-priority-warning::before {
+  background: #b84dff !important;
+  box-shadow: 0 0 8px #b84dff, 0 0 18px rgba(184, 77, 255, 0.8) !important;
+}
+
+.inspector-priority-emergency::before {
+  background: #ff3eb5 !important;
+  box-shadow: 0 0 8px #ff3eb5, 0 0 22px rgba(255, 62, 181, 0.9) !important;
+}
