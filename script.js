@@ -138,14 +138,11 @@ function startNightCityNews() {
   const selectedStory = getSelectedStory();
 
   if (selectedStory) {
-    inspector.classList.add(
-      `inspector-${priorityClass(selectedStory.priority)}`
-    );
+    inspector.classList.add(`inspector-${priorityClass(selectedStory.priority)}`);
   }
 
   inspector.innerHTML = renderStoryDetail(selectedStory);
-  }
-  function renderFeed() {
+}  function renderFeed() {
     const visibleStories = getVisibleStories();
 
     if (visibleStories.length && !visibleStories.some(story => story.id === selectedStoryId)) {
