@@ -526,3 +526,15 @@ body::after {
   50% { opacity: 0.45; }
   100% { opacity: 0.3; }
 }
+@keyframes crt-glitch {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-1px); }
+  40%  { transform: translateX(1px); }
+  60%  { transform: translateX(-2px); }
+  80%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+body {
+  animation: crt-glitch 0.15s infinite;
+}
