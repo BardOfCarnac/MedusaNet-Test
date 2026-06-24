@@ -479,3 +479,25 @@ a * {
     margin-top: 18px !important;
   }
 }
+/* MOBILE STORY FIX */
+@media screen and (max-width: 768px) {
+
+  .story,
+  .story.open,
+  .story.expanded {
+    display: block !important;
+  }
+
+  .story-content {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .story-detail {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 1rem !important;
+  }
+
+}
