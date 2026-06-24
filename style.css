@@ -535,67 +535,29 @@ a * {
     display: block !important;
   }
 }
-/* TEST: glowing bumper-light priority bars - mobile safe */
+/* NCN Cyberpunk Priority Rails */
 
-.story {
-  position: relative !important;
-  padding-left: 22px !important;
+.story.priority-bulletin {
+  border-left: 6px solid #38dfff !important;
+  box-shadow: inset 8px 0 16px rgba(56, 223, 255, 0.25);
 }
 
-.story-priority-bar {
-  position: absolute !important;
-  left: 0 !important;
-  top: 18px !important;
-  bottom: 18px !important;
-  width: 6px !important;
-  min-width: 6px !important;
-  margin-right: 0 !important;
-  border-radius: 999px !important;
-  align-self: auto !important;
+.story.priority-advisory {
+  border-left: 6px solid #00aaff !important;
+  box-shadow: inset 8px 0 16px rgba(0, 170, 255, 0.25);
 }
 
-.story-priority-bar.priority-bulletin {
-  background: #38dfff !important;
-  box-shadow: 0 0 6px #38dfff, 0 0 16px #38dfff, 0 0 32px rgba(56, 223, 255, 0.75) !important;
+.story.priority-alert {
+  border-left: 6px solid #6f5cff !important;
+  box-shadow: inset 8px 0 16px rgba(111, 92, 255, 0.25);
 }
 
-.story-priority-bar.priority-advisory {
-  background: #ffcc00 !important;
-  box-shadow: 0 0 6px #ffcc00, 0 0 16px #ffcc00, 0 0 32px rgba(255, 204, 0, 0.75) !important;
+.story.priority-warning {
+  border-left: 6px solid #b84dff !important;
+  box-shadow: inset 8px 0 16px rgba(184, 77, 255, 0.25);
 }
 
-.story-priority-bar.priority-alert {
-  background: #ff9900 !important;
-  box-shadow: 0 0 6px #ff9900, 0 0 16px #ff9900, 0 0 32px rgba(255, 153, 0, 0.75) !important;
-}
-
-.story-priority-bar.priority-warning {
-  background: #ff3eb5 !important;
-  box-shadow: 0 0 6px #ff3eb5, 0 0 16px #ff3eb5, 0 0 32px rgba(255, 62, 181, 0.75) !important;
-}
-
-.story-priority-bar.priority-emergency {
-  background: #ff1f2d !important;
-  box-shadow: 0 0 6px #ff1f2d, 0 0 16px #ff1f2d, 0 0 36px rgba(255, 31, 45, 0.85) !important;
-}
-/* TEST: glowing bumper light using pseudo-element */
-
-.story {
-  position: relative !important;
-  padding-left: 26px !important;
-}
-
-.story::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 18px;
-  bottom: 18px;
-  width: 6px;
-  border-radius: 999px;
-  background: #38dfff;
-  box-shadow:
-    0 0 6px #38dfff,
-    0 0 14px #38dfff,
-    0 0 28px rgba(56, 223, 255, 0.8);
+.story.priority-emergency {
+  border-left: 6px solid #ff3eb5 !important;
+  box-shadow: inset 8px 0 16px rgba(255, 62, 181, 0.35);
 }
