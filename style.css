@@ -207,6 +207,30 @@ a * {
   background: #ff3eb5;
   box-shadow: 0 0 8px #ff3eb5, 0 0 22px rgba(255, 62, 181, 0.9);
 }
+.inspector-priority-bulletin::before {
+  background: #38dfff;
+  box-shadow: 0 0 8px #38dfff, 0 0 18px rgba(56, 223, 255, 0.8);
+}
+
+.inspector-priority-advisory::before {
+  background: #00aaff;
+  box-shadow: 0 0 8px #00aaff, 0 0 18px rgba(0, 170, 255, 0.8);
+}
+
+.inspector-priority-alert::before {
+  background: #6f5cff;
+  box-shadow: 0 0 8px #6f5cff, 0 0 18px rgba(111, 92, 255, 0.8);
+}
+
+.inspector-priority-warning::before {
+  background: #b84dff;
+  box-shadow: 0 0 8px #b84dff, 0 0 18px rgba(184, 77, 255, 0.8);
+}
+
+.inspector-priority-emergency::before {
+  background: #ff3eb5;
+  box-shadow: 0 0 8px #ff3eb5, 0 0 22px rgba(255, 62, 181, 0.9);
+}
 .story-topline {
   display: none;
 }
