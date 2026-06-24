@@ -480,12 +480,10 @@ a * {
   }
 }
 /* MOBILE STORY FIX */
-@media screen and (max-width: 768px) {
-
-  .story,
-  .story.open,
-  .story.expanded {
+@media screen and (max-width: 600px) {
+  .story {
     display: block !important;
+    padding-left: 0 !important;
   }
 
   .story-content {
@@ -494,10 +492,13 @@ a * {
   }
 
   .story-detail {
-    display: block !important;
+    display: none !important;
     width: 100% !important;
     max-width: 100% !important;
-    margin-top: 1rem !important;
   }
 
+  .story.open .story-detail {
+    display: block !important;
+    margin-top: 18px !important;
+  }
 }
