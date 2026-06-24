@@ -745,3 +745,130 @@ body::before {
     transform: translateX(-2px);
   }
 }
+/* ================================
+   NCN VARIABLE CRT DAMAGE
+   mostly readable, occasionally awful
+================================ */
+
+/* normal state: barely there */
+body::before {
+  opacity: 0.18;
+  animation: ncn-scan-variable 31s infinite;
+}
+
+body::after {
+  opacity: 0.2;
+  animation: ncn-glass-variable 43s infinite;
+}
+
+.container {
+  animation: ncn-system-failure 37s infinite;
+}
+
+/* scanlines: absent → visible → nasty → gone */
+@keyframes ncn-scan-variable {
+  0%, 18% {
+    opacity: 0.05;
+  }
+
+  25%, 55% {
+    opacity: 0.18;
+  }
+
+  61% {
+    opacity: 0.75;
+  }
+
+  62% {
+    opacity: 0.95;
+  }
+
+  64% {
+    opacity: 0.12;
+  }
+
+  100% {
+    opacity: 0.05;
+  }
+}
+
+/* vignette: mostly normal, occasional tube collapse */
+@keyframes ncn-glass-variable {
+  0%, 30% {
+    opacity: 0.05;
+  }
+
+  38%, 66% {
+    opacity: 0.22;
+  }
+
+  72% {
+    opacity: 0.75;
+  }
+
+  73% {
+    opacity: 0.35;
+  }
+
+  74% {
+    opacity: 0.9;
+  }
+
+  76%, 100% {
+    opacity: 0.08;
+  }
+}
+
+/* the proper bad moments */
+@keyframes ncn-system-failure {
+  0%, 12%, 100% {
+    transform: none;
+    filter: none;
+  }
+
+  /* quiet shimmer */
+  24% {
+    filter:
+      drop-shadow(1px 0 rgba(255,0,0,0.15))
+      drop-shadow(-1px 0 rgba(0,255,255,0.15));
+  }
+
+  25% {
+    filter: none;
+  }
+
+  /* nasty burst */
+  63% {
+    transform: translateX(-4px) skewX(-1deg);
+    filter:
+      contrast(1.9)
+      saturate(1.8)
+      brightness(1.2)
+      drop-shadow(3px 0 rgba(255,0,0,0.75))
+      drop-shadow(-3px 0 rgba(0,255,255,0.75));
+  }
+
+  64% {
+    transform: translateX(5px) skewX(1.2deg);
+    filter:
+      contrast(2.4)
+      saturate(2.2)
+      brightness(0.75)
+      blur(1px)
+      drop-shadow(5px 0 rgba(255,0,0,0.95))
+      drop-shadow(-5px 0 rgba(0,255,255,0.95));
+  }
+
+  65% {
+    transform: translateX(-2px);
+    filter:
+      contrast(1.4)
+      saturate(1.4)
+      brightness(1.4);
+  }
+
+  66%, 100% {
+    transform: none;
+    filter: none;
+  }
+}
