@@ -142,7 +142,8 @@ function startNightCityNews() {
   }
 
   inspector.innerHTML = renderStoryDetail(selectedStory);
-}  function renderFeed() {
+} 
+  function renderFeed() {
     const visibleStories = getVisibleStories();
 
     if (visibleStories.length && !visibleStories.some(story => story.id === selectedStoryId)) {
