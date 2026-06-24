@@ -561,3 +561,58 @@ a * {
   border-left: 6px solid #ff3eb5 !important;
   box-shadow: inset 8px 0 16px rgba(255, 62, 181, 0.35);
 }
+/* NCN priority bumper bars */
+
+.story-topline {
+  display: none !important;
+}
+
+.story {
+  position: relative !important;
+  padding-left: 18px !important;
+  color: #ffffff !important;
+}
+
+.story h2 {
+  color: #ffffff !important;
+}
+
+.story::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+}
+
+.story-priority-bulletin::before {
+  background: #38dfff;
+  box-shadow: 0 0 8px #38dfff, 0 0 18px rgba(56, 223, 255, 0.8);
+}
+
+.story-priority-advisory::before {
+  background: #00aaff;
+  box-shadow: 0 0 8px #00aaff, 0 0 18px rgba(0, 170, 255, 0.8);
+}
+
+.story-priority-alert::before {
+  background: #6f5cff;
+  box-shadow: 0 0 8px #6f5cff, 0 0 18px rgba(111, 92, 255, 0.8);
+}
+
+.story-priority-warning::before {
+  background: #b84dff;
+  box-shadow: 0 0 8px #b84dff, 0 0 18px rgba(184, 77, 255, 0.8);
+}
+
+.story-priority-emergency::before {
+  background: #ff3eb5;
+  box-shadow: 0 0 8px #ff3eb5, 0 0 22px rgba(255, 62, 181, 0.9);
+}
+
+@media screen and (max-width: 600px) {
+  .story.open .story-detail {
+    display: block !important;
+  }
+}
