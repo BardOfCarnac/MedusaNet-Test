@@ -153,9 +153,10 @@ function startNightCityNews() {
 
     visibleStories.forEach(story => {
   const article = document.createElement("article");
-  article.className = `story story-${priorityClass(story.priority)}`;
-  if (story.id === selectedStoryId) article.classList.add("selected");
-      article.innerHTML = `
+article.className = `story story-${priorityClass(story.priority)}`;
+
+if (story.id === selectedStoryId) article.classList.add("selected");
+if (story.id === expandedStoryId) article.classList.add("open");      article.innerHTML = `
         <div class="story-header">
           <div class="story-topline">
             <span class="story-time">${story.time}</span>
