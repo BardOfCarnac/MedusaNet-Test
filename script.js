@@ -138,7 +138,7 @@ function startNightCityNews() {
   const selectedStory = getSelectedStory();
 
   if (selectedStory) {
-    inspector.classList.add(`inspector-${priorityClass(selectedStory.priority)}`);
+    inspector.classList.add(`inspector-priority-${selectedStory.priority.toLowerCase()}`);
   }
 
   inspector.innerHTML = renderStoryDetail(selectedStory);
