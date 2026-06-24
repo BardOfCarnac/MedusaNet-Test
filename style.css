@@ -111,10 +111,20 @@ body {
 }
 
 .inspector {
+  position: relative;
   display: block;
   border: 1px solid #182634;
-  padding: 24px;
+  padding: 24px 24px 24px 42px;
   background: rgba(56, 223, 255, 0.03);
+}
+
+.inspector::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
 }
 
 .story {
