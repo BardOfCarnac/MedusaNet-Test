@@ -908,3 +908,150 @@ body::after {
     transform: none;
   }
 }
+/* ================================
+   NCN EXTRA CRT FAILURE EFFECTS
+   optional experimental layer
+================================ */
+
+/* rolling sync bar */
+body {
+  background-attachment: fixed;
+}
+
+body .container::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: -20%;
+  height: 80px;
+  pointer-events: none;
+  z-index: 9995;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(56,223,255,0.12),
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  opacity: 0;
+  animation: ncn-sync-roll 41s linear infinite;
+}
+
+@keyframes ncn-sync-roll {
+  0%, 70% { opacity: 0; transform: translateY(0); }
+  72% { opacity: 0.8; }
+  82% { opacity: 0.25; transform: translateY(140vh); }
+  84%, 100% { opacity: 0; transform: translateY(140vh); }
+}
+
+/* screen bloom + brownout */
+body {
+  animation:
+    ncn-bloom 67s infinite,
+    ncn-brownout 89s infinite;
+}
+
+@keyframes ncn-bloom {
+  0%, 77%, 100% { filter: none; }
+  78% { filter: brightness(1.35) contrast(1.25); }
+  79% { filter: brightness(0.85) contrast(1.5); }
+  80% { filter: none; }
+}
+
+@keyframes ncn-brownout {
+  0%, 58%, 100% { opacity: 1; }
+  59% { opacity: 0.72; }
+  60% { opacity: 0.92; }
+  61% { opacity: 0.66; }
+  62% { opacity: 1; }
+}
+
+/* masthead corruption */
+.masthead h1::before,
+.masthead h1::after {
+  content: "NIGHT CITY NEWS";
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.masthead h1 {
+  position: relative;
+}
+
+.masthead h1::before {
+  color: rgba(255,0,0,0.65);
+  animation: ncn-title-red 73s infinite;
+}
+
+.masthead h1::after {
+  color: rgba(0,255,255,0.65);
+  animation: ncn-title-cyan 73s infinite;
+}
+
+@keyframes ncn-title-red {
+  0%, 88%, 100% { opacity: 0; transform: none; }
+  89% { opacity: 1; transform: translateX(4px) skewX(-6deg); }
+  90% { opacity: 0; transform: none; }
+}
+
+@keyframes ncn-title-cyan {
+  0%, 88%, 100% { opacity: 0; transform: none; }
+  89% { opacity: 1; transform: translateX(-4px) skewX(6deg); }
+  90% { opacity: 0; transform: none; }
+}
+
+/* random-looking story dropout */
+.story:nth-child(6n) {
+  animation: ncn-feed-dropout 31s infinite;
+}
+
+.story:nth-child(11n) {
+  animation: ncn-feed-dropout 47s infinite reverse;
+}
+
+@keyframes ncn-feed-dropout {
+  0%, 74%, 100% {
+    opacity: 1;
+    filter: none;
+  }
+
+  75% {
+    opacity: 0.35;
+    filter: blur(0.5px) contrast(1.8);
+  }
+
+  76% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* emergency edge pulse */
+body::selection {
+  background: rgba(255,0,80,0.4);
+}
+
+@keyframes ncn-emergency-pulse {
+  0%, 91%, 100% {
+    box-shadow: none;
+  }
+
+  92% {
+    box-shadow:
+      inset 0 0 80px rgba(255,0,80,0.35),
+      inset 0 0 160px rgba(0,255,255,0.2);
+  }
+
+  94% {
+    box-shadow:
+      inset 0 0 30px rgba(255,0,80,0.15);
+  }
+}
+
+html {
+  animation: ncn-emergency-pulse 97s infinite;
+}
