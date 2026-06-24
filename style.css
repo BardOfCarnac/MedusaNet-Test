@@ -463,17 +463,19 @@ a * {
   position: relative;
   padding-left: 1.25rem;
 }
-@media (max-width: 700px) {
-  .story,
-  .story.expanded,
-  .story.open {
-    display: block;
+@media screen and (max-width: 600px) {
+  .story {
+    display: block !important;
+    padding-left: 0 !important;
   }
 
-  .story-detail {
-    display: block;
-    width: 100%;
-    margin-top: 1rem;
+  .story-content {
+    width: 100% !important;
+  }
+
+  .story.open .story-detail {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 18px !important;
   }
 }
-
