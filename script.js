@@ -152,12 +152,10 @@ function startNightCityNews() {
     }
 
     visibleStories.forEach(story => {
-      const article = document.createElement("article");
-      article.className = "story";
+  const article = document.createElement("article");
+  article.className = `story ${priorityClass(story.priority)}`;
 
-      if (story.id === selectedStoryId) article.classList.add("selected");
-      if (!isDesktop() && story.id === expandedStoryId) article.classList.add("open");
-
+  if (story.id === selectedStoryId) article.classList.add("selected");
       article.innerHTML = `
         <div class="story-header">
           <div class="story-topline">
@@ -402,6 +400,3 @@ if (document.readyState === "loading") {
 } else {
   startNightCityNews();
       }
-.story {
-  border-left: 10px solid lime !important;
-}
