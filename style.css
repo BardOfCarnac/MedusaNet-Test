@@ -535,3 +535,31 @@ a * {
     display: block !important;
   }
 }
+/* === TEST: Neon Priority Rail === */
+
+.headline-item,
+.news-item,
+.headline-card {
+    position: relative;
+}
+
+.headline-item::before,
+.news-item::before,
+.headline-card::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 18px;
+    bottom: 18px;
+    width: 5px;
+    border-radius: 999px;
+
+    background: #ff2b2b;
+
+    box-shadow:
+        0 0 4px #ff2b2b,
+        0 0 8px #ff2b2b,
+        0 0 16px #ff2b2b;
+
+    opacity: 0.9;
+}
