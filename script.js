@@ -177,8 +177,7 @@ function startNightCityNews() {
         </div>
       `;
 
-      article.querySelector(".story-header").addEventListener("click", () => {
-        if (isDesktop()) {
+     article.addEventListener("click", () => {        if (isDesktop()) {
           selectedStoryId = story.id;
           inspectorMode = "story";
           clearCommandButtons();
