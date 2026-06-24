@@ -840,7 +840,7 @@ body::before {
 ================================ */
 
 .story-meta {
-    font-size: 0.75rem;
+    font-size: 0.trem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
