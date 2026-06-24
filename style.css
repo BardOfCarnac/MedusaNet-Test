@@ -605,3 +605,143 @@ body::after {
     transform: none;
   }
 }
+/* ================================
+   NCN PHASING / PERIODIC DAMAGE
+   paste below CRT pack
+================================ */
+
+/* slow breathing of the glass layer */
+body::after {
+  animation: ncn-crt-breathe 11s ease-in-out infinite;
+}
+
+@keyframes ncn-crt-breathe {
+  0%, 100% { opacity: 0.55; }
+  45% { opacity: 0.9; }
+  52% { opacity: 0.35; }
+  70% { opacity: 0.7; }
+}
+
+/* scanlines drift slightly, like rolling sync */
+body::before {
+  background-size: 100% 6px;
+  animation: ncn-scan-drift 4.7s linear infinite;
+}
+
+@keyframes ncn-scan-drift {
+  from { background-position-y: 0; }
+  to { background-position-y: 24px; }
+}
+
+/* different stories pulse out of phase */
+.story:nth-child(5n) {
+  animation: ncn-soft-pulse 9s ease-in-out infinite;
+}
+
+.story:nth-child(8n) {
+  animation: ncn-soft-pulse 13s ease-in-out infinite reverse;
+}
+
+@keyframes ncn-soft-pulse {
+  0%, 100% {
+    filter: none;
+    opacity: 1;
+  }
+
+  48% {
+    filter: contrast(1.25) saturate(1.2);
+    opacity: 0.88;
+  }
+
+  52% {
+    filter: contrast(1.5) saturate(1.5);
+    opacity: 0.75;
+  }
+
+  56% {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+/* occasional horizontal transmission tear */
+.container::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 35%;
+  height: 26px;
+  pointer-events: none;
+  z-index: 9996;
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgba(56,223,255,0.25),
+      transparent
+    );
+
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: ncn-transmission-tear 17s infinite;
+}
+
+@keyframes ncn-transmission-tear {
+  0%, 88%, 100% {
+    opacity: 0;
+    transform: translateY(0) scaleY(1);
+  }
+
+  89% {
+    opacity: 0.75;
+    transform: translateY(-120px) scaleY(0.4);
+  }
+
+  90% {
+    opacity: 0.25;
+    transform: translateY(80px) scaleY(1.8);
+  }
+
+  91% {
+    opacity: 0.9;
+    transform: translateY(-20px) scaleY(0.7);
+  }
+
+  92% {
+    opacity: 0;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+/* rare hard glitch on masthead */
+.masthead h1 {
+  animation: ncn-title-phase 23s infinite;
+}
+
+@keyframes ncn-title-phase {
+  0%, 92%, 100% {
+    letter-spacing: inherit;
+    filter: none;
+    transform: none;
+  }
+
+  93% {
+    letter-spacing: 0.18em;
+    filter: blur(1px);
+    transform: skewX(-2deg);
+  }
+
+  94% {
+    letter-spacing: 0.08em;
+    filter: contrast(2);
+    transform: translateX(3px);
+  }
+
+  95% {
+    letter-spacing: 0.14em;
+    filter: none;
+    transform: translateX(-2px);
+  }
+}
