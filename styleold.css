@@ -112,18 +112,17 @@ body {
 
 .inspector {
   position: relative;
-  display: block;
   border: 1px solid #182634;
   padding: 24px 24px 24px 42px;
   background: rgba(56, 223, 255, 0.03);
+  overflow: hidden;
 }
 
-.inspector::before {
-  content: "";
+.inspector-rail {
   position: absolute;
   left: 18px;
-  top: 0;
-  bottom: 0;
+  top: 18px;
+  bottom: 18px;
   width: 6px;
 }
 
@@ -159,80 +158,34 @@ a * {
   width: 6px;
 }
 
-.story-priority-bulletin::before {
+.story-priority-bulletin::before,
+.inspector-rail.priority-bulletin {
   background: #38dfff;
   box-shadow: 0 0 8px #38dfff, 0 0 18px rgba(56, 223, 255, 0.8);
 }
 
-.story-priority-advisory::before {
+.story-priority-advisory::before,
+.inspector-rail.priority-advisory {
   background: #00aaff;
   box-shadow: 0 0 8px #00aaff, 0 0 18px rgba(0, 170, 255, 0.8);
 }
 
-.story-priority-alert::before {
+.story-priority-alert::before,
+.inspector-rail.priority-alert {
   background: #6f5cff;
   box-shadow: 0 0 8px #6f5cff, 0 0 18px rgba(111, 92, 255, 0.8);
 }
 
-.story-priority-warning::before {
+.story-priority-warning::before,
+.inspector-rail.priority-warning {
   background: #b84dff;
   box-shadow: 0 0 8px #b84dff, 0 0 18px rgba(184, 77, 255, 0.8);
 }
 
-.story-priority-emergency::before {
+.story-priority-emergency::before,
+.inspector-rail.priority-emergency {
   background: #ff3eb5;
   box-shadow: 0 0 8px #ff3eb5, 0 0 22px rgba(255, 62, 181, 0.9);
-}
-.story-priority-bulletin::before {
-  background: #38dfff;
-  box-shadow: 0 0 8px #38dfff, 0 0 18px rgba(56, 223, 255, 0.8);
-}
-
-.story-priority-advisory::before {
-  background: #00aaff;
-  box-shadow: 0 0 8px #00aaff, 0 0 18px rgba(0, 170, 255, 0.8);
-}
-
-.story-priority-alert::before {
-  background: #6f5cff;
-  box-shadow: 0 0 8px #6f5cff, 0 0 18px rgba(111, 92, 255, 0.8);
-}
-
-.story-priority-warning::before {
-  background: #b84dff;
-  box-shadow: 0 0 8px #b84dff, 0 0 18px rgba(184, 77, 255, 0.8);
-}
-
-.story-priority-emergency::before {
-  background: #ff3eb5;
-  box-shadow: 0 0 8px #ff3eb5, 0 0 22px rgba(255, 62, 181, 0.9);
-}
-.inspector-priority-bulletin::before {
-  background: #38dfff;
-  box-shadow: 0 0 8px #38dfff, 0 0 18px rgba(56, 223, 255, 0.8);
-}
-
-.inspector-priority-advisory::before {
-  background: #00aaff;
-  box-shadow: 0 0 8px #00aaff, 0 0 18px rgba(0, 170, 255, 0.8);
-}
-
-.inspector-priority-alert::before {
-  background: #6f5cff;
-  box-shadow: 0 0 8px #6f5cff, 0 0 18px rgba(111, 92, 255, 0.8);
-}
-
-.inspector-priority-warning::before {
-  background: #b84dff;
-  box-shadow: 0 0 8px #b84dff, 0 0 18px rgba(184, 77, 255, 0.8);
-}
-
-.inspector-priority-emergency::before {
-  background: #ff3eb5;
-  box-shadow: 0 0 8px #ff3eb5, 0 0 22px rgba(255, 62, 181, 0.9);
-}
-.story-topline {
-  display: none;
 }
 
 .story h2 {
@@ -493,10 +446,6 @@ textarea {
     width: 100%;
     border: none;
     padding: 0;
-  }
-
-  .story {
-    padding-left: 18px;
   }
 
   .story.selected h2 {
