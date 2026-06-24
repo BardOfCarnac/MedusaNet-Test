@@ -502,3 +502,36 @@ a * {
     margin-top: 18px !important;
   }
 }
+/* FINAL MOBILE STORY OVERRIDE - keep at very bottom */
+@media screen and (max-width: 600px) {
+  .news-layout {
+    display: block !important;
+  }
+
+  .inspector {
+    display: none !important;
+  }
+
+  .feed {
+    width: 100% !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .story {
+    display: block !important;
+    padding-left: 0 !important;
+  }
+
+  .story-detail {
+    display: none !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin-top: 18px !important;
+  }
+
+  .story.open .story-detail {
+    display: block !important;
+  }
+}
