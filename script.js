@@ -402,3 +402,6 @@ if (document.readyState === "loading") {
 } else {
   startNightCityNews();
       }
+.story {
+  border-left: 10px solid lime !important;
+}
