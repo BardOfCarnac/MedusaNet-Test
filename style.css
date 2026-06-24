@@ -578,3 +578,24 @@ a * {
   background: #ff1f2d !important;
   box-shadow: 0 0 6px #ff1f2d, 0 0 16px #ff1f2d, 0 0 36px rgba(255, 31, 45, 0.85) !important;
 }
+/* TEST: glowing bumper light using pseudo-element */
+
+.story {
+  position: relative !important;
+  padding-left: 26px !important;
+}
+
+.story::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 18px;
+  bottom: 18px;
+  width: 6px;
+  border-radius: 999px;
+  background: #38dfff;
+  box-shadow:
+    0 0 6px #38dfff,
+    0 0 14px #38dfff,
+    0 0 28px rgba(56, 223, 255, 0.8);
+}
