@@ -135,7 +135,7 @@ function startNightCityNews() {
 
     const selectedStory = getSelectedStory();
 
-const selectedStory = getSelectedStory();
+
 
 inspector.className = "inspector";
 
