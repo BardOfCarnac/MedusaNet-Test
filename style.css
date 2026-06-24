@@ -459,3 +459,17 @@ a * {
 .story {
   user-select: none;
 }
+.story {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.story::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 4px;
+  background: var(--priority-color, #45dfff);
+}
