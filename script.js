@@ -153,8 +153,7 @@ function startNightCityNews() {
 
     visibleStories.forEach(story => {
   const article = document.createElement("article");
-  article.className = `story ${priorityClass(story.priority)}`;
-
+  article.className = `story story-${priorityClass(story.priority)}`;
   if (story.id === selectedStoryId) article.classList.add("selected");
       article.innerHTML = `
         <div class="story-header">
