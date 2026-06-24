@@ -908,7 +908,8 @@ body::after {
     transform: none;
   }
 }
-/* ================================
+/
+/*/* ================================
    NCN EXTRA CRT FAILURE EFFECTS
    optional experimental layer
 ================================ */
@@ -1054,4 +1055,13 @@ body::selection {
 
 html {
   animation: ncn-emergency-pulse 97s infinite;
+}*/
+.story-title {
+    font-size: 1.75rem;
+    line-height: 0.95;
+}
+
+.story-meta {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
 }
