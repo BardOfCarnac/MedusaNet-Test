@@ -484,364 +484,181 @@ textarea {
    NCN CRT / BROADCAST DAMAGE PACK
    paste at end of CSS
 ================================ */
+/* =========================================================
+   NCN ALT THEME: MUNICIPAL / CORPORATE BROADCAST TEST
+   Paste at very end of CSS
+========================================================= */
 
-/* readable global scanline veil */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9998;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.035) 0px,
-    rgba(255,255,255,0.035) 1px,
-    transparent 2px,
-    transparent 5px
-  );
-  opacity: 0.75;
-}
-
-/* edge distortion / screen glass */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9997;
-  background:
-    radial-gradient(
-      ellipse at center,
-      transparent 48%,
-      rgba(0,255,255,0.08) 72%,
-      rgba(0,0,0,0.55) 100%
-    );
-}
-
-/* subtle colour split on main interface */
-.container {
-  filter:
-    drop-shadow(1px 0 rgba(255,0,0,0.22))
-    drop-shadow(-1px 0 rgba(0,255,255,0.22));
-}
-
-/* hover glitch */
-.story:hover {
-  transform: translateX(2px);
-  text-shadow:
-    2px 0 rgba(255,0,0,0.75),
-    -2px 0 rgba(0,255,255,0.75),
-    0 0 8px rgba(56,223,255,0.5);
-}
-
-/* corrupted feed items */
-.story:nth-child(7n) {
-  filter: contrast(1.25) hue-rotate(12deg);
-}
-
-.story:nth-child(13n) {
-  opacity: 0.82;
-}
-
-.story:nth-child(17n) {
-  transform: skewX(-0.5deg);
-}
-
-/* stronger monitor effect inside opened article panel */
-.article-view {
-  position: relative;
-  overflow: hidden;
-}
-
-.article-view::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 2px,
-    rgba(255,255,255,0.06) 3px,
-    rgba(255,255,255,0.06) 4px
-  );
-  opacity: 0.8;
-}
-
-/* periodic broadcast wobble */
-@keyframes ncn-broadcast-wobble {
-  0%, 94%, 100% {
-    transform: none;
-    filter: none;
-  }
-
-  95% {
-    transform: translateX(-2px) skewX(-0.4deg);
-    filter: contrast(1.3) brightness(1.2);
-  }
-
-  96% {
-    transform: translateX(3px) skewX(0.6deg);
-    filter: contrast(1.7) brightness(0.85);
-  }
-
-  97% {
-    transform: translateX(-1px);
-    filter: saturate(1.8);
-  }
+body {
+  background: #f3efe4 !important;
+  color: #101010 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
 .container {
-  animation: ncn-broadcast-wobble 18s infinite;
+  background: #f3efe4;
+  color: #101010;
+  max-width: 1500px;
+  border-left: 4px solid #101010;
+  border-right: 4px solid #101010;
 }
 
-/* accessibility: disable motion for users who request it */
-@media (prefers-reduced-motion: reduce) {
-  .container {
-    animation: none;
-  }
-
-  .story:hover {
-    transform: none;
-  }
-}
-/* ================================
-   NCN PHASING / PERIODIC DAMAGE
-   paste below CRT pack
-================================ */
-
-/* slow breathing of the glass layer */
-body::after {
-  animation: ncn-crt-breathe 11s ease-in-out infinite;
+/* Top system line */
+.system-line {
+  color: #111 !important;
+  border-bottom: 2px solid #111;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  letter-spacing: 0.14em;
 }
 
-@keyframes ncn-crt-breathe {
-  0%, 100% { opacity: 0.55; }
-  45% { opacity: 0.9; }
-  52% { opacity: 0.35; }
-  70% { opacity: 0.7; }
+/* Masthead */
+.masthead {
+  border-bottom: 8px solid #111 !important;
+  margin-bottom: 0;
+  padding: 26px 0 22px;
+  text-align: left !important;
 }
 
-/* scanlines drift slightly, like rolling sync */
-body::before {
-  background-size: 100% 6px;
-  animation: ncn-scan-drift 4.7s linear infinite;
-}
-
-@keyframes ncn-scan-drift {
-  from { background-position-y: 0; }
-  to { background-position-y: 24px; }
-}
-
-/* different stories pulse out of phase */
-.story:nth-child(5n) {
-  animation: ncn-soft-pulse 9s ease-in-out infinite;
-}
-
-.story:nth-child(8n) {
-  animation: ncn-soft-pulse 13s ease-in-out infinite reverse;
-}
-
-@keyframes ncn-soft-pulse {
-  0%, 100% {
-    filter: none;
-    opacity: 1;
-  }
-
-  48% {
-    filter: contrast(1.25) saturate(1.2);
-    opacity: 0.88;
-  }
-
-  52% {
-    filter: contrast(1.5) saturate(1.5);
-    opacity: 0.75;
-  }
-
-  56% {
-    filter: none;
-    opacity: 1;
-  }
-}
-
-/* occasional horizontal transmission tear */
-.container::before {
-  content: "";
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 35%;
-  height: 26px;
-  pointer-events: none;
-  z-index: 9996;
-
-  background:
-    linear-gradient(
-      to bottom,
-      transparent,
-      rgba(56,223,255,0.25),
-      transparent
-    );
-
-  opacity: 0;
-  mix-blend-mode: screen;
-  animation: ncn-transmission-tear 17s infinite;
-}
-
-@keyframes ncn-transmission-tear {
-  0%, 88%, 100% {
-    opacity: 0;
-    transform: translateY(0) scaleY(1);
-  }
-
-  89% {
-    opacity: 0.75;
-    transform: translateY(-120px) scaleY(0.4);
-  }
-
-  90% {
-    opacity: 0.25;
-    transform: translateY(80px) scaleY(1.8);
-  }
-
-  91% {
-    opacity: 0.9;
-    transform: translateY(-20px) scaleY(0.7);
-  }
-
-  92% {
-    opacity: 0;
-    transform: translateY(0) scaleY(1);
-  }
-}
-
-/* rare hard glitch on masthead */
 .masthead h1 {
-  animation: ncn-title-phase 23s infinite;
+  color: #111 !important;
+  text-shadow: none !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
-@keyframes ncn-title-phase {
-  0%, 92%, 100% {
-    letter-spacing: inherit;
-    filter: none;
-    transform: none;
-  }
-
-  93% {
-    letter-spacing: 0.18em;
-    filter: blur(1px);
-    transform: skewX(-2deg);
-  }
-
-  94% {
-    letter-spacing: 0.08em;
-    filter: contrast(2);
-    transform: translateX(3px);
-  }
-
-  95% {
-    letter-spacing: 0.14em;
-    filter: none;
-    transform: translateX(-2px);
-  }
+.masthead h1::before {
+  content: "NCN";
+  display: inline-block;
+  background: #c71616;
+  color: #f3efe4;
+  padding: 0.08em 0.22em;
+  margin-right: 0.25em;
+  letter-spacing: 0.02em;
 }
 
-
-/* the proper bad moments */
-@keyframes ncn-system-failure {
-  0%, 12%, 100% {
-    transform: none;
-    filter: none;
-  }
-
-  /* quiet shimmer */
-  24% {
-    filter:
-      drop-shadow(1px 0 rgba(255,0,0,0.15))
-      drop-shadow(-1px 0 rgba(0,255,255,0.15));
-  }
-
-  25% {
-    filter: none;
-  }
-
-  /* nasty burst */
-  63% {
-    transform: translateX(-4px) skewX(-1deg);
-    filter:
-      contrast(1.9)
-      saturate(1.8)
-      brightness(1.2)
-      drop-shadow(3px 0 rgba(255,0,0,0.75))
-      drop-shadow(-3px 0 rgba(0,255,255,0.75));
-  }
-
-  64% {
-    transform: translateX(5px) skewX(1.2deg);
-    filter:
-      contrast(2.4)
-      saturate(2.2)
-
-/* ================================
-   NCN PHASED CRT DAMAGE
-   mostly normal, rotating failures
-================================ */
-
-  83% {
-    filter: none;
-  }
+.tagline,
+.masthead p {
+  color: #c71616 !important;
+  text-shadow: none !important;
+  font-weight: 700;
 }
 
-/* physical wobble phases separately */
-@keyframes ncn-warp-phase {
-  0%, 50%, 100% {
-    transform: none;
-  }
-
-  57% {
-    transform: translateX(-2px) skewX(-0.4deg);
-  }
-
-  58% {
-    transform: translateX(3px) skewX(0.5deg);
-  }
-
-  59% {
-    transform: none;
-  }
+/* Buttons */
+button,
+.filter-toggle,
+.submit-button,
+.transmit-button,
+.filters button,
+a.button {
+  background: #f3efe4 !important;
+  color: #111 !important;
+  border: 2px solid #111 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
 }
 
-/* rare nasty failure */
-@keyframes ncn-failure-phase {
-  0%, 80%, 100% {
-    filter: none;
-    transform: none;
-  }
-
-  86% {
-    filter: contrast(2.2) saturate(2) brightness(0.75) blur(1px);
-    transform: translateX(-5px) skewX(-1deg);
-  }
-
-  87% {
-    filter: contrast(1.6) saturate(1.6) brightness(1.4);
-    transform: translateX(4px) skewX(1deg);
-  }
-
-  88% {
-    filter: none;
-    transform: none;
-  }
+button:hover,
+.filter-toggle:hover,
+.submit-button:hover,
+.transmit-button:hover {
+  background: #c71616 !important;
+  color: #fff !important;
 }
-/
-/*/* ================================
-   NCN EXTRA CRT FAILURE EFFECTS
-   optional experimental layer
-================================ */
 
-.story-meta {
-    font-size: 0.trem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+/* Main story cards */
+.story {
+  background: #f8f4ea !important;
+  color: #111 !important;
+  border: 1px solid #111 !important;
+  border-left: 12px solid #c71616 !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+}
+
+.story + .story {
+  border-top: none !important;
+}
+
+.story h2,
+.story-title {
+  color: #111 !important;
+  text-shadow: none !important;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.story-meta,
+.meta,
+.story .subtitle {
+  color: #333 !important;
+  text-shadow: none !important;
+  font-weight: 700;
+}
+
+/* Category / priority style */
+.story-category,
+.category,
+.priority,
+.source {
+  color: #c71616 !important;
+  font-weight: 900;
+}
+
+/* Story body / expanded panel */
+.story-body,
+.article-panel,
+.detail-panel,
+.expanded-story {
+  background: #f8f4ea !important;
+  color: #111 !important;
+  border: 2px solid #111 !important;
+  box-shadow: none !important;
+}
+
+.story-body p,
+.article-panel p,
+.detail-panel p {
+  color: #111 !important;
+}
+
+/* Links */
+a {
+  color: #003f7d !important;
+}
+
+a:hover {
+  color: #c71616 !important;
+}
+
+/* Remove neon glow effects */
+* {
+  text-shadow: none !important;
+}
+
+/* Optional municipal footer feel */
+.footer,
+.site-footer {
+  background: #111 !important;
+  color: #f3efe4 !important;
+  border-top: 6px solid #c71616 !important;
+}
+
+/* Mobile tightening */
+@media (max-width: 700px) {
+  .container {
+    border-left: none;
+    border-right: none;
+    padding: 14px;
+  }
+
+  .masthead h1::before {
+    display: block;
+    width: max-content;
+    margin-bottom: 12px;
+  }
+
+  .story {
+    border-left-width: 8px !important;
+  }
 }
