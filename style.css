@@ -655,3 +655,231 @@ select,
 .detail-label {
   color: #d7ff3f !important;
 }
+/* =========================================================
+   NCN CORPORATE BROADCAST THEME TEST
+   Paste at very end of style.css
+========================================================= */
+
+:root {
+  --corp-white: #f7f9fc;
+  --corp-paper: #ffffff;
+  --corp-blue: #062b55;
+  --corp-blue-2: #0b3f78;
+  --corp-red: #d71920;
+  --corp-ink: #071b33;
+  --corp-line: rgba(6, 43, 85, 0.28);
+}
+
+body {
+  background: var(--corp-white) !important;
+  color: var(--corp-ink) !important;
+}
+
+.container {
+  max-width: 1800px !important;
+  background: var(--corp-white) !important;
+}
+
+/* Star-spangled broadcast strip */
+.container::before {
+  content: "★ ★ ★   NCN CORPORATE BROADCAST FEED   ★ ★ ★";
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--corp-blue) 0 18%,
+    var(--corp-red) 18% 22%,
+    var(--corp-white) 22% 24%,
+    var(--corp-blue) 24% 100%
+  );
+  color: #fff;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-align: center;
+}
+
+/* Top line */
+.system-line {
+  color: var(--corp-blue) !important;
+  border-bottom: 1px solid var(--corp-line) !important;
+}
+
+/* Masthead */
+.masthead {
+  text-align: left !important;
+  border-bottom: 8px solid var(--corp-blue) !important;
+  padding-bottom: 20px !important;
+}
+
+.masthead h1 {
+  color: var(--corp-blue) !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+}
+
+.masthead h1::first-letter {
+  color: var(--corp-red);
+}
+
+.tagline {
+  color: var(--corp-red) !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+/* Main command buttons */
+.command-row {
+  border-bottom: 4px solid var(--corp-blue) !important;
+}
+
+.command-button {
+  background: var(--corp-paper) !important;
+  color: var(--corp-blue) !important;
+  border: 2px solid var(--corp-blue) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.command-button.active,
+.command-button:hover {
+  background: var(--corp-red) !important;
+  color: #fff !important;
+  border-color: var(--corp-red) !important;
+}
+
+/* Layout panels */
+.feed,
+.inspector,
+.filter-panels,
+.submit-form {
+  background: var(--corp-paper) !important;
+  border: 1px solid var(--corp-line) !important;
+  box-shadow: none !important;
+}
+
+/* Story list */
+.story {
+  background: var(--corp-paper) !important;
+  border-bottom: 2px solid var(--corp-line) !important;
+  color: var(--corp-ink) !important;
+}
+
+.story::before {
+  width: 8px !important;
+  background: var(--corp-red) !important;
+  box-shadow: none !important;
+}
+
+.story:hover,
+.story.selected {
+  background: #eef4fb !important;
+}
+
+.story h2 {
+  color: var(--corp-blue) !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.035em !important;
+}
+
+.meta {
+  color: var(--corp-blue-2) !important;
+  text-shadow: none !important;
+  font-weight: 800 !important;
+}
+
+/* Expanded story */
+.story.open .story-detail,
+.story-detail {
+  background: #f2f6fb !important;
+  border-top: 1px solid var(--corp-line) !important;
+  color: var(--corp-ink) !important;
+}
+
+.story-detail p,
+.inspector p {
+  color: var(--corp-ink) !important;
+}
+
+/* Inspector / article panel */
+.inspector {
+  border-top: 8px solid var(--corp-red) !important;
+}
+
+.inspector h2,
+.inspector-title {
+  color: var(--corp-blue) !important;
+  text-shadow: none !important;
+}
+
+.detail-label {
+  color: var(--corp-red) !important;
+  font-weight: 900 !important;
+}
+
+/* Filter area */
+.filter-tab,
+.filter-option,
+.time-option {
+  background: #fff !important;
+  color: var(--corp-blue) !important;
+  border: 1px solid var(--corp-line) !important;
+  box-shadow: none !important;
+}
+
+.filter-tab.active,
+.filter-option.active,
+.time-option.active {
+  background: var(--corp-blue) !important;
+  color: #fff !important;
+}
+
+.transmit-command,
+.utility-btn,
+.submit-form button {
+  background: var(--corp-red) !important;
+  color: #fff !important;
+  border: 2px solid var(--corp-red) !important;
+  box-shadow: none !important;
+}
+
+.transmit-command:hover,
+.utility-btn:hover,
+.submit-form button:hover {
+  background: var(--corp-blue) !important;
+  border-color: var(--corp-blue) !important;
+}
+
+/* Forms */
+input,
+textarea,
+select,
+#search {
+  background: #fff !important;
+  color: var(--corp-ink) !important;
+  border: 1px solid var(--corp-line) !important;
+}
+
+/* Kill neon */
+* {
+  text-shadow: none !important;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .container::before {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+  }
+
+  .masthead {
+    border-bottom-width: 5px !important;
+  }
+
+  .story::before {
+    width: 6px !important;
+  }
+}
