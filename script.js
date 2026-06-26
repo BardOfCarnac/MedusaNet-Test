@@ -422,8 +422,8 @@ if (document.readyState === "loading") {
    paste near the end of script.js
 ========================================================= */
 /* =========================================================
-   NCN OPTICAL VIEWER EVENT ENGINE v3.1
-   statistical projection behaviour
+   NCN OPTICAL VIEWER EVENT ENGINE v3.2
+   louder while testing
 ========================================================= */
 
 (function () {
@@ -438,7 +438,7 @@ if (document.readyState === "loading") {
 
       if (afterClass) {
         body.classList.add(afterClass);
-        setTimeout(() => body.classList.remove(afterClass), 900);
+        setTimeout(() => body.classList.remove(afterClass), 1200);
       }
     }, duration);
   }
@@ -446,25 +446,26 @@ if (document.readyState === "loading") {
   function rollOpticalEvent() {
     const roll = Math.random();
 
-    if (roll < 0.00008) {
-      trigger("ov-hard-fault", 520, "ov-recovering");
-    } else if (roll < 0.00045) {
-      trigger("ov-signal-drop", 850);
-    } else if (roll < 0.0012) {
-      trigger("ov-focus-loss", 700);
-    } else if (roll < 0.0028) {
-      trigger("ov-slip", 160);
-    } else if (roll < 0.0065) {
-      trigger("ov-flare", 420);
+    if (roll < 0.0006) {
+      trigger("ov-hard-fault", 700, "ov-recovering");
+    } else if (roll < 0.002) {
+      trigger("ov-calibration", 2800);
+    } else if (roll < 0.006) {
+      trigger("ov-signal-drop", 1100);
+    } else if (roll < 0.014) {
+      trigger("ov-focus-loss", 850);
+    } else if (roll < 0.028) {
+      trigger("ov-slip", 220);
+    } else if (roll < 0.055) {
+      trigger("ov-flare", 520);
     }
   }
 
   setInterval(rollOpticalEvent, 1000);
 
-  /* Optional mouse parallax on desktop. Tiny, not spinny. */
   window.addEventListener("mousemove", (event) => {
-    const x = (event.clientX / window.innerWidth - 0.5) * 10;
-    const y = (event.clientY / window.innerHeight - 0.5) * 10;
+    const x = (event.clientX / window.innerWidth - 0.5) * 14;
+    const y = (event.clientY / window.innerHeight - 0.5) * 14;
 
     root.style.setProperty("--ov-parallax-x", `${x.toFixed(2)}px`);
     root.style.setProperty("--ov-parallax-y", `${y.toFixed(2)}px`);
