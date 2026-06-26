@@ -484,4 +484,341 @@ textarea {
    NCN CRT / BROADCAST DAMAGE PACK
    paste at end of CSS
 ================================ */
- 
+ /* =========================================================
+   NIGHT CITY NEWS — RED OPTICAL VIEWER HUD THEME
+   Paste at the very end of style.css
+   ========================================================= */
+
+:root {
+  --hud-red: #ff1a12;
+  --hud-red-hot: #ff3b2f;
+  --hud-red-dim: rgba(255, 26, 18, 0.25);
+
+  --hud-amber: #ffb000;
+  --hud-yellow: #ffd45a;
+  --hud-white: #fff2cf;
+
+  --glass-black: #050101;
+  --glass-deep: #120202;
+  --casing-dark: #11100d;
+}
+
+/* Overall screen */
+body {
+  background:
+    radial-gradient(circle at center, rgba(255, 20, 10, 0.08), transparent 45%),
+    linear-gradient(180deg, #020000, #080101 45%, #000);
+  color: var(--hud-red);
+  text-shadow: 0 0 6px rgba(255, 30, 15, 0.45);
+}
+
+/* Main app becomes optical glass */
+.container {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 40, 20, 0.10), transparent 45%),
+    linear-gradient(180deg, rgba(40, 0, 0, 0.75), rgba(0, 0, 0, 0.92));
+  border: 2px solid var(--hud-red);
+  border-radius: 44px;
+  box-shadow:
+    0 0 0 8px rgba(255, 20, 10, 0.08),
+    0 0 24px rgba(255, 20, 10, 0.55),
+    inset 0 0 35px rgba(255, 20, 10, 0.35),
+    inset 0 0 120px rgba(0, 0, 0, 0.95);
+  overflow: hidden;
+}
+
+/* Scanlines and glass grime */
+.container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 40, 20, 0.08) 0px,
+      rgba(255, 40, 20, 0.08) 1px,
+      transparent 2px,
+      transparent 5px
+    ),
+    radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.65) 100%);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  animation: redGlassBreath 7s ease-in-out infinite;
+}
+
+/* Slow sweeping optical bar */
+.container::after {
+  content: "";
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  top: -30%;
+  height: 18%;
+  pointer-events: none;
+  z-index: 51;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 50, 25, 0.16),
+    transparent
+  );
+  animation: redScanSweep 8s linear infinite;
+}
+
+/* Masthead */
+.masthead {
+  border-bottom: 1px solid var(--hud-red);
+  color: var(--hud-red-hot);
+  text-shadow:
+    0 0 8px rgba(255, 30, 15, 0.8),
+    0 0 22px rgba(255, 30, 15, 0.45);
+}
+
+.masthead h1 {
+  color: var(--hud-white);
+  letter-spacing: 0.12em;
+}
+
+.system-line,
+.masthead p,
+.meta,
+.time,
+.priority,
+.story-meta,
+label,
+small {
+  color: var(--hud-amber) !important;
+  text-shadow: 0 0 5px rgba(255, 176, 0, 0.55);
+  animation: amberDataJitter 3.8s steps(2) infinite;
+}
+
+/* Cards / panels */
+.story,
+.card,
+.panel,
+.filters,
+.detail,
+.article-detail,
+form,
+.feed-panel,
+.sidebar {
+  background:
+    linear-gradient(180deg, rgba(35, 0, 0, 0.86), rgba(5, 0, 0, 0.92)) !important;
+  border: 1px solid var(--hud-red-dim) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    inset 0 0 18px rgba(255, 20, 10, 0.12),
+    0 0 12px rgba(255, 20, 10, 0.18);
+}
+
+/* Story entries */
+.story {
+  position: relative;
+  color: var(--hud-red);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.story:hover,
+.story.active,
+.story.selected {
+  border-color: var(--hud-red-hot) !important;
+  box-shadow:
+    inset 0 0 22px rgba(255, 30, 15, 0.22),
+    0 0 20px rgba(255, 30, 15, 0.5);
+  transform: translateX(3px);
+}
+
+/* Little glowing left data rail */
+.story::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  background: var(--hud-red);
+  box-shadow: 0 0 10px var(--hud-red);
+}
+
+/* Headlines */
+.story h2,
+.story h3,
+.article-detail h2,
+.article-detail h1,
+h2,
+h3 {
+  color: var(--hud-white) !important;
+  text-shadow:
+    0 0 4px rgba(255, 242, 207, 0.55),
+    0 0 12px rgba(255, 30, 15, 0.65);
+  animation: whiteTargetSnap 13s steps(1) infinite;
+}
+
+/* Body text */
+p,
+.story p,
+.article-detail p,
+.detail p {
+  color: var(--hud-red-hot);
+}
+
+/* Buttons and inputs */
+button,
+input,
+select,
+textarea,
+.filter-button,
+.submit-button {
+  background: rgba(20, 0, 0, 0.95) !important;
+  color: var(--hud-red-hot) !important;
+  border: 1px solid var(--hud-red) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    inset 0 0 10px rgba(255, 20, 10, 0.18),
+    0 0 8px rgba(255, 20, 10, 0.25);
+  text-shadow: 0 0 5px rgba(255, 30, 15, 0.75);
+}
+
+button:hover,
+.filter-button:hover,
+.submit-button:hover {
+  background: var(--hud-red) !important;
+  color: #150000 !important;
+  text-shadow: none;
+}
+
+/* Links */
+a {
+  color: var(--hud-yellow);
+  text-shadow: 0 0 6px rgba(255, 212, 90, 0.55);
+}
+
+a:hover {
+  color: var(--hud-white);
+}
+
+/* Images become sensor windows */
+img {
+  border: 1px solid var(--hud-red-dim);
+  border-radius: 10px;
+  filter:
+    contrast(1.12)
+    saturate(0.9)
+    sepia(0.25)
+    hue-rotate(-20deg);
+  box-shadow: 0 0 18px rgba(255, 20, 10, 0.25);
+}
+
+/* Priority heat */
+.priority-1,
+.pri-1,
+[data-priority="1"] {
+  color: var(--hud-white) !important;
+  border-color: var(--hud-white) !important;
+  box-shadow: 0 0 22px rgba(255, 242, 207, 0.55) !important;
+}
+
+.priority-2,
+.pri-2,
+[data-priority="2"] {
+  color: var(--hud-amber) !important;
+  border-color: var(--hud-amber) !important;
+}
+
+.priority-3,
+.pri-3,
+[data-priority="3"] {
+  color: var(--hud-red) !important;
+}
+
+/* Animations */
+@keyframes redGlassBreath {
+  0%, 100% {
+    opacity: 0.42;
+    filter: brightness(0.95);
+  }
+  45% {
+    opacity: 0.7;
+    filter: brightness(1.25);
+  }
+  52% {
+    opacity: 0.35;
+    filter: brightness(0.8);
+  }
+  58% {
+    opacity: 0.75;
+    filter: brightness(1.35);
+  }
+}
+
+@keyframes redScanSweep {
+  0% {
+    transform: translateY(-40vh);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  55% {
+    opacity: 0.28;
+  }
+  100% {
+    transform: translateY(160vh);
+    opacity: 0;
+  }
+}
+
+@keyframes amberDataJitter {
+  0%, 88%, 100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(1px);
+    opacity: 0.85;
+  }
+  92% {
+    transform: translateX(-1px);
+    opacity: 1;
+  }
+  94% {
+    transform: translateX(0);
+    opacity: 0.75;
+  }
+}
+
+@keyframes whiteTargetSnap {
+  0%, 94%, 100% {
+    transform: none;
+    opacity: 1;
+  }
+  95% {
+    transform: translateX(1px);
+    opacity: 0.9;
+  }
+  96% {
+    transform: translateX(-1px);
+    opacity: 1;
+  }
+}
+
+/* Mobile: reduce intensity slightly */
+@media (max-width: 700px) {
+  .container {
+    border-radius: 24px;
+    box-shadow:
+      0 0 16px rgba(255, 20, 10, 0.45),
+      inset 0 0 35px rgba(255, 20, 10, 0.22);
+  }
+
+  .container::before {
+    opacity: 0.35;
+  }
+
+  .container::after {
+    opacity: 0.25;
+  }
+}
