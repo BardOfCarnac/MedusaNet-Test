@@ -40,7 +40,7 @@ body {
 .masthead h1 {
   margin: 0;
   color: #38dfff;
-  don't -family: "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-size: clamp(4rem, 7vw, 8rem);
   font-weight: 300;
   letter-spacing: 0.16em;
@@ -488,3 +488,357 @@ textarea {
    NCN OPTICAL VIEWER — SECOND CLEAN PASS
    Less website, more projected targeting HUD
 ========================================================= */
+/* =========================================================
+   NCN OPTICAL VIEWER v3 — projected light / decay palette
+   Paste at very end of style.css
+========================================================= */
+
+:root {
+  --ov-black: #020000;
+
+  --ov-white-hot: #fff8df;
+  --ov-white-warm: #ffe7ae;
+
+  --ov-yellow-hot: #ffd64f;
+  --ov-yellow: #ffb51d;
+
+  --ov-amber: #ff8200;
+  --ov-amber-burnt: #d95700;
+
+  --ov-red-hot: #ff2b16;
+  --ov-red: #b9150d;
+  --ov-red-deep: #4a0503;
+  --ov-red-ghost: rgba(120, 0, 0, 0.13);
+
+  --ov-line: rgba(255, 43, 22, 0.28);
+}
+
+/* --- black optical glass --- */
+
+body {
+  background:
+    radial-gradient(circle at 50% 10%, rgba(120, 0, 0, 0.055), transparent 36%),
+    linear-gradient(180deg, #030000, #000 75%) !important;
+  color: var(--ov-red-hot) !important;
+}
+
+/* faint scan / projection texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background:
+    linear-gradient(rgba(255, 43, 22, 0.022) 1px, transparent 1px),
+    radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.62) 100%);
+  background-size: 100% 5px, 100% 100%;
+  opacity: 0.42;
+}
+
+/* ghost architecture, barely visible */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;
+  background:
+    linear-gradient(90deg, transparent 0 16%, rgba(255,0,0,0.018) 16.2%, transparent 16.5%),
+    linear-gradient(0deg, transparent 0 24%, rgba(255,0,0,0.014) 24.2%, transparent 24.5%);
+  background-size: 310px 220px;
+  opacity: 0.55;
+}
+
+/* --- main shell --- */
+
+.container {
+  background: rgba(2, 0, 0, 0.965) !important;
+  border: 1px solid rgba(255, 43, 22, 0.24) !important;
+  border-radius: 28px !important;
+  box-shadow:
+    inset 0 0 32px rgba(255, 24, 0, 0.07),
+    inset 0 0 120px rgba(255, 0, 0, 0.035),
+    0 0 12px rgba(255, 20, 0, 0.10) !important;
+  overflow: hidden;
+}
+
+/* --- compact masthead / firmware strip --- */
+
+.system-line {
+  color: rgba(255, 181, 29, 0.78) !important;
+  border-bottom: 1px solid rgba(255, 43, 22, 0.18);
+  padding-bottom: 8px;
+}
+
+.masthead {
+  text-align: left !important;
+  border-bottom: 1px solid rgba(255, 43, 22, 0.22) !important;
+  padding: 10px 0 12px !important;
+  margin-bottom: 16px !important;
+}
+
+.masthead h1 {
+  margin: 0 !important;
+  color: var(--ov-yellow-hot) !important;
+  font-family: "Barlow Condensed", sans-serif !important;
+  font-size: clamp(1.3rem, 2.5vw, 2rem) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase;
+  line-height: 1 !important;
+  text-shadow:
+    0 0 8px rgba(255, 181, 29, 0.35),
+    0 0 16px rgba(255, 43, 22, 0.12) !important;
+}
+
+.tagline {
+  color: rgba(255, 130, 0, 0.76) !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.18em !important;
+  margin-top: 8px !important;
+}
+
+/* --- layout frames --- */
+
+.feed,
+.inspector,
+.filter-panels,
+.submit-form {
+  background: transparent !important;
+  border: 1px solid rgba(255, 43, 22, 0.20) !important;
+  box-shadow: none !important;
+}
+
+.inspector {
+  padding-left: 42px !important;
+}
+
+/* preserve inspector priority rail colours, only make it slimmer */
+.inspector-rail {
+  width: 4px !important;
+  left: 18px !important;
+  opacity: 0.72 !important;
+}
+
+/* --- stories as projected feed targets --- */
+
+.story {
+  position: relative !important;
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 43, 22, 0.18) !important;
+  color: var(--ov-red-hot) !important;
+  padding: 18px 0 18px 18px !important;
+  box-shadow: none !important;
+}
+
+/* keep existing left priority colours; only refine shape */
+.story::before {
+  left: 0 !important;
+  top: 18px !important;
+  bottom: 18px !important;
+  width: 4px !important;
+  border-radius: 999px !important;
+  opacity: 0.72 !important;
+}
+
+/* target brackets only become obvious when active */
+.story::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 9px 8px 9px 12px;
+  background:
+    linear-gradient(var(--ov-line), var(--ov-line)) top left / 24px 1px no-repeat,
+    linear-gradient(var(--ov-line), var(--ov-line)) top left / 1px 12px no-repeat,
+    linear-gradient(var(--ov-line), var(--ov-line)) bottom right / 24px 1px no-repeat,
+    linear-gradient(var(--ov-line), var(--ov-line)) bottom right / 1px 12px no-repeat;
+  opacity: 0.12;
+}
+
+.story:hover::after,
+.story.selected::after,
+.story.open::after {
+  opacity: 0.68;
+}
+
+/* selected/open = target lock */
+.story.selected,
+.story.open {
+  background:
+    linear-gradient(90deg, rgba(255,43,22,0.04), transparent 65%) !important;
+  border-bottom-color: rgba(255, 248, 223, 0.32) !important;
+}
+
+/* headline energy: warm white / yellow */
+.story h2 {
+  color: var(--ov-white-warm) !important;
+  font-family: "Barlow Condensed", sans-serif !important;
+  text-shadow:
+    0 0 6px rgba(255, 231, 174, 0.42),
+    0 0 16px rgba(255, 130, 0, 0.18) !important;
+  transition: color 260ms ease, text-shadow 260ms ease;
+}
+
+.story:hover h2,
+.story.selected h2,
+.story.open h2 {
+  color: var(--ov-white-hot) !important;
+  text-shadow:
+    0 0 7px rgba(255, 248, 223, 0.58),
+    0 0 18px rgba(255, 181, 29, 0.28),
+    0 0 28px rgba(255, 43, 22, 0.14) !important;
+}
+
+/* telemetry */
+.meta,
+.detail-label {
+  color: rgba(255, 181, 29, 0.82) !important;
+  text-shadow: 0 0 6px rgba(255, 181, 29, 0.18);
+}
+
+/* story detail appears as acquired signal, not box */
+.story.open .story-detail {
+  display: block;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(255, 43, 22, 0.22) !important;
+  background: rgba(255, 43, 22, 0.025) !important;
+}
+
+.inspector h2,
+.story-detail h2 {
+  color: var(--ov-white-hot) !important;
+  text-shadow:
+    0 0 8px rgba(255, 248, 223, 0.48),
+    0 0 20px rgba(255, 130, 0, 0.22) !important;
+}
+
+.inspector p,
+.story-detail p {
+  color: rgba(255, 130, 0, 0.86) !important;
+}
+
+.detail-grid {
+  border-top: 1px solid rgba(255, 43, 22, 0.22) !important;
+}
+
+/* --- controls as projected labels, not objects --- */
+
+.command-button,
+.filter-tab,
+.filter-option,
+.utility-btn,
+.time-option,
+.submit-form button {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 43, 22, 0.42) !important;
+  border-radius: 0 !important;
+  color: rgba(255, 181, 29, 0.82) !important;
+  box-shadow: none !important;
+}
+
+.command-button:hover,
+.command-button.active,
+.filter-tab:hover,
+.filter-option:hover,
+.utility-btn:hover,
+.time-option:hover,
+.submit-form button:hover,
+.filter-tab.active,
+.filter-option.active,
+.time-option.active {
+  background: transparent !important;
+  color: var(--ov-white-hot) !important;
+  border-color: rgba(255, 248, 223, 0.72) !important;
+  text-shadow:
+    0 0 7px rgba(255, 248, 223, 0.35),
+    0 0 14px rgba(255, 181, 29, 0.22) !important;
+}
+
+/* transmit still slightly hotter */
+.transmit-command,
+.utility-btn,
+.submit-form button {
+  color: rgba(255, 130, 0, 0.86) !important;
+}
+
+/* --- forms --- */
+
+input,
+textarea,
+select,
+#search {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 43, 22, 0.34) !important;
+  border-radius: 0 !important;
+  color: var(--ov-yellow-hot) !important;
+  box-shadow: none !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+#search:focus {
+  outline: none !important;
+  border-bottom-color: rgba(255, 248, 223, 0.72) !important;
+}
+
+#search::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: rgba(217, 87, 0, 0.62) !important;
+}
+
+/* --- rare event classes, triggered later by JS --- */
+
+body.ov-flare .container {
+  filter: brightness(1.35) contrast(1.08);
+}
+
+body.ov-signal-drop .container {
+  filter: brightness(0.55) contrast(0.85);
+}
+
+body.ov-focus-loss .container {
+  filter: blur(0.7px) brightness(0.9);
+}
+
+body.ov-slip .feed,
+body.ov-slip .inspector {
+  transform: translateX(2px);
+}
+
+/* --- mobile --- */
+
+@media screen and (max-width: 600px) {
+  .container {
+    border-radius: 20px !important;
+    padding: 14px !important;
+  }
+
+  .masthead h1 {
+    font-size: clamp(1.4rem, 8vw, 2.3rem) !important;
+    letter-spacing: 0.12em !important;
+    white-space: normal !important;
+  }
+
+  .feed {
+    border: none !important;
+  }
+
+  .story.selected h2 {
+    color: var(--ov-white-warm) !important;
+  }
+
+  .story.open h2 {
+    color: var(--ov-white-hot) !important;
+  }
+
+  .story.open .story-detail {
+    border-left: none !important;
+    border-right: none !important;
+  }
+}
