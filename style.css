@@ -1489,3 +1489,157 @@ textarea::placeholder {
     background: rgba(15, 0, 0, 0.92) !important;
   }
 }
+/* =========================================================
+   NCN LIVING OPTICAL SYSTEM
+   paste at the very end of style.css
+========================================================= */
+
+:root {
+  --ncn-roll: 0deg;
+  --ncn-pitch: 0px;
+  --ncn-bloom: 0.18;
+  --ncn-focus: 1;
+  --ncn-voltage: 0.4;
+  --ncn-drift: 0px;
+}
+
+/* whole optical surface reacts subtly */
+body {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(90, 0, 0, calc(0.04 + var(--ncn-voltage) * 0.12)), transparent 42%),
+    linear-gradient(180deg, #050000, #000 70%) !important;
+}
+
+/* main viewer distortion */
+.container {
+  transform:
+    translateX(var(--ncn-drift))
+    translateY(var(--ncn-pitch))
+    rotate(var(--ncn-roll));
+  filter:
+    brightness(calc(0.86 + var(--ncn-voltage) * 0.26))
+    contrast(calc(1.02 + var(--ncn-focus) * 0.08));
+  transition: transform 120ms linear, filter 220ms ease;
+}
+
+/* soft optical bloom */
+.container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 45%, rgba(255, 30, 0, var(--ncn-bloom)) 100%);
+  mix-blend-mode: screen;
+  opacity: 0.8;
+  animation: ncn-glass-breathe 17s infinite ease-in-out;
+}
+
+/* faint hidden architecture */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;
+  background:
+    linear-gradient(90deg, transparent 0 8%, rgba(255, 0, 0, 0.035) 8.4%, transparent 8.8%),
+    linear-gradient(0deg, transparent 0 12%, rgba(255, 0, 0, 0.025) 12.4%, transparent 12.8%);
+  background-size: 220px 160px;
+  opacity: calc(var(--ncn-voltage) * 0.6);
+}
+
+/* headline phosphor: white > yellow */
+.story h2,
+.story h3,
+.card h2,
+.card h3,
+.article h2,
+.article h3 {
+  animation: ncn-white-yellow 11s infinite ease-in-out;
+}
+
+/* metadata: yellow > amber > red */
+.meta,
+.time,
+.date,
+.priority,
+.category,
+.tag,
+small {
+  animation: ncn-yellow-amber-red 8s infinite ease-in-out;
+}
+
+/* occasional bad horizontal hold moment */
+body.ncn-bad-sync .container {
+  transform:
+    translateX(calc(var(--ncn-drift) + 7px))
+    translateY(var(--ncn-pitch))
+    rotate(var(--ncn-roll));
+}
+
+/* momentary white targeting snap */
+body.ncn-target-snap .story h2,
+body.ncn-target-snap .card h2,
+body.ncn-target-snap .article h2 {
+  color: #fff !important;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 18px rgba(255, 180, 40, 0.9),
+    0 0 34px rgba(255, 40, 0, 0.8) !important;
+}
+
+/* amber data stutter */
+body.ncn-data-stutter .meta,
+body.ncn-data-stutter .time,
+body.ncn-data-stutter .priority,
+body.ncn-data-stutter small {
+  opacity: 0.45;
+  transform: translateX(1px);
+}
+
+/* optional sensor button */
+#ncnSensorButton {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 10000;
+  background: rgba(40, 0, 0, 0.85);
+  color: #ffb21c;
+  border: 1px solid rgba(255, 60, 20, 0.7);
+  border-radius: 999px;
+  padding: 9px 13px;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 0 14px rgba(255, 30, 0, 0.35);
+}
+
+/* animations */
+
+@keyframes ncn-glass-breathe {
+  0%, 100% { opacity: 0.35; }
+  42% { opacity: 0.08; }
+  68% { opacity: 0.58; }
+}
+
+@keyframes ncn-white-yellow {
+  0%, 100% {
+    color: #fff3d6;
+    text-shadow: 0 0 8px rgba(255,255,230,0.65), 0 0 20px rgba(255,50,0,0.3);
+  }
+  45% {
+    color: #ffcf36;
+    text-shadow: 0 0 8px rgba(255,190,20,0.65), 0 0 24px rgba(255,80,0,0.45);
+  }
+  72% {
+    color: #fff8e8;
+  }
+}
+
+@keyframes ncn-yellow-amber-red {
+  0%, 100% { color: #ffcf36; }
+  45% { color: #ff8500; }
+  75% { color: #ff2a12; }
+}
