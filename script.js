@@ -422,3 +422,35 @@ if (document.readyState === "loading") {
    paste near the end of script.js
 ========================================================= */
 
+/* =========================================================
+   NCN OPTICAL VIEWER EVENT ENGINE
+   rare projection events, not constant glitch loops
+========================================================= */
+
+(function () {
+  const body = document.body;
+
+  function trigger(className, duration) {
+    body.classList.add(className);
+
+    setTimeout(() => {
+      body.classList.remove(className);
+    }, duration);
+  }
+
+  function rollOpticalEvent() {
+    const roll = Math.random();
+
+    if (roll < 0.0004) {
+      trigger("ov-signal-drop", 900);
+    } else if (roll < 0.0012) {
+      trigger("ov-focus-loss", 650);
+    } else if (roll < 0.0025) {
+      trigger("ov-slip", 180);
+    } else if (roll < 0.006) {
+      trigger("ov-flare", 420);
+    }
+  }
+
+  setInterval(rollOpticalEvent, 1000);
+})();
