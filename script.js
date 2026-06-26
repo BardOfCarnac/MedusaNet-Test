@@ -421,36 +421,52 @@ if (document.readyState === "loading") {
    NCN LIVING OPTICAL SYSTEM
    paste near the end of script.js
 ========================================================= */
-
 /* =========================================================
-   NCN OPTICAL VIEWER EVENT ENGINE
-   rare projection events, not constant glitch loops
+   NCN OPTICAL VIEWER EVENT ENGINE v3.1
+   statistical projection behaviour
 ========================================================= */
 
 (function () {
   const body = document.body;
+  const root = document.documentElement;
 
-  function trigger(className, duration) {
+  function trigger(className, duration, afterClass) {
     body.classList.add(className);
 
     setTimeout(() => {
       body.classList.remove(className);
+
+      if (afterClass) {
+        body.classList.add(afterClass);
+        setTimeout(() => body.classList.remove(afterClass), 900);
+      }
     }, duration);
   }
 
   function rollOpticalEvent() {
     const roll = Math.random();
 
-    if (roll < 0.0004) {
-      trigger("ov-signal-drop", 900);
+    if (roll < 0.00008) {
+      trigger("ov-hard-fault", 520, "ov-recovering");
+    } else if (roll < 0.00045) {
+      trigger("ov-signal-drop", 850);
     } else if (roll < 0.0012) {
-      trigger("ov-focus-loss", 650);
-    } else if (roll < 0.0025) {
-      trigger("ov-slip", 180);
-    } else if (roll < 0.006) {
+      trigger("ov-focus-loss", 700);
+    } else if (roll < 0.0028) {
+      trigger("ov-slip", 160);
+    } else if (roll < 0.0065) {
       trigger("ov-flare", 420);
     }
   }
 
   setInterval(rollOpticalEvent, 1000);
+
+  /* Optional mouse parallax on desktop. Tiny, not spinny. */
+  window.addEventListener("mousemove", (event) => {
+    const x = (event.clientX / window.innerWidth - 0.5) * 10;
+    const y = (event.clientY / window.innerHeight - 0.5) * 10;
+
+    root.style.setProperty("--ov-parallax-x", `${x.toFixed(2)}px`);
+    root.style.setProperty("--ov-parallax-y", `${y.toFixed(2)}px`);
+  });
 })();
