@@ -842,3 +842,222 @@ body.ov-slip .inspector {
     border-right: none !important;
   }
 }
+/* =========================================================
+   NCN OPTICAL VIEWER v3.1 — energy/event behaviour layer
+   Paste AFTER Optical Viewer v3
+========================================================= */
+
+:root {
+  --ov-parallax-x: 0px;
+  --ov-parallax-y: 0px;
+}
+
+/* layered projection depth */
+body::after {
+  transform:
+    translateX(calc(var(--ov-parallax-x) * -0.45))
+    translateY(calc(var(--ov-parallax-y) * -0.35));
+  transition: transform 120ms linear, opacity 400ms ease;
+}
+
+.feed,
+.inspector {
+  transform:
+    translateX(calc(var(--ov-parallax-x) * 0.08))
+    translateY(calc(var(--ov-parallax-y) * 0.06));
+  transition:
+    transform 140ms linear,
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+
+.story h2,
+.inspector h2,
+.story-detail h2 {
+  transition:
+    color 320ms ease,
+    text-shadow 320ms ease,
+    filter 220ms ease,
+    opacity 220ms ease;
+}
+
+/* quiet thermal breathing */
+.container {
+  animation: ov-thermal-breathe 38s infinite ease-in-out;
+}
+
+/* energy decay language */
+.story:not(.open):not(.selected) h2 {
+  animation: ov-idle-headline-decay 17s infinite ease-in-out;
+}
+
+.meta,
+.detail-label,
+.system-line {
+  animation: ov-data-decay 13s infinite ease-in-out;
+}
+
+.story::after {
+  animation: ov-frame-coherence 29s infinite ease-in-out;
+}
+
+/* normal small flare */
+body.ov-flare .story h2,
+body.ov-flare .masthead h1 {
+  color: var(--ov-white-hot) !important;
+  text-shadow:
+    0 0 8px rgba(255, 248, 223, 0.85),
+    0 0 22px rgba(255, 214, 79, 0.45),
+    0 0 36px rgba(255, 43, 22, 0.22) !important;
+}
+
+body.ov-flare body::after {
+  opacity: 0.8;
+}
+
+/* focus loss: projection softens, not broken */
+body.ov-focus-loss .container {
+  filter: blur(0.9px) brightness(0.92) contrast(0.9);
+}
+
+body.ov-focus-loss .story::after {
+  opacity: 0.04;
+}
+
+/* signal drop: energy drains down the scale */
+body.ov-signal-drop .container {
+  filter: brightness(0.45) contrast(0.75) saturate(0.7);
+}
+
+body.ov-signal-drop .story h2,
+body.ov-signal-drop .inspector h2,
+body.ov-signal-drop .story-detail h2 {
+  color: var(--ov-red) !important;
+  text-shadow: 0 0 8px rgba(255, 43, 22, 0.18) !important;
+}
+
+body.ov-signal-drop .meta,
+body.ov-signal-drop .detail-label,
+body.ov-signal-drop p {
+  color: var(--ov-red-deep) !important;
+}
+
+/* tiny tracking slip */
+body.ov-slip .feed {
+  transform:
+    translateX(calc(var(--ov-parallax-x) * 0.08 + 2px))
+    translateY(calc(var(--ov-parallax-y) * 0.06));
+}
+
+body.ov-slip .inspector {
+  transform:
+    translateX(calc(var(--ov-parallax-x) * 0.08 - 1px))
+    translateY(calc(var(--ov-parallax-y) * 0.06));
+}
+
+/* rare hard projection fault */
+body.ov-hard-fault .container {
+  filter: brightness(1.8) contrast(1.35) blur(1.2px);
+}
+
+body.ov-hard-fault .feed,
+body.ov-hard-fault .inspector {
+  opacity: 0.38;
+  transform: translateX(-8px);
+}
+
+body.ov-hard-fault .story::after,
+body.ov-hard-fault .story::before,
+body.ov-hard-fault .inspector-rail {
+  opacity: 0.05 !important;
+}
+
+/* recovery pulse after hard fault */
+body.ov-recovering .story h2,
+body.ov-recovering .masthead h1 {
+  animation: ov-rebuild-to-white 900ms ease-out;
+}
+
+/* keyframes */
+
+@keyframes ov-thermal-breathe {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 32px rgba(255, 24, 0, 0.07),
+      inset 0 0 120px rgba(255, 0, 0, 0.035),
+      0 0 12px rgba(255, 20, 0, 0.10);
+  }
+  47% {
+    box-shadow:
+      inset 0 0 42px rgba(255, 24, 0, 0.10),
+      inset 0 0 150px rgba(255, 0, 0, 0.055),
+      0 0 18px rgba(255, 20, 0, 0.14);
+  }
+  72% {
+    box-shadow:
+      inset 0 0 22px rgba(255, 24, 0, 0.045),
+      inset 0 0 90px rgba(255, 0, 0, 0.025),
+      0 0 8px rgba(255, 20, 0, 0.08);
+  }
+}
+
+@keyframes ov-idle-headline-decay {
+  0%, 100% {
+    color: var(--ov-white-warm);
+  }
+  42% {
+    color: var(--ov-yellow-hot);
+  }
+  68% {
+    color: var(--ov-amber);
+  }
+  86% {
+    color: var(--ov-white-warm);
+  }
+}
+
+@keyframes ov-data-decay {
+  0%, 100% {
+    color: rgba(255, 214, 79, 0.84);
+  }
+  50% {
+    color: rgba(255, 130, 0, 0.74);
+  }
+  78% {
+    color: rgba(255, 43, 22, 0.68);
+  }
+}
+
+@keyframes ov-frame-coherence {
+  0%, 100% {
+    opacity: 0.14;
+    filter: blur(0);
+  }
+  44% {
+    opacity: 0.05;
+    filter: blur(0.4px);
+  }
+  58% {
+    opacity: 0.34;
+    filter: blur(0);
+  }
+}
+
+@keyframes ov-rebuild-to-white {
+  0% {
+    color: var(--ov-red-deep);
+    text-shadow: none;
+  }
+  25% {
+    color: var(--ov-red-hot);
+  }
+  50% {
+    color: var(--ov-amber);
+  }
+  72% {
+    color: var(--ov-yellow-hot);
+  }
+  100% {
+    color: var(--ov-white-hot);
+  }
+}
