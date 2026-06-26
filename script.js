@@ -417,3 +417,112 @@ if (document.readyState === "loading") {
 } else {
   startNightCityNews();
 }
+/* =========================================================
+   NCN LIVING OPTICAL SYSTEM
+   paste near the end of script.js
+========================================================= */
+
+(function () {
+  const root = document.documentElement;
+  const body = document.body;
+
+  let voltage = 0.35;
+  let bloom = 0.16;
+  let focus = 1;
+  let drift = 0;
+
+  function setVar(name, value) {
+    root.style.setProperty(name, value);
+  }
+
+  function randomBetween(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  // Slow voltage breathing
+  setInterval(() => {
+    voltage = randomBetween(0.08, 0.75);
+    bloom = randomBetween(0.06, 0.28);
+    focus = randomBetween(0.85, 1.15);
+
+    setVar("--ncn-voltage", voltage.toFixed(2));
+    setVar("--ncn-bloom", bloom.toFixed(2));
+    setVar("--ncn-focus", focus.toFixed(2));
+  }, randomBetween(5000, 12000));
+
+  // Tiny horizontal hold drift
+  setInterval(() => {
+    drift = randomBetween(-1.2, 1.2);
+    setVar("--ncn-drift", `${drift.toFixed(2)}px`);
+  }, 900);
+
+  // Occasional bad sync kick
+  setInterval(() => {
+    if (Math.random() < 0.32) {
+      body.classList.add("ncn-bad-sync");
+      setTimeout(() => body.classList.remove("ncn-bad-sync"), randomBetween(80, 240));
+    }
+  }, 7000);
+
+  // Occasional white targeting snap
+  setInterval(() => {
+    if (Math.random() < 0.42) {
+      body.classList.add("ncn-target-snap");
+      setTimeout(() => body.classList.remove("ncn-target-snap"), randomBetween(90, 220));
+    }
+  }, 11000);
+
+  // Amber data stutter
+  setInterval(() => {
+    if (Math.random() < 0.5) {
+      body.classList.add("ncn-data-stutter");
+      setTimeout(() => body.classList.remove("ncn-data-stutter"), randomBetween(120, 360));
+    }
+  }, 5000);
+
+  // Optional phone tilt support
+  function addSensorButton() {
+    if (!window.DeviceOrientationEvent) return;
+
+    const btn = document.createElement("button");
+    btn.id = "ncnSensorButton";
+    btn.textContent = "Enable Optics";
+    document.body.appendChild(btn);
+
+    btn.addEventListener("click", async () => {
+      try {
+        if (
+          typeof DeviceOrientationEvent.requestPermission === "function"
+        ) {
+          const permission = await DeviceOrientationEvent.requestPermission();
+          if (permission !== "granted") return;
+        }
+
+        window.addEventListener("deviceorientation", handleOrientation);
+        btn.textContent = "Optics Live";
+        setTimeout(() => btn.remove(), 1600);
+      } catch (err) {
+        btn.textContent = "Optics Blocked";
+      }
+    });
+  }
+
+  let lastSensorUpdate = 0;
+
+  function handleOrientation(event) {
+    const now = Date.now();
+    if (now - lastSensorUpdate < 100) return;
+    lastSensorUpdate = now;
+
+    const beta = event.beta || 0;   // front/back tilt
+    const gamma = event.gamma || 0; // left/right tilt
+
+    const roll = Math.max(-2.5, Math.min(2.5, gamma / 18));
+    const pitch = Math.max(-2, Math.min(2, beta / 30));
+
+    setVar("--ncn-roll", `${roll.toFixed(2)}deg`);
+    setVar("--ncn-pitch", `${pitch.toFixed(2)}px`);
+  }
+
+  addSensorButton();
+})();
