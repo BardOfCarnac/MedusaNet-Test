@@ -1057,3 +1057,393 @@ body.ov-calibration .container::before {
     display: none;
   }
                               }
+/* =========================================================
+   NCN OPTICAL VIEWER v4.1 — charge, capsules, stronger depth
+   Paste AFTER the clean v4 endplate
+========================================================= */
+
+/* ---------- no grey flash base ---------- */
+
+html,
+body,
+.container,
+.mobile-drawer,
+.feed,
+.inspector,
+.story,
+.story-detail,
+.filter-panels,
+.filter-panel,
+.submit-form {
+  background-color: var(--ov-black) !important;
+}
+
+/* ---------- per-story charge model ---------- */
+
+.story {
+  --charge: 0.7;
+  --cycle-speed: 8s;
+  --text-low: var(--ov-e-50);
+  --text-mid: var(--ov-e-80);
+  --text-high: var(--ov-e-100);
+  --rail-glow: rgba(255, 130, 0, 0.55);
+  --local-depth: 0.15;
+}
+
+.story-priority-bulletin {
+  --charge: 0.28;
+  --cycle-speed: 12s;
+  --text-low: var(--ov-e-20);
+  --text-mid: var(--ov-e-40);
+  --text-high: var(--ov-e-60);
+  --rail-glow: rgba(185, 21, 13, 0.55);
+}
+
+.story-priority-advisory {
+  --charge: 0.42;
+  --cycle-speed: 10.5s;
+  --text-low: var(--ov-e-30);
+  --text-mid: var(--ov-e-50);
+  --text-high: var(--ov-e-70);
+  --rail-glow: rgba(255, 43, 22, 0.62);
+}
+
+.story-priority-alert {
+  --charge: 0.58;
+  --cycle-speed: 9s;
+  --text-low: var(--ov-e-40);
+  --text-mid: var(--ov-e-60);
+  --text-high: var(--ov-e-80);
+  --rail-glow: rgba(255, 90, 0, 0.68);
+}
+
+.story-priority-warning {
+  --charge: 0.78;
+  --cycle-speed: 7.5s;
+  --text-low: var(--ov-e-60);
+  --text-mid: var(--ov-e-80);
+  --text-high: var(--ov-e-90);
+  --rail-glow: rgba(255, 181, 29, 0.74);
+}
+
+.story-priority-emergency {
+  --charge: 1;
+  --cycle-speed: 6s;
+  --text-low: var(--ov-e-80);
+  --text-mid: var(--ov-e-90);
+  --text-high: var(--ov-e-100);
+  --rail-glow: rgba(255, 248, 223, 0.88);
+}
+
+/* ---------- headline energy cycling ---------- */
+
+.story h2 {
+  color: var(--text-mid) !important;
+  text-shadow:
+    0 0 calc(4px + (18px * var(--charge))) color-mix(in srgb, var(--text-mid) 55%, transparent),
+    0 0 calc(10px + (28px * var(--charge))) var(--rail-glow) !important;
+  opacity: calc(0.55 + (0.45 * var(--charge)));
+  filter:
+    brightness(calc(0.8 + (0.45 * var(--charge))))
+    contrast(calc(0.95 + (0.18 * var(--charge))));
+  animation: ov-story-charge-cycle var(--cycle-speed) infinite ease-in-out !important;
+}
+
+.story.selected h2,
+.story.open h2 {
+  color: var(--text-high) !important;
+  opacity: 1;
+  filter: brightness(calc(1.05 + (0.35 * var(--charge)))) contrast(1.1);
+  animation: ov-story-charge-cycle calc(var(--cycle-speed) * 0.72) infinite ease-in-out !important;
+}
+
+/* meta should sit lower on the same energy ladder */
+.story .meta {
+  color: color-mix(in srgb, var(--text-mid) 72%, var(--ov-e-40)) !important;
+  opacity: calc(0.52 + (0.36 * var(--charge)));
+  text-shadow: 0 0 calc(4px + (10px * var(--charge))) var(--rail-glow);
+}
+
+/* rails inherit charge behaviour */
+.story::before {
+  opacity: calc(0.45 + (0.5 * var(--charge))) !important;
+  box-shadow:
+    0 0 calc(5px + (10px * var(--charge))) var(--rail-glow),
+    0 0 calc(12px + (24px * var(--charge))) var(--rail-glow) !important;
+}
+
+/* frames wake more strongly around high-charge stories */
+.story::after {
+  opacity: calc(0.07 + (0.22 * var(--charge)));
+  filter: brightness(calc(0.8 + (0.55 * var(--charge))));
+}
+
+.story:hover::after,
+.story.selected::after,
+.story.open::after {
+  opacity: calc(0.28 + (0.48 * var(--charge)));
+}
+
+/* actual colour cycling: red -> orange -> yellow -> white depending on charge */
+@keyframes ov-story-charge-cycle {
+  0%, 100% {
+    color: var(--text-low);
+    text-shadow:
+      0 0 calc(4px + (10px * var(--charge))) color-mix(in srgb, var(--text-low) 55%, transparent),
+      0 0 calc(8px + (16px * var(--charge))) var(--rail-glow);
+  }
+
+  38% {
+    color: var(--text-mid);
+    text-shadow:
+      0 0 calc(5px + (14px * var(--charge))) color-mix(in srgb, var(--text-mid) 65%, transparent),
+      0 0 calc(12px + (24px * var(--charge))) var(--rail-glow);
+  }
+
+  62% {
+    color: var(--text-high);
+    text-shadow:
+      0 0 calc(6px + (20px * var(--charge))) color-mix(in srgb, var(--text-high) 72%, transparent),
+      0 0 calc(18px + (34px * var(--charge))) var(--rail-glow);
+  }
+
+  82% {
+    color: var(--text-mid);
+  }
+}
+
+/* ---------- inspector charge follows selected priority ---------- */
+
+.inspector-rail.priority-bulletin ~ .inspector-content {
+  --text-low: var(--ov-e-20);
+  --text-mid: var(--ov-e-40);
+  --text-high: var(--ov-e-60);
+  --charge: 0.28;
+}
+
+.inspector-rail.priority-advisory ~ .inspector-content {
+  --text-low: var(--ov-e-30);
+  --text-mid: var(--ov-e-50);
+  --text-high: var(--ov-e-70);
+  --charge: 0.42;
+}
+
+.inspector-rail.priority-alert ~ .inspector-content {
+  --text-low: var(--ov-e-40);
+  --text-mid: var(--ov-e-60);
+  --text-high: var(--ov-e-80);
+  --charge: 0.58;
+}
+
+.inspector-rail.priority-warning ~ .inspector-content {
+  --text-low: var(--ov-e-60);
+  --text-mid: var(--ov-e-80);
+  --text-high: var(--ov-e-90);
+  --charge: 0.78;
+}
+
+.inspector-rail.priority-emergency ~ .inspector-content {
+  --text-low: var(--ov-e-80);
+  --text-mid: var(--ov-e-90);
+  --text-high: var(--ov-e-100);
+  --charge: 1;
+}
+
+.inspector-content h2 {
+  color: var(--text-high, var(--ov-e-100)) !important;
+  animation: ov-story-charge-cycle 7s infinite ease-in-out !important;
+}
+
+/* ---------- rounded projected capsules ---------- */
+
+.command-button,
+.filter-tab,
+.filter-option,
+.utility-btn,
+.time-option,
+.submit-form button {
+  border: 1px solid rgba(255, 43, 22, 0.46) !important;
+  border-radius: 999px !important;
+  padding: 10px 16px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 43, 22, 0.055), transparent 70%) !important;
+  color: var(--ov-e-80) !important;
+  box-shadow:
+    inset 0 0 10px rgba(255, 43, 22, 0.08),
+    0 0 10px rgba(255, 43, 22, 0.12) !important;
+}
+
+.command-button:hover,
+.command-button.active,
+.filter-tab:hover,
+.filter-option:hover,
+.utility-btn:hover,
+.time-option:hover,
+.submit-form button:hover,
+.filter-tab.active,
+.filter-option.active,
+.time-option.active {
+  border-color: rgba(255, 214, 79, 0.78) !important;
+  color: var(--ov-e-100) !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 181, 29, 0.10), transparent 72%) !important;
+  box-shadow:
+    inset 0 0 12px rgba(255, 181, 29, 0.12),
+    0 0 12px rgba(255, 181, 29, 0.24),
+    0 0 28px rgba(255, 43, 22, 0.14) !important;
+}
+
+/* ---------- stronger automatic depth ---------- */
+
+:root {
+  --ov-depth-idle: 0px;
+  --ov-depth-touch-y: 0px;
+  --ov-depth-y-total: calc(var(--ov-depth-y) + var(--ov-depth-idle) + var(--ov-depth-touch-y));
+}
+
+body {
+  animation: ov-idle-depth-driver 13s infinite ease-in-out;
+}
+
+/* deep architecture moves most */
+body::after {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * -1.75))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 2.2)) !important;
+}
+
+/* shell moves modestly */
+.container {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.08))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.08));
+  transform-origin: center top;
+}
+
+/* panels are middle-depth */
+.feed,
+.inspector {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.46))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.42)) !important;
+}
+
+/* frames float behind text */
+.story::after,
+.filter-panels,
+.submit-form {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.28))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.22)) !important;
+}
+
+/* text barely moves, but enough to prove it has depth */
+.story h2,
+.story .meta,
+.inspector h2,
+.story-detail h2,
+.inspector p,
+.story-detail p {
+  transform: translateY(calc(var(--ov-depth-y-total) * 0.07)) !important;
+}
+
+@keyframes ov-idle-depth-driver {
+  0%, 100% {
+    --ov-depth-idle: -2px;
+  }
+  35% {
+    --ov-depth-idle: 3px;
+  }
+  68% {
+    --ov-depth-idle: -1px;
+  }
+}
+
+/* ---------- stronger acquire/decay through colour ---------- */
+
+.ov-acquiring,
+.story.open .story-detail,
+.filter-panel.open {
+  animation: ov-acquire-through-energy 900ms ease-out both !important;
+}
+
+.ov-cooling {
+  animation: ov-decay-through-energy 420ms ease-in both !important;
+}
+
+@keyframes ov-acquire-through-energy {
+  0% {
+    opacity: 0;
+    color: transparent;
+    filter: blur(2.2px) brightness(0.08);
+    text-shadow: none;
+  }
+
+  16% {
+    opacity: 0.28;
+    color: var(--ov-e-20);
+    filter: blur(1.8px) brightness(0.35);
+    text-shadow: 0 0 6px rgba(120, 0, 0, 0.35);
+  }
+
+  32% {
+    opacity: 0.5;
+    color: var(--ov-e-40);
+    filter: blur(1.2px) brightness(0.65);
+    text-shadow: 0 0 10px rgba(255, 43, 22, 0.36);
+  }
+
+  52% {
+    opacity: 0.76;
+    color: var(--ov-e-70);
+    filter: blur(0.6px) brightness(1);
+    text-shadow: 0 0 15px rgba(255, 130, 0, 0.46);
+  }
+
+  74% {
+    opacity: 0.96;
+    color: var(--ov-e-90);
+    filter: blur(0.25px) brightness(1.2);
+    text-shadow:
+      0 0 12px rgba(255, 214, 79, 0.6),
+      0 0 26px rgba(255, 130, 0, 0.34);
+  }
+
+  100% {
+    opacity: 1;
+    color: inherit;
+    filter: blur(0) brightness(1);
+    text-shadow: inherit;
+  }
+}
+
+@keyframes ov-decay-through-energy {
+  0% {
+    opacity: 1;
+    filter: blur(0) brightness(1.05);
+  }
+
+  25% {
+    opacity: 0.78;
+    color: var(--ov-e-90);
+    filter: blur(0.3px) brightness(0.85);
+  }
+
+  48% {
+    opacity: 0.52;
+    color: var(--ov-e-60);
+    filter: blur(0.8px) brightness(0.58);
+  }
+
+  72% {
+    opacity: 0.28;
+    color: var(--ov-e-30);
+    filter: blur(1.4px) brightness(0.32);
+  }
+
+  100% {
+    opacity: 0;
+    color: transparent;
+    filter: blur(2px) brightness(0.08);
+  }
+}
