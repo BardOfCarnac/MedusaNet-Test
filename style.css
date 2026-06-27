@@ -1822,3 +1822,296 @@ body {
     filter: blur(2px) brightness(0.06);
   }
 }
+/* =========================================================
+   NCN OPTICAL VIEWER v4.4 — projected glass plates / depth
+   Paste at VERY END
+========================================================= */
+
+/* Make depth obvious enough to judge */
+:root {
+  --ov-depth-y-total: calc(var(--ov-depth-y, 0px) + var(--ov-depth-touch-y, 0px) + var(--ov-depth-idle, 0px));
+  --ov-plate-bg: rgba(75, 4, 2, 0.34);
+  --ov-plate-bg-deep: rgba(34, 1, 0, 0.62);
+  --ov-plate-edge: rgba(255, 64, 24, 0.30);
+  --ov-plate-edge-hot: rgba(255, 181, 29, 0.36);
+}
+
+/* Reduce distant line clutter so plates do the depth work */
+body::after {
+  opacity: 0.28 !important;
+  filter: blur(0.6px) brightness(0.85) !important;
+}
+
+/* Shared plate behaviour */
+.masthead,
+.command-bar,
+.feed,
+.inspector,
+.mobile-drawer,
+.story,
+.story.open .story-detail,
+.filter-panels,
+.submit-form {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+}
+
+/* The actual smoked-glass plate */
+.masthead::before,
+.command-bar::before,
+.feed::before,
+.inspector::before,
+.mobile-drawer::before,
+.story::before,
+.story.open .story-detail::before,
+.filter-panels::before,
+.submit-form::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 90, 0, 0.10), transparent 42%),
+    linear-gradient(180deg, var(--ov-plate-bg), var(--ov-plate-bg-deep));
+  border: 1px solid var(--ov-plate-edge);
+  box-shadow:
+    inset 0 0 22px rgba(255, 40, 12, 0.10),
+    inset 0 0 48px rgba(0, 0, 0, 0.40),
+    0 0 18px rgba(255, 28, 8, 0.10);
+  opacity: 0.92;
+}
+
+/* Preserve priority rail: put it back on top of story plate */
+.story::before {
+  z-index: 2 !important;
+  inset: 18px auto 18px 0 !important;
+  width: 4px !important;
+  border: none !important;
+  background: inherit;
+}
+
+/* Story card plate uses ::after as the larger plate because ::before is rail */
+.story::after {
+  z-index: -1;
+  inset: 4px -8px 4px 10px !important;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 90, 0, 0.08), transparent 46%),
+    linear-gradient(180deg, rgba(75, 4, 2, 0.26), rgba(16, 0, 0, 0.56)) !important;
+  border: 1px solid rgba(255, 64, 24, 0.22);
+  box-shadow:
+    inset 0 0 16px rgba(255, 40, 12, 0.08),
+    0 0 16px rgba(255, 28, 8, 0.08);
+  opacity: 0.72 !important;
+}
+
+/* Selected/open story plate is brighter and slightly closer */
+.story.selected::after,
+.story.open::after {
+  border-color: var(--ov-plate-edge-hot);
+  background:
+    linear-gradient(135deg, rgba(255, 181, 29, 0.12), transparent 44%),
+    linear-gradient(180deg, rgba(96, 8, 2, 0.36), rgba(25, 0, 0, 0.66)) !important;
+  opacity: 0.95 !important;
+  box-shadow:
+    inset 0 0 20px rgba(255, 181, 29, 0.08),
+    0 0 24px rgba(255, 64, 24, 0.16);
+}
+
+/* Plate shapes */
+.masthead::before {
+  border-radius: 22px;
+  inset: -6px -10px -8px -10px;
+}
+
+.command-bar::before {
+  border-radius: 999px;
+  inset: -7px -10px;
+}
+
+.feed::before,
+.inspector::before,
+.mobile-drawer::before,
+.filter-panels::before,
+.submit-form::before {
+  border-radius: 24px;
+}
+
+.story.open .story-detail::before {
+  border-radius: 18px;
+  inset: 0;
+}
+
+/* Make actual detail panel sit on its own plate */
+.story.open .story-detail {
+  position: relative;
+  isolation: isolate;
+  border: none !important;
+  background: transparent !important;
+  padding: 18px !important;
+}
+
+/* Add physical separation between story plates */
+.story {
+  margin-bottom: 8px;
+  padding: 18px 10px 18px 22px !important;
+  border-bottom: none !important;
+}
+
+.story:last-child {
+  margin-bottom: 0;
+}
+
+/* Feed and inspector become heavy base plates */
+.feed,
+.inspector {
+  padding: 20px !important;
+  border: none !important;
+}
+
+.inspector {
+  padding-left: 46px !important;
+}
+
+/* Command buttons live on their own raised bar */
+.command-bar {
+  padding: 8px;
+  margin-bottom: 18px;
+}
+
+/* Capsules: projected controls on top of command plate */
+.command-button,
+.filter-tab,
+.filter-option,
+.utility-btn,
+.time-option,
+.submit-form button {
+  background: rgba(18, 0, 0, 0.26) !important;
+  border: 1px solid rgba(255, 64, 24, 0.48) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    inset 0 0 10px rgba(255, 40, 12, 0.12),
+    0 0 10px rgba(255, 40, 12, 0.12) !important;
+}
+
+/* ------------------------------
+   Depth: each plate has a height
+------------------------------ */
+
+/* Masthead nearest and proudest */
+.masthead {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 1.05))
+    scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 1.2)) !important;
+  z-index: 30;
+}
+
+/* Command bar also high */
+.command-bar {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.88))
+    scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 1.0)) !important;
+  z-index: 26;
+}
+
+/* Story cards are in front of feed base */
+.story {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.66))
+    scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 0.7)) !important;
+  z-index: 12;
+}
+
+/* Active/open card slightly closer */
+.story.selected,
+.story.open {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.78))
+    scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 0.85)) !important;
+  z-index: 16;
+}
+
+/* Feed and inspector base plates sit deeper */
+.feed {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.34))
+    scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 0.38)) !important;
+  z-index: 8;
+}
+
+.inspector {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.30))
+    scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 0.35)) !important;
+  z-index: 7;
+}
+
+/* Details/filter panels sit above their parent plate */
+.story.open .story-detail,
+.filter-panels,
+.submit-form,
+.mobile-drawer {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.72))
+    scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 0.78)) !important;
+  z-index: 18;
+}
+
+/* Text sits above plates but does not fly wildly */
+.story h2,
+.story .meta,
+.inspector h2,
+.inspector p,
+.story-detail h2,
+.story-detail p,
+.detail-grid {
+  position: relative;
+  z-index: 5;
+  transform: translateY(calc(var(--ov-depth-y-total) * 0.10)) !important;
+}
+
+/* Rails and borders are attached to story card layer */
+.story::before,
+.inspector-rail {
+  z-index: 6 !important;
+}
+
+/* Slight occlusion: make lower cards tuck under upper cards */
+.story + .story {
+  margin-top: -2px;
+}
+
+/* Mobile: keep plates readable, not too huge */
+@media screen and (max-width: 600px) {
+  .feed::before {
+    display: none;
+  }
+
+  .feed {
+    padding: 0 !important;
+  }
+
+  .story {
+    margin-bottom: 10px;
+  }
+
+  .masthead {
+    transform:
+      translateY(calc(var(--ov-depth-y-total) * 0.65))
+      scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 0.8)) !important;
+  }
+
+  .command-bar {
+    transform:
+      translateY(calc(var(--ov-depth-y-total) * 0.58))
+      scale(calc(1 + (var(--ov-depth-scale, 1) - 1) * 0.7)) !important;
+  }
+
+  .story,
+  .story.selected,
+  .story.open {
+    transform:
+      translateY(calc(var(--ov-depth-y-total) * 0.46))
+      scale(calc(1 + (var(--ov-depth-scale, 1
