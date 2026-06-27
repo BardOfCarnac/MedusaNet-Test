@@ -117,7 +117,7 @@ function startNightCityNews() {
      PROJECTION ANIMATION HELPERS
   ========================================================= */
 
-  function coolThenProject(element, update, delay = 320) {
+  function coolThenProject(element, update, delay = 520) {
     if (!element) {
       update();
       return;
