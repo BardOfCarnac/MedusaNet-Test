@@ -1476,3 +1476,82 @@ body.ov-calibration .container::before {
   82% { opacity: 0.85; }
   100% { opacity: 0; transform: scale(1); }
   }
+/* =========================================================
+   NCN VIEW TRANSITIONS — filters/article fade, no headline blink
+========================================================= */
+
+/* Right inspector / filter panels fade as projected panes */
+.inspector,
+.controls,
+.submit-panel,
+.filter-panels,
+.story-detail {
+  transition:
+    opacity 280ms ease,
+    filter 280ms ease,
+    transform 280ms ease;
+}
+
+/* Filter panels should fade in when opened */
+.filter-panel {
+  opacity: 0;
+  filter: blur(0.8px) brightness(0.55);
+  transform: translateY(6px);
+  transition:
+    opacity 280ms ease,
+    filter 280ms ease,
+    transform 280ms ease;
+}
+
+.filter-panel.open {
+  opacity: 1;
+  filter: blur(0) brightness(1);
+  transform: translateY(0);
+}
+
+/* Mobile story detail: fade the detail only */
+.story-detail {
+  opacity: 0;
+  filter: blur(1px) brightness(0.65);
+  transform: translateY(8px);
+}
+
+.story.open .story-detail {
+  opacity: 1;
+  filter: blur(0) brightness(1);
+  transform: translateY(0);
+}
+
+/* Stop clicked headline from doing the dramatic acquire cycle */
+.story.selected h2,
+.story.open h2 {
+  animation: none !important;
+  color: var(--ov-white-hot) !important;
+}
+
+/* Only the newly revealed article body should acquire */
+.story.open .story-detail,
+.inspector {
+  animation: ov-pane-acquire 420ms ease-out;
+}
+
+@keyframes ov-pane-acquire {
+  0% {
+    opacity: 0;
+    filter: blur(1.8px) brightness(0.35);
+    transform: translateY(10px);
+  }
+  35% {
+    opacity: 0.55;
+    filter: blur(0.9px) brightness(0.75);
+  }
+  70% {
+    opacity: 0.9;
+    filter: blur(0.2px) brightness(1.2);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0) brightness(1);
+    transform: translateY(0);
+  }
+}
