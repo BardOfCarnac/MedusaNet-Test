@@ -1447,3 +1447,218 @@ body::after {
     filter: blur(2px) brightness(0.08);
   }
 }
+/* =========================================================
+   NCN OPTICAL VIEWER v4.2 — smoother charge + visible depth
+   Paste at VERY END
+========================================================= */
+
+/* More obvious depth test */
+:root {
+  --ov-depth-y: 0px;
+  --ov-depth-touch-y: 0px;
+  --ov-depth-idle: 0px;
+  --ov-depth-y-total: calc(var(--ov-depth-y) + var(--ov-depth-touch-y) + var(--ov-depth-idle));
+  --ov-depth-scale: 1;
+}
+
+body::after {
+  opacity: 0.82 !important;
+  filter: brightness(1.45) blur(0.2px);
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * -3.5))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 4)) !important;
+}
+
+.container {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.25))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.35)) !important;
+}
+
+.feed,
+.inspector {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.8))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.75)) !important;
+}
+
+.story::after,
+.filter-panels,
+.submit-form {
+  transform:
+    translateY(calc(var(--ov-depth-y-total) * 0.45))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.45)) !important;
+}
+
+.story h2,
+.story .meta,
+.inspector h2,
+.story-detail h2,
+.inspector p,
+.story-detail p {
+  transform: translateY(calc(var(--ov-depth-y-total) * 0.12)) !important;
+}
+
+/* Stronger visible auto drift */
+body {
+  animation: ov-visible-depth-drift 7s infinite ease-in-out !important;
+}
+
+@keyframes ov-visible-depth-drift {
+  0%, 100% { --ov-depth-idle: -6px; }
+  50% { --ov-depth-idle: 6px; }
+}
+
+/* Smooth charge: many stops, no hard red/yellow jumps */
+.story h2 {
+  animation: ov-smooth-charge-cycle var(--cycle-speed, 9s) infinite ease-in-out !important;
+}
+
+.story.selected h2,
+.story.open h2 {
+  animation: ov-smooth-charge-cycle calc(var(--cycle-speed, 9s) * 0.72) infinite ease-in-out !important;
+}
+
+.inspector-content h2 {
+  animation: ov-smooth-charge-cycle 7s infinite ease-in-out !important;
+}
+
+/* Override per-priority ranges with more intermediate colour anchors */
+.story-priority-bulletin {
+  --c0: #150000;
+  --c1: #2b0100;
+  --c2: #4a0503;
+  --c3: #6a0704;
+  --c4: #8a0b04;
+  --c5: #b9150d;
+  --glowc: rgba(185, 21, 13, 0.48);
+}
+
+.story-priority-advisory {
+  --c0: #2b0100;
+  --c1: #4a0503;
+  --c2: #7a0804;
+  --c3: #b9150d;
+  --c4: #ff2b16;
+  --c5: #ff5a00;
+  --glowc: rgba(255, 43, 22, 0.56);
+}
+
+.story-priority-alert {
+  --c0: #4a0503;
+  --c1: #8a0b04;
+  --c2: #c21709;
+  --c3: #ff2b16;
+  --c4: #ff5a00;
+  --c5: #ff8200;
+  --glowc: rgba(255, 90, 0, 0.64);
+}
+
+.story-priority-warning {
+  --c0: #7a0804;
+  --c1: #c21709;
+  --c2: #ff5a00;
+  --c3: #ff8200;
+  --c4: #ffb51d;
+  --c5: #ffd64f;
+  --glowc: rgba(255, 181, 29, 0.72);
+}
+
+.story-priority-emergency {
+  --c0: #ff5a00;
+  --c1: #ff8200;
+  --c2: #ffb51d;
+  --c3: #ffd64f;
+  --c4: #ffe7ae;
+  --c5: #fff8df;
+  --glowc: rgba(255, 248, 223, 0.82);
+}
+
+@keyframes ov-smooth-charge-cycle {
+  0%, 100% {
+    color: var(--c1, var(--ov-e-60));
+    text-shadow:
+      0 0 4px color-mix(in srgb, var(--c1, var(--ov-e-60)) 40%, transparent),
+      0 0 10px var(--glowc, rgba(255, 90, 0, 0.45));
+  }
+
+  14% {
+    color: var(--c2, var(--ov-e-70));
+    text-shadow:
+      0 0 5px color-mix(in srgb, var(--c2, var(--ov-e-70)) 48%, transparent),
+      0 0 14px var(--glowc, rgba(255, 90, 0, 0.5));
+  }
+
+  28% {
+    color: var(--c3, var(--ov-e-80));
+    text-shadow:
+      0 0 7px color-mix(in srgb, var(--c3, var(--ov-e-80)) 58%, transparent),
+      0 0 18px var(--glowc, rgba(255, 90, 0, 0.58));
+  }
+
+  43% {
+    color: var(--c4, var(--ov-e-90));
+    text-shadow:
+      0 0 9px color-mix(in srgb, var(--c4, var(--ov-e-90)) 68%, transparent),
+      0 0 24px var(--glowc, rgba(255, 181, 29, 0.64));
+  }
+
+  58% {
+    color: var(--c5, var(--ov-e-100));
+    text-shadow:
+      0 0 11px color-mix(in srgb, var(--c5, var(--ov-e-100)) 72%, transparent),
+      0 0 32px var(--glowc, rgba(255, 248, 223, 0.7));
+  }
+
+  73% {
+    color: var(--c4, var(--ov-e-90));
+  }
+
+  86% {
+    color: var(--c2, var(--ov-e-70));
+  }
+}
+
+/* Pane content gets its own colour journey, not just opacity */
+.ov-acquiring,
+.story.open .story-detail,
+.filter-panel.open {
+  animation: ov-rich-acquire 980ms ease-out both !important;
+}
+
+.ov-cooling {
+  animation: ov-rich-decay 520ms ease-in both !important;
+}
+
+@keyframes ov-rich-acquire {
+  0% {
+    opacity: 0;
+    color: transparent;
+    filter: blur(2.5px) brightness(0.05);
+    text-shadow: none;
+  }
+  10% { opacity: 0.16; color: #150000; filter: blur(2.2px) brightness(0.18); }
+  20% { opacity: 0.28; color: #2b0100; filter: blur(1.9px) brightness(0.32); }
+  32% { opacity: 0.42; color: #4a0503; filter: blur(1.5px) brightness(0.48); }
+  44% { opacity: 0.58; color: #8a0b04; filter: blur(1.1px) brightness(0.66); }
+  56% { opacity: 0.72; color: #c21709; filter: blur(0.8px) brightness(0.82); }
+  68% { opacity: 0.84; color: #ff5a00; filter: blur(0.5px) brightness(1); }
+  80% { opacity: 0.94; color: #ffb51d; filter: blur(0.25px) brightness(1.14); }
+  91% { opacity: 1; color: #ffd64f; filter: blur(0.1px) brightness(1.22); }
+  100% {
+    opacity: 1;
+    color: inherit;
+    filter: blur(0) brightness(1);
+    text-shadow: inherit;
+  }
+}
+
+@keyframes ov-rich-decay {
+  0% { opacity: 1; filter: blur(0) brightness(1.08); color: inherit; }
+  18% { opacity: 0.84; filter: blur(0.25px) brightness(0.92); color: #ffd64f; }
+  34% { opacity: 0.68; filter: blur(0.55px) brightness(0.76); color: #ffb51d; }
+  50% { opacity: 0.5; filter: blur(0.9px) brightness(0.58); color: #ff5a00; }
+  66% { opacity: 0.34; filter: blur(1.25px) brightness(0.4); color: #b9150d; }
+  82% { opacity: 0.18; filter: blur(1.65px) brightness(0.22); color: #4a0503; }
+  100% { opacity: 0; filter: blur(2.2px) brightness(0.06); color: transparent; }
+}
