@@ -633,3 +633,182 @@ if (document.readyState === "loading") {
 } else {
   startNightCityNews();
       }
+/* =========================================================
+   NCN PROJECTION ENGINE v1
+   energy / depth / focus controller
+========================================================= */
+
+(function () {
+  const root = document.documentElement;
+
+  const ROLE_SETTINGS = {
+    masthead: { energy: 88, depth: 150, focus: 1 },
+    command: { energy: 72, depth: 130, focus: 0.96 },
+    plate: { energy: 28, depth: 70, focus: 0.86 },
+    story: { energy: 42, depth: 95, focus: 0.9 },
+    headline: { energy: 86, depth: 135, focus: 1 },
+    meta: { energy: 56, depth: 122, focus: 0.94 },
+    body: { energy: 64, depth: 118, focus: 0.94 },
+    rail: { energy: 70, depth: 120, focus: 1 },
+    control: { energy: 62, depth: 138, focus: 0.96 }
+  };
+
+  let globalEnergyShift = 0;
+  let depthInput = 0;
+  let depthCurrent = 0;
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function register(el, role, offset = 0) {
+    if (!el || el.dataset.projected === "true") return;
+
+    const settings = ROLE_SETTINGS[role] || ROLE_SETTINGS.plate;
+
+    el.dataset.projected = "true";
+    el.dataset.role = role;
+    el.dataset.energy = String(settings.energy + offset);
+    el.dataset.targetEnergy = String(settings.energy + offset);
+    el.dataset.depth = String(settings.depth);
+    el.dataset.focus = String(settings.focus);
+
+    el.style.setProperty("--energy", el.dataset.energy);
+    el.style.setProperty("--depth", el.dataset.depth);
+    el.style.setProperty("--focus", el.dataset.focus);
+  }
+
+  function registerAll() {
+    register(document.querySelector(".masthead"), "masthead");
+    register(document.querySelector(".command-bar"), "command");
+
+    document.querySelectorAll(".feed, .inspector, .mobile-drawer, .filter-panels, .submit-form")
+      .forEach(el => register(el, "plate"));
+
+    document.querySelectorAll(".command-button, .filter-tab, .filter-option, .utility-btn, .time-option, .submit-form button")
+      .forEach(el => register(el, "control"));
+
+    document.querySelectorAll(".story").forEach((story, index) => {
+      let priorityBoost = 0;
+
+      if (story.classList.contains("story-priority-bulletin")) priorityBoost = -8;
+      if (story.classList.contains("story-priority-advisory")) priorityBoost = -3;
+      if (story.classList.contains("story-priority-alert")) priorityBoost = 3;
+      if (story.classList.contains("story-priority-warning")) priorityBoost = 8;
+      if (story.classList.contains("story-priority-emergency")) priorityBoost = 14;
+
+      register(story, "story", priorityBoost + (index % 3) * 2);
+
+      const rail = story.querySelector("::before");
+      story.style.setProperty("--priority-energy", String(65 + priorityBoost));
+
+      register(story.querySelector("h2"), "headline", priorityBoost * 0.3);
+      register(story.querySelector(".meta"), "meta", priorityBoost * 0.2);
+      register(story.querySelector(".story-detail"), "plate", 6);
+
+      story.querySelectorAll(".story-detail p").forEach(p => register(p, "body"));
+      story.querySelectorAll(".detail-grid, .detail-label").forEach(el => register(el, "meta"));
+    });
+
+    document.querySelectorAll(".inspector h2, .story-detail h2")
+      .forEach(el => register(el, "headline"));
+
+    document.querySelectorAll(".inspector p, .story-detail p")
+      .forEach(el => register(el, "body"));
+
+    document.querySelectorAll(".meta, .detail-label")
+      .forEach(el => register(el, "meta"));
+  }
+
+  function updateElement(el, time) {
+    const target = Number(el.dataset.targetEnergy || 50);
+    const current = Number(el.dataset.energy || target);
+    const focus = Number(el.dataset.focus || 1);
+    const depth = Number(el.dataset.depth || 80);
+
+    const role = el.dataset.role || "plate";
+
+    const flicker =
+      Math.sin(time * 0.0017 + depth) * 2.2 +
+      Math.sin(time * 0.0041 + target) * 1.1 +
+      (Math.random() - 0.5) * 0.7;
+
+    const roleDrift = role === "headline" ? 3.2 :
+                      role === "control" ? 2.4 :
+                      role === "plate" ? 1.2 :
+                      1.8;
+
+    const desired = clamp(target + globalEnergyShift + flicker * roleDrift, 0, 100);
+    const next = current + (desired - current) * 0.075;
+
+    el.dataset.energy = String(next);
+
+    el.style.setProperty("--energy", next.toFixed(2));
+    el.style.setProperty("--depth", depth.toFixed(2));
+    el.style.setProperty("--focus", focus.toFixed(2));
+  }
+
+  function engineTick(time) {
+    registerAll();
+
+    depthCurrent += (depthInput - depthCurrent) * 0.08;
+
+    const idleDepth = Math.sin(time * 0.0008) * 8;
+    const totalDepth = depthCurrent + idleDepth;
+    const scale = 1 + Math.abs(totalDepth) * 0.0018;
+
+    root.style.setProperty("--ov-engine-depth", `${totalDepth.toFixed(2)}px`);
+    root.style.setProperty("--ov-engine-scale", scale.toFixed(4));
+
+    document.querySelectorAll("[data-projected='true']").forEach(el => {
+      updateElement(el, time);
+    });
+
+    globalEnergyShift *= 0.985;
+
+    requestAnimationFrame(engineTick);
+  }
+
+  function surge(amount, duration = 650) {
+    globalEnergyShift += amount;
+
+    setTimeout(() => {
+      globalEnergyShift -= amount * 0.65;
+    }, duration);
+  }
+
+  function randomEvent() {
+    const roll = Math.random();
+
+    if (roll < 0.015) surge(18, 500);
+    else if (roll < 0.03) surge(-16, 700);
+  }
+
+  setInterval(randomEvent, 1800);
+
+  window.addEventListener("mousemove", event => {
+    const y = (event.clientY / window.innerHeight - 0.5) * 34;
+    depthInput = clamp(y, -24, 24);
+  });
+
+  window.addEventListener("touchmove", event => {
+    const touch = event.touches[0];
+    if (!touch) return;
+
+    const y = (touch.clientY / window.innerHeight - 0.5) * 42;
+    depthInput = clamp(y, -28, 28);
+  }, { passive: true });
+
+  window.addEventListener("touchend", () => {
+    depthInput = 0;
+  }, { passive: true });
+
+  window.addEventListener("deviceorientation", event => {
+    if (event.beta == null) return;
+
+    const y = (event.beta - 45) * 0.55;
+    depthInput = clamp(y, -28, 28);
+  });
+
+  requestAnimationFrame(engineTick);
+})();
