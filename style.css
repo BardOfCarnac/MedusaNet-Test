@@ -1662,3 +1662,163 @@ body {
   82% { opacity: 0.18; filter: blur(1.65px) brightness(0.22); color: #4a0503; }
   100% { opacity: 0; filter: blur(2.2px) brightness(0.06); color: transparent; }
 }
+/* =========================================================
+   NCN v4.3 — decouple headline colour from priority
+   Universal appearance: red first, then target colour
+========================================================= */
+
+/* Headlines are no longer capped by priority. Priority affects glow/rail, not title colour. */
+.story h2,
+.story.selected h2,
+.story.open h2 {
+  --title-c0: var(--ov-e-40);
+  --title-c1: var(--ov-e-60);
+  --title-c2: var(--ov-e-80);
+  --title-c3: var(--ov-e-90);
+  --title-c4: var(--ov-e-100);
+
+  color: var(--title-c3) !important;
+  animation: ov-title-upper-energy 8s infinite ease-in-out !important;
+}
+
+/* Priority only changes intensity and timing */
+.story-priority-bulletin { --charge: 0.35; --cycle-speed: 11s; }
+.story-priority-advisory { --charge: 0.48; --cycle-speed: 10s; }
+.story-priority-alert { --charge: 0.62; --cycle-speed: 8.8s; }
+.story-priority-warning { --charge: 0.8; --cycle-speed: 7.5s; }
+.story-priority-emergency { --charge: 1; --cycle-speed: 6.4s; }
+
+.story h2 {
+  animation-duration: var(--cycle-speed) !important;
+  text-shadow:
+    0 0 calc(6px + 10px * var(--charge)) rgba(255, 214, 79, 0.42),
+    0 0 calc(14px + 28px * var(--charge)) rgba(255, 90, 0, 0.22) !important;
+}
+
+@keyframes ov-title-upper-energy {
+  0%, 100% {
+    color: var(--title-c2);
+    text-shadow:
+      0 0 calc(5px + 10px * var(--charge)) rgba(255, 181, 29, 0.34),
+      0 0 calc(12px + 26px * var(--charge)) rgba(255, 43, 22, 0.18);
+  }
+
+  22% {
+    color: var(--title-c3);
+    text-shadow:
+      0 0 calc(7px + 12px * var(--charge)) rgba(255, 214, 79, 0.46),
+      0 0 calc(16px + 30px * var(--charge)) rgba(255, 130, 0, 0.24);
+  }
+
+  46% {
+    color: var(--title-c4);
+    text-shadow:
+      0 0 calc(9px + 14px * var(--charge)) rgba(255, 248, 223, 0.58),
+      0 0 calc(20px + 34px * var(--charge)) rgba(255, 181, 29, 0.30);
+  }
+
+  68% {
+    color: var(--title-c3);
+  }
+
+  84% {
+    color: var(--title-c1);
+  }
+}
+
+/* Every newly projected thing starts deep red, then reaches its inherited target colour. */
+.ov-acquiring,
+.story.open .story-detail,
+.filter-panel.open,
+.inspector {
+  animation: ov-universal-project-in 420ms ease-out both !important;
+}
+
+@keyframes ov-universal-project-in {
+  0% {
+    opacity: 0;
+    color: transparent;
+    filter: blur(1.8px) brightness(0.08);
+    text-shadow: none;
+  }
+
+  18% {
+    opacity: 0.34;
+    color: var(--ov-e-20);
+    filter: blur(1.3px) brightness(0.36);
+    text-shadow: 0 0 6px rgba(120, 0, 0, 0.38);
+  }
+
+  34% {
+    opacity: 0.58;
+    color: var(--ov-e-40);
+    filter: blur(0.9px) brightness(0.62);
+    text-shadow: 0 0 9px rgba(255, 43, 22, 0.36);
+  }
+
+  52% {
+    opacity: 0.82;
+    color: var(--ov-e-70);
+    filter: blur(0.45px) brightness(0.95);
+    text-shadow: 0 0 14px rgba(255, 130, 0, 0.42);
+  }
+
+  76% {
+    opacity: 1;
+    color: var(--ov-e-90);
+    filter: blur(0.15px) brightness(1.12);
+    text-shadow:
+      0 0 10px rgba(255, 214, 79, 0.52),
+      0 0 22px rgba(255, 130, 0, 0.28);
+  }
+
+  100% {
+    opacity: 1;
+    color: inherit;
+    filter: blur(0) brightness(1);
+    text-shadow: inherit;
+  }
+}
+
+/* Decay should be slower, like afterglow */
+.ov-cooling {
+  animation: ov-slow-afterglow-out 720ms ease-in both !important;
+}
+
+@keyframes ov-slow-afterglow-out {
+  0% {
+    opacity: 1;
+    color: inherit;
+    filter: blur(0) brightness(1);
+  }
+
+  18% {
+    opacity: 0.86;
+    color: var(--ov-e-90);
+    filter: blur(0.15px) brightness(0.95);
+  }
+
+  36% {
+    opacity: 0.68;
+    color: var(--ov-e-70);
+    filter: blur(0.4px) brightness(0.72);
+  }
+
+  58% {
+    opacity: 0.45;
+    color: var(--ov-e-50);
+    filter: blur(0.8px) brightness(0.48);
+  }
+
+  78% {
+    opacity: 0.24;
+    color: var(--ov-e-30);
+    filter: blur(1.3px) brightness(0.26);
+  }
+
+  100% {
+    opacity: 0;
+    color: transparent;
+    filter: blur(2px) brightness(0.06);
+  }
+}
