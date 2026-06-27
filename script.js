@@ -422,23 +422,78 @@ if (document.readyState === "loading") {
    paste near the end of script.js
 ========================================================= */
 /* =========================================================
-   NCN OPTICAL VIEWER EVENT ENGINE v3.2
-   louder while testing
+   NCN OPTICAL VIEWER v4 — transitions + depth + FLIP
+   Paste near END of script.js
 ========================================================= */
 
 (function () {
-  const body = document.body;
   const root = document.documentElement;
 
-  function trigger(className, duration, afterClass) {
-    body.classList.add(className);
+  function animateStoryReflow(action) {
+    const stories = Array.from(document.querySelectorAll(".story"));
+    const first = new Map();
+
+    stories.forEach((story) => {
+      first.set(story, story.getBoundingClientRect());
+    });
+
+    action();
+
+    requestAnimationFrame(() => {
+      stories.forEach((story) => {
+        const before = first.get(story);
+        const after = story.getBoundingClientRect();
+        if (!before || !after) return;
+
+        const dy = before.top - after.top;
+
+        if (Math.abs(dy) > 1) {
+          story.animate(
+            [
+              { transform: `translateY(${dy}px)` },
+              { transform: "translateY(0)" }
+            ],
+            {
+              duration: 360,
+              easing: "ease-out"
+            }
+          );
+        }
+      });
+    });
+  }
+
+  window.NCNAnimateStoryReflow = animateStoryReflow;
+
+  function coolThenSwap(element, update, delay = 320) {
+    if (!element) {
+      update();
+      return;
+    }
+
+    element.classList.add("ov-cooling");
 
     setTimeout(() => {
-      body.classList.remove(className);
+      update();
+      element.classList.remove("ov-cooling");
+      element.style.animation = "none";
+      element.offsetHeight;
+      element.style.animation = "";
+    }, delay);
+  }
+
+  window.NCNCoolThenSwap = coolThenSwap;
+
+  /* Loud testing event engine */
+  function trigger(className, duration, afterClass) {
+    document.body.classList.add(className);
+
+    setTimeout(() => {
+      document.body.classList.remove(className);
 
       if (afterClass) {
-        body.classList.add(afterClass);
-        setTimeout(() => body.classList.remove(afterClass), 1200);
+        document.body.classList.add(afterClass);
+        setTimeout(() => document.body.classList.remove(afterClass), 1200);
       }
     }, duration);
   }
@@ -446,28 +501,22 @@ if (document.readyState === "loading") {
   function rollOpticalEvent() {
     const roll = Math.random();
 
-    if (roll < 0.0006) {
-      trigger("ov-hard-fault", 700, "ov-recovering");
-    } else if (roll < 0.002) {
-      trigger("ov-calibration", 2800);
-    } else if (roll < 0.006) {
-      trigger("ov-signal-drop", 1100);
-    } else if (roll < 0.014) {
-      trigger("ov-focus-loss", 850);
-    } else if (roll < 0.028) {
-      trigger("ov-slip", 220);
-    } else if (roll < 0.055) {
-      trigger("ov-flare", 520);
-    }
+    if (roll < 0.0006) trigger("ov-hard-fault", 700, "ov-recovering");
+    else if (roll < 0.002) trigger("ov-calibration", 2800);
+    else if (roll < 0.006) trigger("ov-signal-drop", 1100);
+    else if (roll < 0.014) trigger("ov-focus-loss", 850);
+    else if (roll < 0.028) trigger("ov-slip", 220);
+    else if (roll < 0.055) trigger("ov-flare", 520);
   }
 
   setInterval(rollOpticalEvent, 1000);
 
+  /* Vertical/depth parallax only */
   window.addEventListener("mousemove", (event) => {
-    const x = (event.clientX / window.innerWidth - 0.5) * 14;
-    const y = (event.clientY / window.innerHeight - 0.5) * 14;
+    const y = (event.clientY / window.innerHeight - 0.5) * 12;
+    const scale = 1 + Math.abs(y) * 0.0009;
 
-    root.style.setProperty("--ov-parallax-x", `${x.toFixed(2)}px`);
-    root.style.setProperty("--ov-parallax-y", `${y.toFixed(2)}px`);
+    root.style.setProperty("--ov-depth-y", `${y.toFixed(2)}px`);
+    root.style.setProperty("--ov-depth-scale", scale.toFixed(4));
   });
 })();
