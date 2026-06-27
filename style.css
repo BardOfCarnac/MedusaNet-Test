@@ -1555,3 +1555,216 @@ body.ov-calibration .container::before {
     transform: translateY(0);
   }
 }
+/* =========================================================
+   NCN OPTICAL VIEWER v4 — acquire / decay / priority palette
+   Paste at VERY END of style.css
+========================================================= */
+
+/* 1. Priority colours now use the optical energy scale */
+
+.story-priority-bulletin::before,
+.inspector-rail.priority-bulletin {
+  background: #4a0503 !important;
+  box-shadow: 0 0 8px rgba(120, 0, 0, 0.75) !important;
+}
+
+.story-priority-advisory::before,
+.inspector-rail.priority-advisory {
+  background: #b9150d !important;
+  box-shadow: 0 0 8px rgba(255, 43, 22, 0.75) !important;
+}
+
+.story-priority-alert::before,
+.inspector-rail.priority-alert {
+  background: #ff5a00 !important;
+  box-shadow: 0 0 10px rgba(255, 90, 0, 0.8) !important;
+}
+
+.story-priority-warning::before,
+.inspector-rail.priority-warning {
+  background: #ffb51d !important;
+  box-shadow: 0 0 12px rgba(255, 181, 29, 0.85) !important;
+}
+
+.story-priority-emergency::before,
+.inspector-rail.priority-emergency {
+  background: #fff8df !important;
+  box-shadow:
+    0 0 8px rgba(255, 248, 223, 0.95),
+    0 0 22px rgba(255, 181, 29, 0.75) !important;
+}
+
+/* Keep rails stable, not pulsing wildly */
+.story::before,
+.inspector-rail {
+  animation: none !important;
+  opacity: 0.88 !important;
+  filter: none !important;
+}
+
+/* 2. Stable feed headlines */
+
+.story h2 {
+  animation: none !important;
+}
+
+.story.selected h2,
+.story.open h2 {
+  animation: none !important;
+}
+
+/* 3. New information acquires from darkness */
+
+.story.open .story-detail,
+.inspector,
+.filter-panel.open {
+  animation: ov-acquire-projection 720ms ease-out both !important;
+}
+
+/* Filter panels and story details start dark */
+.story-detail,
+.filter-panel {
+  opacity: 0;
+  filter: blur(1.4px) brightness(0.35);
+  transform: translateY(10px);
+}
+
+.story.open .story-detail,
+.filter-panel.open {
+  opacity: 1;
+  filter: blur(0) brightness(1);
+  transform: translateY(0);
+}
+
+/* 4. Pane cooling state, JS will use this */
+.ov-cooling {
+  animation: ov-decay-projection 360ms ease-in both !important;
+}
+
+/* 5. Desktop/mobile reflow smoothing */
+.story {
+  transition:
+    transform 360ms ease,
+    opacity 260ms ease,
+    border-color 260ms ease,
+    background 260ms ease !important;
+}
+
+/* 6. Depth variables */
+:root {
+  --ov-depth-y: 0px;
+  --ov-depth-scale: 1;
+}
+
+body::after {
+  transform:
+    translateY(calc(var(--ov-depth-y) * -1.2))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 1.4)) !important;
+}
+
+.feed,
+.inspector {
+  transform:
+    translateY(calc(var(--ov-depth-y) * 0.28))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.28)) !important;
+}
+
+.story::after,
+.filter-panels,
+.submit-form {
+  transform:
+    translateY(calc(var(--ov-depth-y) * 0.16))
+    scale(calc(1 + (var(--ov-depth-scale) - 1) * 0.16)) !important;
+}
+
+.story h2,
+.inspector h2,
+.story-detail h2 {
+  transform:
+    translateY(calc(var(--ov-depth-y) * 0.04)) !important;
+}
+
+/* 7. Keyframes */
+
+@keyframes ov-acquire-projection {
+  0% {
+    opacity: 0;
+    color: rgba(0, 0, 0, 0);
+    filter: blur(2px) brightness(0.18);
+    text-shadow: none;
+    transform: translateY(12px);
+  }
+
+  18% {
+    opacity: 0.28;
+    color: #4a0503;
+    filter: blur(1.6px) brightness(0.42);
+    text-shadow: 0 0 5px rgba(120, 0, 0, 0.35);
+  }
+
+  36% {
+    opacity: 0.56;
+    color: #b9150d;
+    filter: blur(1px) brightness(0.72);
+    text-shadow: 0 0 8px rgba(255, 43, 22, 0.38);
+  }
+
+  55% {
+    opacity: 0.78;
+    color: #ff8200;
+    filter: blur(0.5px) brightness(1);
+    text-shadow: 0 0 12px rgba(255, 130, 0, 0.45);
+  }
+
+  74% {
+    opacity: 0.94;
+    color: #ffd64f;
+    filter: blur(0.2px) brightness(1.18);
+    text-shadow:
+      0 0 8px rgba(255, 214, 79, 0.58),
+      0 0 22px rgba(255, 130, 0, 0.28);
+  }
+
+  100% {
+    opacity: 1;
+    color: inherit;
+    filter: blur(0) brightness(1);
+    text-shadow: inherit;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ov-decay-projection {
+  0% {
+    opacity: 1;
+    filter: blur(0) brightness(1);
+  }
+
+  30% {
+    opacity: 0.78;
+    filter: blur(0.4px) brightness(0.82);
+  }
+
+  55% {
+    opacity: 0.48;
+    filter: blur(0.9px) brightness(0.56);
+  }
+
+  78% {
+    opacity: 0.22;
+    filter: blur(1.5px) brightness(0.32);
+  }
+
+  100% {
+    opacity: 0;
+    filter: blur(2px) brightness(0.12);
+  }
+}
+
+/* reduce grey flash risk */
+.story-detail,
+.inspector,
+.filter-panel,
+.filter-panels {
+  background-color: rgba(2, 0, 0, 0.92) !important;
+}
