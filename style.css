@@ -2569,3 +2569,106 @@ body::after {
     transform:
       translateY(calc(var(--ov-depth-y-total) * 0.46))
       scale(calc(1 + (var(--ov-depth-scale, 1
+/* =========================================================
+   NCN PROJECTION RENDERER v1
+   consumes --energy / --depth / --focus
+========================================================= */
+
+[data-projected="true"] {
+  --energy-normal: calc(var(--energy, 50) / 100);
+  --energy-glow: calc(4px + (var(--energy-normal) * 34px));
+  --energy-brightness: calc(0.45 + (var(--energy-normal) * 1.25));
+  --energy-opacity: calc(0.25 + (var(--energy-normal) * 0.75));
+  --depth-shift: calc(var(--ov-engine-depth, 0px) * (var(--depth, 80) / 160));
+  --focus-blur: calc((1 - var(--focus, 1)) * 2px);
+
+  opacity: var(--energy-opacity);
+  filter:
+    brightness(var(--energy-brightness))
+    blur(var(--focus-blur));
+  transform:
+    translateY(var(--depth-shift))
+    scale(var(--ov-engine-scale, 1));
+}
+
+/* energy colour bands by role */
+[data-role="plate"] {
+  background:
+    linear-gradient(135deg, rgba(255, 90, 0, 0.10), transparent 45%),
+    rgba(70, 4, 2, calc(0.18 + (var(--energy-normal) * 0.28))) !important;
+  border-color: rgba(255, 43, 22, calc(0.18 + (var(--energy-normal) * 0.38))) !important;
+  box-shadow:
+    inset 0 0 var(--energy-glow) rgba(255, 43, 22, 0.13),
+    0 0 var(--energy-glow) rgba(255, 43, 22, 0.10) !important;
+}
+
+[data-role="headline"] {
+  color: color-mix(
+    in srgb,
+    var(--ov-e-40) calc((1 - var(--energy-normal)) * 100%),
+    var(--ov-e-100) calc(var(--energy-normal) * 100%)
+  ) !important;
+  text-shadow:
+    0 0 calc(var(--energy-glow) * 0.45) rgba(255, 214, 79, 0.55),
+    0 0 var(--energy-glow) rgba(255, 90, 0, 0.28) !important;
+}
+
+[data-role="meta"] {
+  color: color-mix(
+    in srgb,
+    var(--ov-e-30) calc((1 - var(--energy-normal)) * 100%),
+    var(--ov-e-80) calc(var(--energy-normal) * 100%)
+  ) !important;
+  text-shadow:
+    0 0 calc(var(--energy-glow) * 0.35) rgba(255, 130, 0, 0.32);
+}
+
+[data-role="body"] {
+  color: color-mix(
+    in srgb,
+    var(--ov-e-30) calc((1 - var(--energy-normal)) * 100%),
+    var(--ov-e-70) calc(var(--energy-normal) * 100%)
+  ) !important;
+}
+
+[data-role="control"],
+.command-button,
+.filter-tab,
+.filter-option,
+.utility-btn,
+.time-option {
+  color: color-mix(
+    in srgb,
+    var(--ov-e-40) calc((1 - var(--energy-normal, 0.6)) * 100%),
+    var(--ov-e-90) calc(var(--energy-normal, 0.6) * 100%)
+  ) !important;
+}
+
+/* plates should not vanish too much */
+.feed,
+.inspector,
+.story,
+.mobile-drawer,
+.filter-panels,
+.submit-form {
+  opacity: 1 !important;
+}
+
+/* make parallax obviously visible while testing */
+body::after {
+  transform:
+    translateY(calc(var(--ov-engine-depth, 0px) * -2.8))
+    scale(calc(var(--ov-engine-scale, 1) * 1.01)) !important;
+}
+
+.masthead {
+  transform:
+    translateY(calc(var(--ov-engine-depth, 0px) * 1.1))
+    scale(var(--ov-engine-scale, 1)) !important;
+}
+
+.command-bar {
+  transform:
+    translateY(calc(var(--ov-engine-depth, 0px) * 0.95))
+    scale(var(--ov-engine-scale, 1)) !important;
+                          }
