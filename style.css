@@ -3404,3 +3404,76 @@ textarea:focus {
     animation: none !important;
   }
 }
+/* === MOBILE CARD FADE / OPTICAL REVEAL FIX === */
+
+@media (max-width: 768px) {
+
+  .story {
+    transition:
+      background 0.35s ease,
+      border-color 0.35s ease,
+      box-shadow 0.45s ease,
+      transform 0.35s ease;
+  }
+
+  .story:hover,
+  .story.active,
+  .story.expanded,
+  .story.open {
+    transform: translateY(-1px);
+  }
+
+  .story-body,
+  .story-content,
+  .story-detail,
+  .article-body,
+  .article-content {
+    display: block !important;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translateY(-8px) scale(0.985);
+    filter: blur(2px);
+
+    transition:
+      max-height 0.6s ease,
+      opacity 0.45s ease,
+      transform 0.45s ease,
+      filter 0.45s ease,
+      visibility 0s linear 0.45s;
+  }
+
+  .story.active .story-body,
+  .story.expanded .story-body,
+  .story.open .story-body,
+  .story.active .story-content,
+  .story.expanded .story-content,
+  .story.open .story-content,
+  .story.active .story-detail,
+  .story.expanded .story-detail,
+  .story.open .story-detail,
+  .story.active .article-body,
+  .story.expanded .article-body,
+  .story.open .article-body,
+  .story.active .article-content,
+  .story.expanded .article-content,
+  .story.open .article-content {
+    max-height: 1200px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+
+    transition:
+      max-height 0.75s ease,
+      opacity 0.5s ease,
+      transform 0.5s ease,
+      filter 0.5s ease,
+      visibility 0s linear 0s;
+  }
+}
