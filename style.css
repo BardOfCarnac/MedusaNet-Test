@@ -2889,3 +2889,205 @@ body::after {
     transform: translateY(4px);
   }
                           }
+/* =========================================================
+   NCN v5 TEST — projection roles + strong depth
+========================================================= */
+
+:root {
+  --px: 0px;
+  --py: 0px;
+  --depth-strength: 1.8;
+}
+
+/* plates breathe/shade */
+.masthead::before,
+.feed::before,
+.inspector::before,
+.story::after,
+.story-detail::before,
+.filter-panels::before,
+.submit-form::before {
+  animation: plate-light-sweep 9s infinite ease-in-out;
+}
+
+@keyframes plate-light-sweep {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: brightness(0.8);
+  }
+  45% {
+    background-position: 100% 50%;
+    filter: brightness(1.25);
+  }
+  72% {
+    filter: brightness(0.65);
+  }
+}
+
+/* role depth */
+.masthead {
+  transform: translateY(calc(var(--py) * 1.4)) scale(1.012) !important;
+}
+
+.command-button,
+.filter-tab,
+.filter-option,
+.utility-btn,
+.time-option,
+.submit-form button {
+  transform: translateY(calc(var(--py) * 1.2)) !important;
+}
+
+.story h2,
+.inspector h2,
+.story-detail h2 {
+  transform: translateY(calc(var(--py) * 1.05)) !important;
+}
+
+.story .meta,
+.detail-label,
+.inspector p,
+.story-detail p {
+  transform: translateY(calc(var(--py) * 0.8)) !important;
+}
+
+.story {
+  transform: translateY(calc(var(--py) * 0.55)) !important;
+}
+
+.feed,
+.inspector {
+  transform: translateY(calc(var(--py) * 0.28)) !important;
+}
+
+body::after {
+  transform: translateY(calc(var(--py) * -1.2)) !important;
+}
+
+/* universal projection energy */
+.story h2,
+.inspector h2,
+.story-detail h2 {
+  animation: headline-energy 7s infinite ease-in-out;
+}
+
+.meta,
+.detail-label,
+.inspector p,
+.story-detail p {
+  animation: mid-energy 8.5s infinite ease-in-out;
+}
+
+.command-button,
+.filter-tab,
+.filter-option,
+.utility-btn,
+.time-option,
+.submit-form button {
+  animation: control-energy 6.5s infinite ease-in-out;
+}
+
+/* low energy = blur/flicker risk, high energy = tone flare */
+@keyframes headline-energy {
+  0%, 100% {
+    color: #ffd64f;
+    text-shadow: 0 0 8px rgba(255, 214, 79, .45), 0 0 22px rgba(255, 90, 0, .22);
+    filter: blur(0);
+  }
+  22% {
+    color: #ffe7ae;
+    text-shadow: 0 0 10px rgba(255, 231, 174, .55), 0 0 30px rgba(255, 181, 29, .28);
+  }
+  45% {
+    color: #fff8df;
+    text-shadow: 0 0 14px rgba(255, 248, 223, .72), 0 0 42px rgba(255, 181, 29, .34);
+  }
+  71% {
+    color: #ff8200;
+    filter: blur(.25px);
+    text-shadow: 0 0 7px rgba(255, 130, 0, .38), 0 0 18px rgba(255, 43, 22, .2);
+  }
+}
+
+@keyframes mid-energy {
+  0%, 100% {
+    color: #ff8200;
+    filter: blur(.1px);
+  }
+  35% {
+    color: #ffb51d;
+    filter: blur(0);
+  }
+  65% {
+    color: #b9150d;
+    filter: blur(.35px);
+  }
+}
+
+@keyframes control-energy {
+  0%, 100% {
+    color: #ff8200;
+    border-color: rgba(255, 43, 22, .45) !important;
+  }
+  50% {
+    color: #ffd64f;
+    border-color: rgba(255, 214, 79, .75) !important;
+    box-shadow: 0 0 16px rgba(255, 181, 29, .28) !important;
+  }
+}
+
+/* appearance: never starts white */
+.ov-acquiring,
+.story.open .story-detail,
+.filter-panel.open {
+  animation: project-in-red-first 420ms ease-out both !important;
+}
+
+@keyframes project-in-red-first {
+  0% {
+    opacity: 0;
+    color: #120000;
+    filter: blur(2px) brightness(.12);
+  }
+  35% {
+    opacity: .45;
+    color: #4a0503;
+    filter: blur(1.2px) brightness(.45);
+  }
+  65% {
+    opacity: .8;
+    color: #ff5a00;
+    filter: blur(.5px) brightness(.85);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0) brightness(1);
+  }
+}
+
+/* disappearance: never brightens first */
+.ov-cooling {
+  animation: burn-out 720ms ease-in both !important;
+}
+
+@keyframes burn-out {
+  0% {
+    opacity: 1;
+    filter: brightness(1) blur(0);
+  }
+  35% {
+    opacity: .65;
+    color: #ff5a00;
+    filter: brightness(.65) blur(.5px);
+  }
+  70% {
+    opacity: .28;
+    color: #4a0503;
+    filter: brightness(.32) blur(1.2px);
+  }
+  100% {
+    opacity: 0;
+    color: #050000;
+    filter: brightness(.05) blur(2px);
+  }
+                          }
