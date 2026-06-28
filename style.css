@@ -3477,3 +3477,55 @@ textarea:focus {
       visibility 0s linear 0s;
   }
 }
+/* === MOBILE STORY OPEN / CLOSE FADE FIX === */
+
+@media (max-width: 600px) {
+  .story .story-detail {
+    display: block !important;
+
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translateY(-10px) scale(0.985);
+    filter: blur(2px);
+
+    transition:
+      max-height 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.45s ease,
+      transform 0.45s ease,
+      filter 0.45s ease,
+      visibility 0s linear 0.45s;
+  }
+
+  .story.open .story-detail {
+    max-height: 1200px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+
+    transition:
+      max-height 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.5s ease,
+      transform 0.5s ease,
+      filter 0.5s ease,
+      visibility 0s linear 0s;
+  }
+
+  .story {
+    transition:
+      transform 0.35s ease,
+      box-shadow 0.45s ease,
+      border-color 0.35s ease,
+      background 0.35s ease;
+  }
+
+  .story.open {
+    transform: translateY(-2px);
+  }
+}
