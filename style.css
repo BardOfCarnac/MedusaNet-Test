@@ -785,4 +785,150 @@ body {
     0 0 24px rgba(232, 36, 15, 0.25) !important;
 }
 
-.m
+.masthead {
+  border-bottom-color: var(--ov-border) !important;
+}
+
+.tagline {
+  color: var(--ov-red-hot) !important;
+  text-shadow: 0 0 10px rgba(255, 26, 18, 0.45) !important;
+}
+
+/* buttons and controls */
+.command-button,
+.filter-tab,
+.filter-option,
+.time-option,
+.utility-btn,
+.submit-form button {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border-color: var(--ov-border-dim) !important;
+  color: var(--ov-amber) !important;
+  box-shadow: inset 0 0 14px rgba(232, 36, 15, 0.04);
+}
+
+.command-button:hover,
+.command-button.active,
+.filter-tab:hover,
+.filter-option:hover,
+.time-option:hover,
+.utility-btn:hover,
+.submit-form button:hover {
+  border-color: var(--ov-amber) !important;
+  color: var(--ov-yellow) !important;
+  background: rgba(255, 176, 0, 0.08) !important;
+  text-shadow: 0 0 9px rgba(255, 176, 0, 0.55) !important;
+}
+
+.filter-tab.active,
+.filter-option.active,
+.time-option.active {
+  border-color: var(--ov-yellow) !important;
+  color: var(--ov-white) !important;
+  background: rgba(255, 176, 0, 0.12) !important;
+}
+
+/* panels */
+.feed,
+.inspector,
+.filter-panels,
+.submit-form,
+.story.open .story-detail {
+  border-color: var(--ov-border-dim) !important;
+  background: var(--ov-panel) !important;
+  box-shadow:
+    0 0 24px rgba(232, 36, 15, 0.08),
+    inset 0 0 28px rgba(255, 176, 0, 0.035) !important;
+}
+
+/* story text */
+.story {
+  border-bottom-color: rgba(232, 36, 15, 0.22) !important;
+  color: var(--ov-white) !important;
+}
+
+.story h2,
+.story.selected h2,
+.inspector h2,
+.story-detail h2 {
+  color: var(--ov-yellow) !important;
+  text-shadow:
+    0 0 8px rgba(255, 224, 102, 0.55),
+    0 0 24px rgba(255, 176, 0, 0.3),
+    0 0 42px rgba(232, 36, 15, 0.22) !important;
+}
+
+.meta,
+.empty {
+  color: rgba(255, 176, 0, 0.68) !important;
+}
+
+.inspector p,
+.story-detail p {
+  color: rgba(255, 246, 214, 0.84) !important;
+}
+
+.detail-label {
+  color: var(--ov-red-hot) !important;
+}
+
+/* priority: energy level, not rainbow colours */
+.story-priority-bulletin::before,
+.inspector-rail.priority-bulletin {
+  background: var(--ov-red-dim) !important;
+  box-shadow: 0 0 8px rgba(143, 18, 12, 0.7) !important;
+}
+
+.story-priority-advisory::before,
+.inspector-rail.priority-advisory {
+  background: var(--ov-red) !important;
+  box-shadow: 0 0 10px rgba(232, 36, 15, 0.75) !important;
+}
+
+.story-priority-alert::before,
+.inspector-rail.priority-alert {
+  background: var(--ov-amber-deep) !important;
+  box-shadow:
+    0 0 10px rgba(255, 138, 31, 0.75),
+    0 0 22px rgba(232, 36, 15, 0.35) !important;
+}
+
+.story-priority-warning::before,
+.inspector-rail.priority-warning {
+  background: var(--ov-amber) !important;
+  box-shadow:
+    0 0 12px rgba(255, 176, 0, 0.85),
+    0 0 28px rgba(232, 36, 15, 0.42) !important;
+}
+
+.story-priority-emergency::before,
+.inspector-rail.priority-emergency {
+  background: var(--ov-yellow) !important;
+  box-shadow:
+    0 0 14px rgba(255, 224, 102, 0.95),
+    0 0 34px rgba(255, 176, 0, 0.6),
+    0 0 52px rgba(255, 26, 18, 0.42) !important;
+}
+
+/* priority labels */
+.priority-bulletin,
+.priority-advisory,
+.priority-alert,
+.priority-warning,
+.priority-emergency {
+  color: var(--ov-amber) !important;
+}
+
+/* form fields */
+input,
+textarea,
+select,
+#search {
+  background: rgba(0, 0, 0, 0.42) !important;
+  border-color: var(--ov-border-dim) !important;
+  color: var(--ov-white) !important;
+}
+
+#search::placeholder {
+  color: rgba(255, 176, 0, 0.42) !important;
+}
