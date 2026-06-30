@@ -577,7 +577,8 @@ body::after {
 /* When JS tells an element to cool away */
 .ov-cooling,
 .story.leaving {
-  animation: ov-dematerialize 0.42s ease-in both !important;
+  pointer-events: none;
+  animation: ov-dematerialize 0.85s ease-in-out both !important;
 }
 
 /* When JS tells an element to return */
@@ -661,15 +662,25 @@ header,
 @keyframes ov-dematerialize {
   0% {
     opacity: 1;
-    filter: brightness(1) saturate(1) blur(0);
+    filter: brightness(1.15) saturate(1) blur(0);
+    transform: translateY(0) scale(1);
   }
-  45% {
-    filter: brightness(0.65) saturate(0.55) blur(1px);
+
+  35% {
+    opacity: 0.85;
+    filter: brightness(0.9) saturate(0.75) blur(1.5px);
   }
+
+  70% {
+    opacity: 0.45;
+    filter: brightness(0.55) saturate(0.45) blur(4px);
+    transform: translateY(-3px) scale(0.992);
+  }
+
   100% {
     opacity: 0;
-    filter: brightness(0.25) saturate(0.15) blur(9px);
-    transform: translateY(-4px) scale(0.985);
+    filter: brightness(0.18) saturate(0.15) blur(10px);
+    transform: translateY(-6px) scale(0.982);
   }
 }
 
@@ -734,3 +745,44 @@ header,
   from { background-position-y: 0; }
   to { background-position-y: 200px; }
 }
+/* =========================================================
+   OPTICAL VIEWER COLOUR PASS
+   Unifies old cyan/magenta NCN colours into red/amber projection
+   ========================================================= */
+
+:root {
+  --ov-bg: #050202;
+
+  --ov-red-deep: #5c0808;
+  --ov-red-dim: #8f120c;
+  --ov-red: #e8240f;
+  --ov-red-hot: #ff1a12;
+
+  --ov-amber-deep: #ff8a1f;
+  --ov-amber: #ffb000;
+  --ov-yellow: #ffe066;
+  --ov-white: #fff6d6;
+
+  --ov-border: rgba(255, 176, 0, 0.34);
+  --ov-border-dim: rgba(232, 36, 15, 0.28);
+  --ov-panel: rgba(10, 2, 1, 0.62);
+}
+
+/* page base */
+body {
+  background:
+    radial-gradient(circle at top, rgba(255, 26, 18, 0.1), transparent 35%),
+    var(--ov-bg) !important;
+  color: var(--ov-white) !important;
+}
+
+/* masthead */
+.system-line,
+.masthead h1 {
+  color: var(--ov-amber) !important;
+  text-shadow:
+    0 0 8px rgba(255, 176, 0, 0.5),
+    0 0 24px rgba(232, 36, 15, 0.25) !important;
+}
+
+.m
