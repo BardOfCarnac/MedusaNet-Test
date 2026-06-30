@@ -932,3 +932,19 @@ select,
 #search::placeholder {
   color: rgba(255, 176, 0, 0.42) !important;
 }
+.story:nth-child(1) { --ov-cycle-offset: 0ms; }
+.story:nth-child(2) { --ov-cycle-offset: -1300ms; }
+.story:nth-child(3) { --ov-cycle-offset: -2700ms; }
+.story:nth-child(4) { --ov-cycle-offset: -4100ms; }
+.story:nth-child(5) { --ov-cycle-offset: -5600ms; }
+.story:nth-child(6) { --ov-cycle-offset: -6900ms; }
+.story:nth-child(7) { --ov-cycle-offset: -8300ms; }
+.story:nth-child(8) { --ov-cycle-offset: -9700ms; }
+
+.story h2,
+.story p,
+.story .meta,
+.story .story-body,
+.story .story-detail {
+  animation-delay: var(--ov-cycle-offset, 0ms) !important;
+}
