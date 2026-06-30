@@ -698,8 +698,6 @@ if (document.readyState === "loading") {
       if (story.classList.contains("story-priority-emergency")) priorityBoost = 14;
 
       register(story, "story", priorityBoost + (index % 3) * 2);
-
-      const rail = story.querySelector("::before");
       story.style.setProperty("--priority-energy", String(65 + priorityBoost));
 
       register(story.querySelector("h2"), "headline", priorityBoost * 0.3);
