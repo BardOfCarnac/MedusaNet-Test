@@ -14,7 +14,7 @@
       <div class="logo" aria-hidden="true"></div>
       <div class="titleWrap">
         <h1>Voice Face Puppet</h1>
-        <div class="subtitle">audio-driven expressive avatar</div>
+        <div class="subtitle">v5 · smarter audio-driven expressive avatar</div>
       </div>
     </div>
     <div class="topBtns">
@@ -36,12 +36,7 @@
             <path id="head" class="faceStroke" d="M300 80 C190 80 132 165 132 284 C132 420 205 510 300 530 C395 510 468 420 468 284 C468 165 410 80 300 80Z" />
             <path id="earL" class="softStroke" d="M136 245 C103 232 99 304 124 337" />
             <path id="earR" class="softStroke" d="M464 245 C497 232 501 304 476 337" />
-
-            <g id="brows">
-              <path id="browL" class="accentStroke" d="M196 224 Q238 204 270 220" />
-              <path id="browR" class="accentStroke" d="M330 220 Q362 204 404 224" />
-            </g>
-
+            <g id="brows"><path id="browL" class="accentStroke" d="M196 224 Q238 204 270 220" /><path id="browR" class="accentStroke" d="M330 220 Q362 204 404 224" /></g>
             <g id="eyes">
               <path id="eyeLineL" class="faceStroke" d="M190 266 Q230 240 274 266 Q230 289 190 266Z" />
               <path id="eyeLineR" class="faceStroke" d="M326 266 Q370 240 410 266 Q370 289 326 266Z" />
@@ -50,85 +45,63 @@
               <path id="lidL" d="M188 266 Q230 221 276 266 Q230 268 188 266Z" fill="#090a0d" opacity="0" />
               <path id="lidR" d="M324 266 Q370 221 412 266 Q370 268 324 266Z" fill="#090a0d" opacity="0" />
             </g>
-
             <path id="nose" class="softStroke" d="M301 278 C294 318 288 341 304 350 C313 354 319 350 325 346" />
             <path id="cheekL" class="softStroke" d="M175 337 Q207 354 229 349" opacity=".35" />
             <path id="cheekR" class="softStroke" d="M425 337 Q393 354 371 349" opacity=".35" />
-
             <g id="mouthGroup">
               <path id="mouth" class="mouthFill" d="M248 392 Q300 379 352 392 Q300 404 248 392Z" />
               <path id="teeth" d="M255 392 Q300 384 345 392 Q300 393 255 392Z" fill="#dfe5eb" opacity="0" />
+              <path id="upperLip" class="lipAccent" d="M248 392 Q300 382 352 392" />
+              <path id="lowerLip" class="lipSoft" d="M248 392 Q300 406 352 392" />
             </g>
-
             <path id="chin" class="softStroke" d="M264 465 Q300 478 336 465" opacity=".28" />
             <path id="hair" class="accentStroke" d="M164 200 C172 116 231 72 302 80 C389 63 440 136 443 204 C401 173 363 157 318 156 C262 156 219 174 164 200Z" opacity=".8" />
           </g>
         </svg>
       </div>
-
       <div class="hud">
         <span class="pill" id="modePill">IDLE</span>
         <span class="pill">voice <span class="meter"><span id="meterFill"></span></span></span>
         <span class="pill" id="shapePill">REST</span>
+        <span class="pill" id="debugPill">voiced 0.00</span>
       </div>
     </section>
 
     <aside id="controls">
-      <details class="section" open>
-        <summary>Voice</summary>
-        <div class="sectionBody">
-          <div class="control"><label for="sensitivity">Sensitivity</label><output id="sensitivityOut"></output><input id="sensitivity" type="range" min="0.4" max="4" step="0.05" value="1.65"></div>
-          <div class="control"><label for="mouthEx">Mouth exaggeration</label><output id="mouthExOut"></output><input id="mouthEx" type="range" min="0.4" max="2.2" step="0.05" value="1.15"></div>
-          <div class="control"><label for="smoothing">Smoothing</label><output id="smoothingOut"></output><input id="smoothing" type="range" min="0" max="0.95" step="0.01" value="0.64"></div>
-          <div class="control"><label for="roundness">Round-vowel bias</label><output id="roundnessOut"></output><input id="roundness" type="range" min="0" max="1.5" step="0.05" value="0.65"></div>
-          <div class="note">The audio mode estimates mouth character from loudness and spectral balance. It is intentionally lightweight rather than phoneme-perfect.</div>
-        </div>
-      </details>
-
-      <details class="section" open>
-        <summary>Life</summary>
-        <div class="sectionBody">
-          <div class="control"><label for="blinkRate">Blink rate</label><output id="blinkRateOut"></output><input id="blinkRate" type="range" min="0.15" max="1.6" step="0.05" value="0.72"></div>
-          <div class="control"><label for="headMotion">Head motion</label><output id="headMotionOut"></output><input id="headMotion" type="range" min="0" max="2" step="0.05" value="0.20"></div>
-          <div class="control"><label for="eyeMotion">Eye drift</label><output id="eyeMotionOut"></output><input id="eyeMotion" type="range" min="0" max="2" step="0.05" value="0.45"></div>
-        </div>
-      </details>
-
-      <details class="section">
-        <summary>Face</summary>
-        <div class="sectionBody">
-          <div class="control"><label for="headWidth">Head width</label><output id="headWidthOut"></output><input id="headWidth" type="range" min="0.72" max="1.25" step="0.01" value="1"></div>
-          <div class="control"><label for="headLength">Head length</label><output id="headLengthOut"></output><input id="headLength" type="range" min="0.82" max="1.2" step="0.01" value="1"></div>
-          <div class="control"><label for="eyeSpacing">Eye spacing</label><output id="eyeSpacingOut"></output><input id="eyeSpacing" type="range" min="0.7" max="1.35" step="0.01" value="1"></div>
-          <div class="control"><label for="eyeSize">Eye size</label><output id="eyeSizeOut"></output><input id="eyeSize" type="range" min="0.75" max="1.35" step="0.01" value="1"></div>
-          <div class="control"><label for="mouthWidth">Mouth width</label><output id="mouthWidthOut"></output><input id="mouthWidth" type="range" min="0.7" max="1.4" step="0.01" value="1"></div>
-          <div class="control"><label for="browHeight">Brow height</label><output id="browHeightOut"></output><input id="browHeight" type="range" min="-25" max="25" step="1" value="0"></div>
-        </div>
-      </details>
-
-      <details class="section">
-        <summary>Presets</summary>
-        <div class="sectionBody">
-          <div class="row"><button data-preset="neutral">Neutral</button><button data-preset="angular">Angular</button><button data-preset="soft">Soft</button></div>
-          <div class="row" style="margin-top:8px"><button id="randomBtn">Random face</button><button id="resetBtn">Reset</button></div>
-        </div>
-      </details>
-
-      <details class="section" id="diagnosticsSection">
-        <summary>Microphone diagnostics</summary>
-        <div class="sectionBody">
-          <div class="note">Chrome app permission and webpage microphone permission are separate. If this page is embedded, the enclosing viewer can block microphone access before Chrome is allowed to ask.</div>
-          <div class="diag" id="diag">Checking…</div>
-          <div class="row" style="margin-top:8px"><button id="permissionDiagBtn">Ask Chrome for mic</button><button id="diagBtn">Refresh check</button><button id="standaloneDiagBtn">Open standalone</button></div>
-        </div>
-      </details>
-
-      <div class="status" id="status">Ready. Tap <b>Ask for mic</b> to trigger Chrome's permission request, then <b>Mic on</b>.</div>
+      <details class="section" open><summary>Voice</summary><div class="sectionBody">
+        <div class="control"><label for="sensitivity">Sensitivity</label><output id="sensitivityOut"></output><input id="sensitivity" type="range" min="0.4" max="4" step="0.05" value="1.55"></div>
+        <div class="control"><label for="mouthEx">Mouth exaggeration</label><output id="mouthExOut"></output><input id="mouthEx" type="range" min="0.4" max="2.4" step="0.05" value="1.18"></div>
+        <div class="control"><label for="smoothing">Responsiveness</label><output id="smoothingOut"></output><input id="smoothing" type="range" min="0.02" max="0.95" step="0.01" value="0.56"></div>
+        <div class="control"><label for="roundness">Round-vowel bias</label><output id="roundnessOut"></output><input id="roundness" type="range" min="0" max="1.6" step="0.05" value="0.72"></div>
+        <div class="control"><label for="consonantSnap">Consonant snap</label><output id="consonantSnapOut"></output><input id="consonantSnap" type="range" min="0" max="1.8" step="0.05" value="1.05"></div>
+        <div class="note">This version estimates jaw, lip spread, lip rounding and lip press from loudness, spectral tilt, high-frequency hiss, transient bursts, zero-crossing rate and rough vowel bands.</div>
+      </div></details>
+      <details class="section" open><summary>Life</summary><div class="sectionBody">
+        <div class="control"><label for="blinkRate">Blink rate</label><output id="blinkRateOut"></output><input id="blinkRate" type="range" min="0.15" max="1.6" step="0.05" value="0.72"></div>
+        <div class="control"><label for="headMotion">Head motion</label><output id="headMotionOut"></output><input id="headMotion" type="range" min="0" max="2" step="0.05" value="0.18"></div>
+        <div class="control"><label for="eyeMotion">Eye drift</label><output id="eyeMotionOut"></output><input id="eyeMotion" type="range" min="0" max="2" step="0.05" value="0.38"></div>
+      </div></details>
+      <details class="section"><summary>Face</summary><div class="sectionBody">
+        <div class="control"><label for="headWidth">Head width</label><output id="headWidthOut"></output><input id="headWidth" type="range" min="0.72" max="1.25" step="0.01" value="1"></div>
+        <div class="control"><label for="headLength">Head length</label><output id="headLengthOut"></output><input id="headLength" type="range" min="0.82" max="1.2" step="0.01" value="1"></div>
+        <div class="control"><label for="eyeSpacing">Eye spacing</label><output id="eyeSpacingOut"></output><input id="eyeSpacing" type="range" min="0.7" max="1.35" step="0.01" value="1"></div>
+        <div class="control"><label for="eyeSize">Eye size</label><output id="eyeSizeOut"></output><input id="eyeSize" type="range" min="0.75" max="1.35" step="0.01" value="1"></div>
+        <div class="control"><label for="mouthWidth">Mouth width</label><output id="mouthWidthOut"></output><input id="mouthWidth" type="range" min="0.7" max="1.4" step="0.01" value="1"></div>
+        <div class="control"><label for="browHeight">Brow height</label><output id="browHeightOut"></output><input id="browHeight" type="range" min="-25" max="25" step="1" value="0"></div>
+      </div></details>
+      <details class="section"><summary>Presets</summary><div class="sectionBody">
+        <div class="row"><button data-preset="neutral">Neutral</button><button data-preset="angular">Angular</button><button data-preset="soft">Soft</button></div>
+        <div class="row" style="margin-top:8px"><button id="randomBtn">Random face</button><button id="resetBtn">Reset</button></div>
+      </div></details>
+      <details class="section"><summary>Microphone diagnostics</summary><div class="sectionBody">
+        <div class="diag" id="diag">Checking…</div>
+        <div class="row" style="margin-top:8px"><button id="permissionDiagBtn">Ask Chrome for mic</button><button id="diagBtn">Refresh check</button><button id="standaloneDiagBtn">Open standalone</button></div>
+      </div></details>
+      <div class="status" id="status">Ready. Tap <b>Ask for mic</b>, then <b>Mic on</b>.</div>
     </aside>
     <div class="scrim" id="scrim"></div>
   </main>
 </div>
-
 <script src="puppet.js"></script>
 </body>
 </html>
