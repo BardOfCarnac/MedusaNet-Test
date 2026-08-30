@@ -9,7 +9,7 @@
 <style>
 .train-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:8px 0}.train-btn{padding:10px 8px;text-align:left}.train-btn b{display:block;font-size:12px}.train-btn span{display:block;font-size:9px;color:var(--muted);margin-top:3px;line-height:1.25}.train-btn.ready{border-color:rgba(180,255,200,.55)}.train-btn.recording{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.2),0 0 24px rgba(255,95,95,.18)}
 .model-grid{display:grid;grid-template-columns:1fr auto;gap:7px 10px;align-items:center;margin-top:8px}.viseme-row{display:contents}.viseme-name{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#cfd5dc}.viseme-bar{width:112px;height:6px;background:#252a33;border-radius:99px;overflow:hidden}.viseme-bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:inherit;transition:width .045s linear}.viseme-name.active{color:#fff;font-weight:800}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0}.stat{padding:8px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.14)}.stat b{display:block;font-size:13px}.stat span{display:block;font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}.train-readout{font:10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.16);margin:7px 0}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{flex:1;min-width:100px}.compare-links{display:flex;gap:7px;flex-wrap:wrap}.compare-links a{flex:1;text-align:center;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:10px;background:rgba(255,255,255,.025)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0}.stat{padding:8px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.14)}.stat b{display:block;font-size:13px}.stat span{display:block;font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}.train-readout{font:10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.16);margin:7px 0}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{flex:1;min-width:100px}.vowel-guide{display:flex;gap:7px;align-items:center;margin:8px 0 10px}.vowel-guide button{flex:1}.vowel-seq{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);white-space:nowrap}.compare-links{display:flex;gap:7px;flex-wrap:wrap}.compare-links a{flex:1;text-align:center;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:10px;background:rgba(255,255,255,.025)}
 @media(max-width:480px){.train-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -37,7 +37,8 @@
 </section>
 <aside id="controls">
   <details class="section" open><summary>Train my voice</summary><div class="sectionBody">
-    <div class="note">Tap a sound, wait for “GO”, then sustain it naturally until recording stops. Each pass captures roughly 60–90 HeadAudio feature vectors and builds a Gaussian prototype for your own voice. Re-recording replaces that sound only.</div>
+    <div class="note">Train the five vowel classes first, then the sustained consonants. Tap a sound, wait for “GO”, then sustain it naturally until recording stops. Each pass captures roughly 60–90 HeadAudio feature vectors and builds a Gaussian prototype for your own voice.</div>
+    <div class="vowel-guide"><button id="trainVowelsBtn" class="primary">Train A → E → I → O → U</button><span class="vowel-seq" id="vowelSeq">A E I O U</span></div>
     <div class="train-grid" id="trainGrid"></div>
     <div class="train-readout" id="trainReadout">No personal prototypes yet.</div>
     <div class="actions"><button id="applySavedBtn">Apply saved</button><button id="clearBtn">Clear personal model</button></div>
@@ -60,4 +61,28 @@
 </aside><div class="scrim" id="scrim"></div>
 </main></div>
 <script type="module" src="puppet.js"></script>
+<script type="module">
+const labels={aa:'A · AA/AH',E:'E · EH',I:'I · EE',O:'O · OH',U:'U · OO'};
+const order=['aa','E','I','O','U'];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+for(let tries=0;tries<40&&!document.querySelector('.train-btn[data-name="aa"]');tries++) await sleep(50);
+for(const [name,label] of Object.entries(labels)){const b=document.querySelector(`.train-btn[data-name="${name}"] b`);if(b)b.textContent=label;}
+const run=document.getElementById('trainVowelsBtn'),seq=document.getElementById('vowelSeq');
+run.onclick=async()=>{
+  const mic=document.getElementById('micBtn');
+  if(!mic?.classList.contains('active')){document.getElementById('status').innerHTML='Turn <b>Mic on</b> before running vowel training.';return;}
+  run.disabled=true;
+  for(let i=0;i<order.length;i++){
+    const name=order[i],btn=document.querySelector(`.train-btn[data-name="${name}"]`);
+    seq.textContent=order.map((x,j)=>j<i?'✓':j===i?`[${labels[x].split(' · ')[0]}]`:labels[x].split(' · ')[0]).join(' ');
+    btn?.click();
+    await sleep(2550);
+    while(document.querySelector('.train-btn.recording')) await sleep(80);
+    await sleep(250);
+  }
+  seq.textContent='✓ A  ✓ E  ✓ I  ✓ O  ✓ U';
+  run.disabled=false;
+  document.getElementById('status').innerHTML='Vowel run complete. Speak normally for a moment, then train the sustained consonants.';
+};
+</script>
 </body></html>
