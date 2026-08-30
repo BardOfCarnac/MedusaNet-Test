@@ -4,13 +4,16 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#0b0c10" />
-<title>Voice Face Puppet — wLipSync</title>
+<title>Voice Face Puppet — calibrated wLipSync</title>
 <link rel="stylesheet" href="../voice-face-puppet/style.css">
+<style>
+.cal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:8px 0}.cal-vowel{padding:10px 5px;min-width:0}.cal-vowel b{display:block;font-size:15px}.cal-vowel span{display:block;font-size:9px;color:var(--muted);margin-top:3px}.cal-vowel.recording{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.18),0 0 26px rgba(255,95,95,.18)}.cal-vowel.ready{border-color:rgba(180,255,200,.55)}.cal-readout{font:10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.16);margin:7px 0}.cal-actions{display:flex;gap:7px;flex-wrap:wrap}.cal-actions button{flex:1;min-width:100px}.cal-actions button:disabled{opacity:.45;cursor:not-allowed}.cal-tip{font-size:10px;line-height:1.45;color:var(--muted);margin-top:7px}@media(max-width:480px){.cal-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="logo" aria-hidden="true"></div><div class="titleWrap"><h1>Voice Face Puppet</h1><div class="subtitle">wLipSync · MFCC vowel tracker</div></div></div>
+  <div class="brand"><div class="logo" aria-hidden="true"></div><div class="titleWrap"><h1>Voice Face Puppet</h1><div class="subtitle">wLipSync · personal MFCC calibration</div></div></div>
   <div class="topBtns"><button id="demoBtn">Demo voice</button><button id="permissionBtn">Ask for mic</button><button id="micBtn" class="primary">Mic on</button><button id="drawerBtn" class="drawerBtn">Controls</button></div>
 </header>
 <main>
@@ -26,20 +29,33 @@
     <g id="mouthGroup"><path id="mouth" class="mouthFill" d="M248 392 Q300 379 352 392 Q300 404 248 392Z" /><path id="teeth" d="M255 392 Q300 384 345 392 Q300 393 255 392Z" fill="#dfe5eb" opacity="0" /><path id="upperLip" class="lipAccent" d="M248 392 Q300 382 352 392" /><path id="lowerLip" class="lipSoft" d="M248 392 Q300 406 352 392" /></g>
     <path id="chin" class="softStroke" d="M264 465 Q300 478 336 465" opacity=".28" /><path id="hair" class="accentStroke" d="M164 200 C172 116 231 72 302 80 C389 63 440 136 443 204 C401 173 363 157 318 156 C262 156 219 174 164 200Z" opacity=".8" />
   </g></svg></div>
-  <div class="hud"><span class="pill" id="modePill">IDLE</span><span class="pill">voice <span class="meter"><span id="meterFill"></span></span></span><span class="pill" id="shapePill">REST</span><span class="pill" id="debugPill">A 0 · I 0 · U 0 · E 0 · O 0</span></div>
+  <div class="hud"><span class="pill" id="modePill">IDLE</span><span class="pill" id="profilePill">PROFILE: STOCK</span><span class="pill">voice <span class="meter"><span id="meterFill"></span></span></span><span class="pill" id="shapePill">REST</span><span class="pill" id="debugPill">A 0 · I 0 · U 0 · E 0 · O 0</span></div>
 </section>
 <aside id="controls">
+  <details class="section" open><summary>Calibrate my voice</summary><div class="sectionBody">
+    <div class="note">Turn the mic on. Then press and hold each vowel while sustaining it naturally. You can record a vowel more than once; extra examples help cover your normal variation.</div>
+    <div class="cal-grid">
+      <button class="cal-vowel" data-vowel="A"><b>A / AH</b><span>father</span></button>
+      <button class="cal-vowel" data-vowel="I"><b>I / EE</b><span>see</span></button>
+      <button class="cal-vowel" data-vowel="U"><b>U / OO</b><span>food</span></button>
+      <button class="cal-vowel" data-vowel="E"><b>E / EH</b><span>bed</span></button>
+      <button class="cal-vowel" data-vowel="O"><b>O / OH</b><span>go</span></button>
+    </div>
+    <div class="cal-readout" id="calReadout">Loading profile requirements…</div>
+    <div class="cal-actions"><button id="buildProfileBtn" class="primary" disabled>Use my voice profile</button><button id="stockProfileBtn">Use stock</button><button id="clearCalBtn">Clear recordings</button></div>
+    <div class="cal-tip">Calibration stays on this device in local storage. Nothing is uploaded. Re-hold any vowel later and build again to refine it.</div>
+  </div></details>
   <details class="section" open><summary>Voice</summary><div class="sectionBody">
     <div class="control"><label for="sensitivity">Volume gain</label><output id="sensitivityOut"></output><input id="sensitivity" type="range" min="0.5" max="3" step="0.05" value="1.15"></div>
     <div class="control"><label for="mouthEx">Mouth exaggeration</label><output id="mouthExOut"></output><input id="mouthEx" type="range" min="0.4" max="2.4" step="0.05" value="1.18"></div>
     <div class="control"><label for="smoothing">wLipSync smoothness</label><output id="smoothingOut"></output><input id="smoothing" type="range" min="0.01" max="0.25" step="0.01" value="0.06"></div>
     <div class="control"><label for="roundness">Round-vowel strength</label><output id="roundnessOut"></output><input id="roundness" type="range" min="0.5" max="1.8" step="0.05" value="1"></div>
     <div class="control"><label for="consonantSnap">Vowel contrast</label><output id="consonantSnapOut"></output><input id="consonantSnap" type="range" min="0.5" max="3" step="0.05" value="1.35"></div>
-    <div class="note">wLipSync uses an MFCC profile in an AudioWorklet to estimate continuous A / I / U / E / O vowel weights. This comparison uses the example profile supplied with wLipSync.</div>
+    <div class="note">The personalised profile changes wLipSync's MFCC reference vectors. These sliders only tune the final motion; they do not alter the calibration data.</div>
   </div></details>
   <details class="section" open><summary>Life</summary><div class="sectionBody"><div class="control"><label for="blinkRate">Blink rate</label><output id="blinkRateOut"></output><input id="blinkRate" type="range" min="0.15" max="1.6" step="0.05" value="0.72"></div><div class="control"><label for="headMotion">Head motion</label><output id="headMotionOut"></output><input id="headMotion" type="range" min="0" max="2" step="0.05" value="0.18"></div><div class="control"><label for="eyeMotion">Eye drift</label><output id="eyeMotionOut"></output><input id="eyeMotion" type="range" min="0" max="2" step="0.05" value="0.38"></div></div></details>
   <details class="section"><summary>Microphone diagnostics</summary><div class="sectionBody"><div class="diag" id="diag">Checking…</div><div class="row" style="margin-top:8px"><button id="permissionDiagBtn">Ask Chrome for mic</button><button id="diagBtn">Refresh check</button></div></div></details>
-  <div class="status" id="status">Ready. Tap <b>Ask for mic</b>, then <b>Mic on</b>.</div>
+  <div class="status" id="status">Ready. Tap <b>Mic on</b>, then hold the vowel buttons to calibrate.</div>
 </aside><div class="scrim" id="scrim"></div>
 </main>
 </div>
