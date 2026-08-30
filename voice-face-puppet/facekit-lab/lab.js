@@ -17,16 +17,21 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setClearColor(0x040406, 1);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
+function portraitLayout() {
+  return window.innerWidth <= 700 || window.innerHeight > window.innerWidth * 1.1;
+}
+
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x050507, 0.014);
 
 const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 500);
-camera.position.set(0, -0.3, 43);
+if (portraitLayout()) camera.position.set(0, 4.0, 48);
+else camera.position.set(0, -0.3, 43);
 
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.065;
-controls.target.set(0, 0.6, 3.0);
+controls.target.set(0, portraitLayout() ? 4.0 : 0.6, 3.0);
 controls.minDistance = 24;
 controls.maxDistance = 72;
 controls.enablePan = false;
@@ -65,8 +70,9 @@ const solidMat = new THREE.MeshStandardMaterial({
   metalness: .05,
   transparent: true,
   opacity: .14,
-  depthWrite: false,
-  side: THREE.DoubleSide
+  depthWrite: true,
+  depthTest: true,
+  side: THREE.FrontSide
 });
 const wireMat = new THREE.MeshBasicMaterial({
   color: 0xff2638,
@@ -132,6 +138,69 @@ function meshList(root) {
   return arr;
 }
 
+function materialsOf(material) {
+  return Array.isArray(material) ? material : [material];
+}
+
+function buildSolidMaterial(sourceMaterial) {
+  const name = String(sourceMaterial?.name || '').toLowerCase();
+  const m = solidMat.clone();
+  m.name = `solid_${sourceMaterial?.name || 'surface'}`;
+  m.userData.opacityScale = 1;
+  m.userData.hiddenFromSolid = false;
+
+  // These are technical helper surfaces intended for realistic eye shaders.
+  // In a monochrome translucent material they read as huge rings/goggles instead.
+  if (name.includes('eyeblend') || name.includes('eyeocclusion') || name.includes('lacrimalfluid')) {
+    m.visible = false;
+    m.userData.hiddenFromSolid = true;
+    return m;
+  }
+
+  if (name.includes('sclera')) {
+    m.color.setHex(0x8a4b54);
+    m.emissive.setHex(0x170407);
+    m.roughness = .48;
+  } else if (name.includes('iris')) {
+    m.color.setHex(0x160206);
+    m.emissive.setHex(0x080001);
+    m.roughness = .52;
+  } else if (name.includes('teeth')) {
+    m.color.setHex(0x806164);
+    m.emissive.setHex(0x120708);
+    m.roughness = .58;
+  } else if (name.includes('gumstongue')) {
+    m.color.setHex(0x31040a);
+    m.emissive.setHex(0x170105);
+    m.roughness = .62;
+  } else if (name.includes('eyelashes')) {
+    m.color.setHex(0x090103);
+    m.emissive.setHex(0x000000);
+    m.userData.opacityScale = .9;
+  }
+  return m;
+}
+
+function makeSolidMaterials(base) {
+  const source = materialsOf(base.material);
+  const result = source.map(buildSolidMaterial);
+  return Array.isArray(base.material) ? result : result[0];
+}
+
+function setSolidOpacity(mesh, value) {
+  const v = Number(value);
+  materialsOf(mesh.material).forEach(m => {
+    if (m.userData.hiddenFromSolid) {
+      m.visible = false;
+      m.opacity = 0;
+      return;
+    }
+    m.visible = v > .002;
+    m.opacity = Math.min(1, v * (m.userData.opacityScale ?? 1));
+    m.depthWrite = v > .015;
+  });
+}
+
 function findCounterpart(base, targetMeshes, index) {
   if(base.name) {
     const hit = targetMeshes.find(m => m.name === base.name && m.geometry.attributes.position.count === base.geometry.attributes.position.count);
@@ -152,7 +221,7 @@ function buildLayers(baseRoot) {
     const holder = new THREE.Group();
     holder.name = `part-${index}`;
 
-    const solid = new THREE.Mesh(g, solidMat.clone());
+    const solid = new THREE.Mesh(g, makeSolidMaterials(base));
     const wire = new THREE.Mesh(g, wireMat.clone());
     const contour = new THREE.Mesh(g, contourMat.clone());
     contour.scale.setScalar(1.0015);
@@ -169,9 +238,15 @@ function buildLayers(baseRoot) {
   const box = new THREE.Box3().setFromObject(headRig);
   const size = box.getSize(new THREE.Vector3());
   const center = box.getCenter(new THREE.Vector3());
-  const scale = 23 / Math.max(size.x, size.y);
+  const portrait = portraitLayout();
+  const targetSize = portrait ? 15.5 : 23;
+  const scale = targetSize / Math.max(size.x, size.y);
   headRig.scale.setScalar(scale);
-  headRig.position.set(-center.x*scale, -center.y*scale+.8, -center.z*scale+2.8);
+  headRig.position.set(
+    -center.x*scale,
+    -center.y*scale + (portrait ? 4.0 : .8),
+    -center.z*scale + 2.8
+  );
 }
 
 function attachTarget(targetRoot, morphIndex) {
@@ -251,7 +326,7 @@ function updateLayerUI() {
   document.querySelector('#solidOut').value=pct(ui.solid.value);
   document.querySelector('#contourOut').value=pct(ui.contour.value);
   layerMeshes.forEach(({solid,wire,contour})=>{
-    solid.material.opacity=Number(ui.solid.value);
+    setSolidOpacity(solid, ui.solid.value);
     wire.material.opacity=Number(ui.wire.value);
     contour.material.uniforms.uOpacity.value=Number(ui.contour.value);
   });
@@ -285,9 +360,14 @@ document.querySelector('#randomIdentity').addEventListener('click',()=>{
 });
 
 function setView(name) {
-  const views={ front:[0,-.3,43], three:[22,1,36], side:[39,.5,5] };
+  const portrait = portraitLayout();
+  const views = portrait
+    ? { front:[0,4,48], three:[20,4,43], side:[45,4,8] }
+    : { front:[0,-.3,43], three:[22,1,36], side:[39,.5,5] };
   const [x,y,z]=views[name];
-  camera.position.set(x,y,z); controls.target.set(0,.6,3); controls.update();
+  camera.position.set(x,y,z);
+  controls.target.set(0, portrait ? 4 : .6, 3);
+  controls.update();
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 
@@ -312,7 +392,7 @@ function animate() {
     layerMeshes.forEach(({solid,wire,contour})=>{
       wire.material.opacity=Math.max(.05,Math.min(1,w*Number(ui.wire.value)/.78));
       contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));
-      solid.material.opacity=Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14));
+      setSolidOpacity(solid, Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));
     });
   } else updateLayerUI();
 
