@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0b0c10" />
+<title>Voice Face Puppet — phoneme-trained HeadAudio</title>
+<link rel="stylesheet" href="../voice-face-puppet/style.css">
+<style>
+.phoneme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:8px 0}.train-btn{padding:10px 8px;text-align:left;min-height:62px}.train-btn b{display:block;font-size:12px}.train-btn span{display:block;font-size:9px;color:var(--muted);margin-top:3px;line-height:1.35}.train-btn.ready{border-color:rgba(180,255,200,.55)}.train-btn.recording{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.2),0 0 24px rgba(255,95,95,.18)}
+.guide{display:flex;gap:7px;align-items:center;margin:8px 0;flex-wrap:wrap}.guide button{flex:1;min-width:180px}.guide span{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+.readout{font:10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.16);margin:7px 0}.model-grid{display:grid;grid-template-columns:1fr auto;gap:7px 10px;align-items:center;margin-top:8px}.viseme-name{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#cfd5dc}.viseme-bar{width:112px;height:6px;background:#252a33;border-radius:99px;overflow:hidden}.viseme-bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:inherit;transition:width .045s linear}.viseme-name.active{color:#fff;font-weight:800}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0}.stat{padding:8px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.14)}.stat b{display:block;font-size:13px}.stat span{display:block;font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{flex:1;min-width:100px}.mapping{font:9px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-top:5px}.sectionLabel{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-top:12px}.diph{border-left:2px solid rgba(255,255,255,.08)}
+@media(max-width:480px){.phoneme-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo" aria-hidden="true"></div><div class="titleWrap"><h1>Voice Face Puppet</h1><div class="subtitle">HeadAudio · expanded English vowel-space training</div></div></div>
+  <div class="topBtns"><button id="permissionBtn">Ask for mic</button><button id="micBtn" class="primary">Mic on</button><button id="drawerBtn" class="drawerBtn">Controls</button></div>
+</header>
+<main>
+<section class="stage">
+  <div class="notice" id="notice" hidden></div>
+  <div class="faceBox"><svg viewBox="0 0 600 600"><g id="headGroup">
+    <ellipse cx="300" cy="306" rx="182" ry="221" fill="rgba(255,95,95,.055)" />
+    <path class="faceStroke" d="M300 80 C190 80 132 165 132 284 C132 420 205 510 300 530 C395 510 468 420 468 284 C468 165 410 80 300 80Z" />
+    <path class="softStroke" d="M136 245 C103 232 99 304 124 337" /><path class="softStroke" d="M464 245 C497 232 501 304 476 337" />
+    <path class="accentStroke" d="M196 224 Q238 204 270 220" /><path class="accentStroke" d="M330 220 Q362 204 404 224" />
+    <path class="faceStroke" d="M190 266 Q230 240 274 266 Q230 289 190 266Z" /><path class="faceStroke" d="M326 266 Q370 240 410 266 Q370 289 326 266Z" />
+    <g id="irisL"><circle class="iris" cx="234" cy="266" r="12"/><circle class="pupil" cx="234" cy="266" r="5"/></g><g id="irisR"><circle class="iris" cx="366" cy="266" r="12"/><circle class="pupil" cx="366" cy="266" r="5"/></g><path id="lidL" d="M188 266 Q230 221 276 266 Q230 268 188 266Z" fill="#090a0d" opacity="0" /><path id="lidR" d="M324 266 Q370 221 412 266 Q370 268 324 266Z" fill="#090a0d" opacity="0" />
+    <path class="softStroke" d="M301 278 C294 318 288 341 304 350 C313 354 319 350 325 346" />
+    <g><path id="mouth" class="mouthFill" d="M248 392 Q300 379 352 392 Q300 404 248 392Z" /><path id="teeth" d="M255 392 Q300 384 345 392 Q300 393 255 392Z" fill="#dfe5eb" opacity="0" /><path id="tongue" d="M283 400 Q300 392 317 400 Q300 411 283 400Z" fill="#ff7474" opacity="0" /><path id="upperLip" class="lipAccent" d="M248 392 Q300 382 352 392" /><path id="lowerLip" class="lipSoft" d="M248 392 Q300 406 352 392" /></g>
+    <path id="chin" class="softStroke" d="M264 465 Q300 478 336 465" opacity=".28" /><path class="accentStroke" d="M164 200 C172 116 231 72 302 80 C389 63 440 136 443 204 C401 173 363 157 318 156 C262 156 219 174 164 200Z" opacity=".8" />
+  </g></svg></div>
+  <div class="hud"><span class="pill" id="modePill">IDLE</span><span class="pill">voice <span class="meter"><span id="meterFill"></span></span></span><span class="pill" id="shapePill">SIL</span><span class="pill" id="profilePill">STOCK</span></div>
+</section>
+<aside id="controls">
+  <details class="section" open><summary>English vowel space</summary><div class="sectionBody">
+    <div class="note">These are sounds, not letters. Train the vowel you actually use in each example word. Different accents are expected — that is the point.</div>
+    <div class="guide"><button id="trainMonosBtn" class="primary">Train stable vowels in sequence</button><span id="monoSeq">FLEECE · KIT · DRESS · TRAP · STRUT · FATHER · LOT · THOUGHT · FOOT · GOOSE · COMMA</span></div>
+    <div class="phoneme-grid" id="monoGrid"></div>
+    <div class="sectionLabel">Moving vowels / diphthongs</div>
+    <div class="note">For these, stretch the vowel naturally across the whole recording. The trainer learns separate beginning and ending prototypes rather than one frozen shape.</div>
+    <div class="phoneme-grid" id="diphGrid"></div>
+    <div class="readout" id="trainReadout">No expanded vowel prototypes yet.</div>
+    <div class="actions"><button id="applySavedBtn">Apply all saved</button><button id="clearVowelsBtn">Clear expanded vowels</button></div>
+    <div class="mapping">Existing consonant and earlier vowel prototypes from the previous trainer are preserved and applied too.</div>
+  </div></details>
+
+  <details class="section" open><summary>Model controls</summary><div class="sectionBody">
+    <div class="stat-grid"><div class="stat"><b id="vadDb">— dB</b><span>signal</span></div><div class="stat"><b id="vadState">inactive</b><span>VAD</span></div><div class="stat"><b id="activeViseme">sil</b><span>prediction</span></div><div class="stat"><b id="confidence">—</b><span>distance gap</span></div></div>
+    <div class="control"><label for="speakerMean">Speaker mean Hz</label><output id="speakerMeanOut">150</output><input id="speakerMean" type="range" min="50" max="500" step="5" value="150"></div>
+    <div class="control"><label for="vadActive">Speech-on threshold</label><output id="vadActiveOut">-40 dB</output><input id="vadActive" type="range" min="-70" max="-20" step="1" value="-40"></div>
+    <div class="control"><label for="vadInactive">Speech-off threshold</label><output id="vadInactiveOut">-50 dB</output><input id="vadInactive" type="range" min="-80" max="-25" step="1" value="-50"></div>
+    <div class="control"><label for="silSensitivity">Silence sensitivity</label><output id="silSensitivityOut">1.20</output><input id="silSensitivity" type="range" min="0" max="4" step="0.05" value="1.2"></div>
+    <button id="silenceBtn" style="width:100%;margin-top:8px">Calibrate 3s of silence</button>
+  </div></details>
+  <details class="section"><summary>15 viseme outputs</summary><div class="sectionBody"><div class="model-grid" id="visemeGrid"></div></div></details>
+  <details class="section"><summary>Diagnostics</summary><div class="sectionBody"><div class="diag" id="diag">Checking…</div><div class="row" style="margin-top:8px"><button id="permissionDiagBtn">Ask Chrome for mic</button><button id="diagBtn">Refresh</button></div></div></details>
+  <div class="status" id="status">Mic on → silence calibration → stable vowels. Train diphthongs afterwards.</div>
+</aside><div class="scrim" id="scrim"></div>
+</main></div>
+<script type="module" src="puppet.js"></script>
+</body></html>
