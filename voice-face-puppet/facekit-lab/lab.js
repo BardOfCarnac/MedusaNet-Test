@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { SimplifyModifier } from 'three/addons/modifiers/SimplifyModifier.js';
 
 const FACEKIT = 'https://cdn.jsdelivr.net/gh/USC-ICT/ICT-FaceKit@master/FaceXModel/';
 const TARGETS = [
@@ -26,73 +25,84 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x050507, 0.014);
 
 const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 500);
-if (portraitLayout()) camera.position.set(0, 4.0, 48);
-else camera.position.set(0, -0.3, 43);
+camera.position.set(0, portraitLayout() ? 4 : -0.3, portraitLayout() ? 48 : 43);
 
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.065;
-controls.target.set(0, portraitLayout() ? 4.0 : 0.6, 3.0);
+controls.target.set(0, portraitLayout() ? 4 : 0.6, 3);
 controls.minDistance = 24;
-controls.maxDistance = 72;
+controls.maxDistance = 80;
 controls.enablePan = false;
 
 const headRig = new THREE.Group();
 scene.add(headRig);
 
-// Sparse wireframe chamber.
+// Sparse chamber geometry: enough to establish volume without becoming a Tron floor.
 const gridMat = new THREE.LineBasicMaterial({ color: 0x53131b, transparent: true, opacity: 0.24 });
-function makePlaneGrid(size=110, divisions=11) {
+function makePlaneGrid(size = 110, divisions = 11) {
   const g = new THREE.BufferGeometry();
   const p = [];
   const half = size / 2;
-  for (let i=0;i<=divisions;i++) {
+  for (let i = 0; i <= divisions; i++) {
     const t = -half + (size * i / divisions);
-    p.push(-half,0,t, half,0,t, t,0,-half, t,0,half);
+    p.push(-half, 0, t, half, 0, t, t, 0, -half, t, 0, half);
   }
-  g.setAttribute('position', new THREE.Float32BufferAttribute(p,3));
+  g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3));
   return new THREE.LineSegments(g, gridMat.clone());
 }
-const floor = makePlaneGrid(); floor.position.set(0,-14,-10); scene.add(floor);
-const backGrid = makePlaneGrid(); backGrid.rotation.x = Math.PI/2; backGrid.position.set(0,18,-28); backGrid.material.opacity=.11; scene.add(backGrid);
-const sideGrid = makePlaneGrid(); sideGrid.rotation.z = Math.PI/2; sideGrid.position.set(-34,0,-8); sideGrid.material.opacity=.08; scene.add(sideGrid);
+
+const floor = makePlaneGrid();
+floor.position.set(0, -14, -10);
+scene.add(floor);
+
+const backGrid = makePlaneGrid();
+backGrid.rotation.x = Math.PI / 2;
+backGrid.position.set(0, 18, -28);
+backGrid.material.opacity = 0.11;
+scene.add(backGrid);
+
+const sideGrid = makePlaneGrid();
+sideGrid.rotation.z = Math.PI / 2;
+sideGrid.position.set(-34, 0, -8);
+sideGrid.material.opacity = 0.08;
+scene.add(sideGrid);
 
 const axisGeo = new THREE.BufferGeometry().setFromPoints([
-  new THREE.Vector3(-60,0,-18), new THREE.Vector3(60,0,-18),
-  new THREE.Vector3(0,-35,-18), new THREE.Vector3(0,35,-18)
+  new THREE.Vector3(-60, 0, -18), new THREE.Vector3(60, 0, -18),
+  new THREE.Vector3(0, -35, -18), new THREE.Vector3(0, 35, -18)
 ]);
 scene.add(new THREE.LineSegments(
   axisGeo,
-  new THREE.LineBasicMaterial({color:0x7c1822, transparent:true, opacity:.17})
+  new THREE.LineBasicMaterial({ color: 0x7c1822, transparent: true, opacity: 0.17 })
 ));
 
-const solidMat = new THREE.MeshStandardMaterial({
+scene.add(new THREE.HemisphereLight(0x7b1d27, 0x050507, 0.6));
+const key = new THREE.DirectionalLight(0xff4d5d, 1.5);
+key.position.set(-7, 10, 16);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x63101b, 0.9);
+rim.position.set(12, 2, -10);
+scene.add(rim);
+
+const solidBase = new THREE.MeshStandardMaterial({
   color: 0x440b12,
   emissive: 0x250307,
-  roughness: .72,
-  metalness: .05,
+  roughness: 0.72,
+  metalness: 0.05,
   transparent: true,
-  opacity: .14,
+  opacity: 0.14,
   depthWrite: true,
   depthTest: true,
   side: THREE.FrontSide
-});
-
-const wireMat = new THREE.MeshBasicMaterial({
-  color: 0xff2638,
-  wireframe: true,
-  transparent: true,
-  opacity: .78,
-  depthWrite: false,
-  depthTest: true
 });
 
 function makeContourMaterial() {
   return new THREE.ShaderMaterial({
     uniforms: {
       uColor: { value: new THREE.Color(0xff6a74) },
-      uOpacity: { value: .34 },
-      uFrequency: { value: .58 }
+      uOpacity: { value: 0.34 },
+      uFrequency: { value: 0.58 }
     },
     transparent: true,
     depthWrite: false,
@@ -104,11 +114,11 @@ function makeContourMaterial() {
       varying vec3 vObj;
       varying vec3 vNormalW;
       varying vec3 vWorld;
-      void main(){
+      void main() {
         #include <begin_vertex>
         #include <morphtarget_vertex>
         vObj = transformed;
-        vec4 w = modelMatrix * vec4(transformed,1.0);
+        vec4 w = modelMatrix * vec4(transformed, 1.0);
         vWorld = w.xyz;
         vNormalW = normalize(mat3(modelMatrix) * normal);
         gl_Position = projectionMatrix * viewMatrix * w;
@@ -121,34 +131,56 @@ function makeContourMaterial() {
       varying vec3 vObj;
       varying vec3 vNormalW;
       varying vec3 vWorld;
-      void main(){
+      void main() {
         float phase = vObj.y * uFrequency;
-        float d = abs(fract(phase) - .5);
-        float aa = max(fwidth(phase) * 1.35, .012);
-        float iso = smoothstep(.47-aa, .5, d);
+        float d = abs(fract(phase) - 0.5);
+        float aa = max(fwidth(phase) * 1.35, 0.012);
+        float iso = smoothstep(0.47 - aa, 0.5, d);
         vec3 V = normalize(cameraPosition - vWorld);
-        float rim = pow(1.0 - abs(dot(normalize(vNormalW), V)), 2.4);
-        float a = max(iso, rim * .32) * uOpacity;
-        if(a < .018) discard;
+        float edge = pow(1.0 - abs(dot(normalize(vNormalW), V)), 2.4);
+        float a = max(iso, edge * 0.32) * uOpacity;
+        if (a < 0.018) discard;
         gl_FragColor = vec4(uColor, a);
       }
     `
   });
 }
 
-scene.add(new THREE.HemisphereLight(0x7b1d27, 0x050507, 0.6));
-const key = new THREE.DirectionalLight(0xff4d5d, 1.5); key.position.set(-7,10,16); scene.add(key);
-const rim = new THREE.DirectionalLight(0x63101b, .9); rim.position.set(12,2,-10); scene.add(rim);
+function makeWireMaterial() {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: new THREE.Color(0xff2638) },
+      uOpacity: { value: 0.78 }
+    },
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexShader: `
+      #include <common>
+      #include <morphtarget_pars_vertex>
+      void main() {
+        #include <begin_vertex>
+        #include <morphtarget_vertex>
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      void main() {
+        gl_FragColor = vec4(uColor, uOpacity);
+      }
+    `
+  });
+}
 
 const layerMeshes = [];
 let baseMeshes = [];
-let largestMeshIndex = -1;
 let ready = false;
-const simplify = new SimplifyModifier();
 
 function meshList(root) {
-  const arr=[];
-  root.traverse(o=>{ if(o.isMesh) arr.push(o); });
+  const arr = [];
+  root.traverse(o => { if (o.isMesh) arr.push(o); });
   return arr;
 }
 
@@ -156,25 +188,23 @@ function materialsOf(material) {
   return Array.isArray(material) ? material : [material];
 }
 
-function materialNames(base) {
-  return materialsOf(base.material).map(m => String(m?.name || '').toLowerCase());
+function materialName(base, materialIndex) {
+  const mats = materialsOf(base.material);
+  return String(mats[materialIndex || 0]?.name || '').toLowerCase();
 }
 
-function meshWireScale(base) {
-  const names = materialNames(base);
-  if (names.length && names.every(n => n.includes('eyeblend') || n.includes('eyeocclusion') || n.includes('lacrimalfluid'))) return 0;
-  if (names.length && names.every(n => n.includes('sclera') || n.includes('iris') || n.includes('teeth') || n.includes('gumstongue') || n.includes('eyelashes'))) return .16;
-  return 1;
+function helperMaterial(name) {
+  return name.includes('eyeblend') || name.includes('eyeocclusion') || name.includes('lacrimalfluid');
 }
 
 function buildSolidMaterial(sourceMaterial) {
   const name = String(sourceMaterial?.name || '').toLowerCase();
-  const m = solidMat.clone();
+  const m = solidBase.clone();
   m.name = `solid_${sourceMaterial?.name || 'surface'}`;
   m.userData.opacityScale = 1;
   m.userData.hiddenFromSolid = false;
 
-  if (name.includes('eyeblend') || name.includes('eyeocclusion') || name.includes('lacrimalfluid')) {
+  if (helperMaterial(name)) {
     m.visible = false;
     m.userData.hiddenFromSolid = true;
     return m;
@@ -183,23 +213,23 @@ function buildSolidMaterial(sourceMaterial) {
   if (name.includes('sclera')) {
     m.color.setHex(0x8a4b54);
     m.emissive.setHex(0x170407);
-    m.roughness = .48;
+    m.roughness = 0.48;
   } else if (name.includes('iris')) {
     m.color.setHex(0x160206);
     m.emissive.setHex(0x080001);
-    m.roughness = .52;
+    m.roughness = 0.52;
   } else if (name.includes('teeth')) {
     m.color.setHex(0x806164);
     m.emissive.setHex(0x120708);
-    m.roughness = .58;
+    m.roughness = 0.58;
   } else if (name.includes('gumstongue')) {
     m.color.setHex(0x31040a);
     m.emissive.setHex(0x170105);
-    m.roughness = .62;
+    m.roughness = 0.62;
   } else if (name.includes('eyelashes')) {
     m.color.setHex(0x090103);
     m.emissive.setHex(0x000000);
-    m.userData.opacityScale = .9;
+    m.userData.opacityScale = 0.9;
   }
   return m;
 }
@@ -218,16 +248,19 @@ function setSolidOpacity(mesh, value) {
       m.opacity = 0;
       return;
     }
-    m.visible = v > .002;
+    m.visible = v > 0.002;
     m.opacity = Math.min(1, v * (m.userData.opacityScale ?? 1));
-    m.depthWrite = v > .015;
+    m.depthWrite = v > 0.015;
   });
 }
 
 function findCounterpart(base, targetMeshes, index) {
-  if(base.name) {
-    const hit = targetMeshes.find(m => m.name === base.name && m.geometry.attributes.position.count === base.geometry.attributes.position.count);
-    if(hit) return hit;
+  if (base.name) {
+    const hit = targetMeshes.find(m =>
+      m.name === base.name &&
+      m.geometry.attributes.position.count === base.geometry.attributes.position.count
+    );
+    if (hit) return hit;
   }
   const same = targetMeshes[index];
   return same && same.geometry.attributes.position.count === base.geometry.attributes.position.count ? same : null;
@@ -235,28 +268,20 @@ function findCounterpart(base, targetMeshes, index) {
 
 function prepareBase(baseRoot) {
   baseMeshes = meshList(baseRoot);
-  let largest = -1;
-  let largestCount = -1;
-  baseMeshes.forEach((base,index) => {
+  baseMeshes.forEach(base => {
     const g = base.geometry;
     if (!g.attributes.normal) g.computeVertexNormals();
     g.morphAttributes = g.morphAttributes || {};
     g.morphAttributes.position = [];
     g.morphTargetsRelative = false;
-    const count = g.attributes.position.count;
-    if (count > largestCount) {
-      largestCount = count;
-      largest = index;
-    }
   });
-  largestMeshIndex = largest;
 }
 
 function attachTarget(targetRoot, morphIndex) {
   const targets = meshList(targetRoot);
-  let matched=0;
-  baseMeshes.forEach((base, partIndex) => {
-    const target = findCounterpart(base, targets, partIndex);
+  let matched = 0;
+  baseMeshes.forEach((base, index) => {
+    const target = findCounterpart(base, targets, index);
     if (!target) return;
     base.geometry.morphAttributes.position[morphIndex] = target.geometry.attributes.position.clone();
     matched++;
@@ -264,53 +289,79 @@ function attachTarget(targetRoot, morphIndex) {
   if (matched === 0) throw new Error(`No compatible meshes found for morph ${morphIndex}`);
 }
 
-// Simplify the main FaceKit surface once, then map each simplified vertex back to
-// its nearest source vertex. That lets every PCA/expression morph use the exact
-// same low-poly topology instead of independently simplifying each expression.
-function makeLowResMorphGeometry(sourceGeometry, targetVertexCount=1050) {
-  const sourcePos = sourceGeometry.attributes.position;
-  if (!sourcePos || sourcePos.count <= targetVertexCount * 1.25) return sourceGeometry;
+// Build a very cheap, morph-compatible cage by selecting a small, evenly distributed
+// subset of the original FaceKit triangles. No decimation is performed on-device.
+function makeSparseWireGeometry(base, targetTriangles = 900) {
+  const source = base.geometry;
+  const pos = source.attributes.position;
+  const index = source.index;
+  const morphs = source.morphAttributes.position || [];
+  const triRecords = [];
 
-  const morphs = sourceGeometry.morphAttributes?.position || [];
-  const input = sourceGeometry.clone();
-  input.morphAttributes = {};
+  const groups = source.groups && source.groups.length
+    ? source.groups
+    : [{ start: 0, count: index ? index.count : pos.count, materialIndex: 0 }];
 
-  const removeCount = Math.max(0, sourcePos.count - targetVertexCount);
-  const low = simplify.modify(input, removeCount);
-  if (!low.attributes.normal) low.computeVertexNormals();
+  for (const group of groups) {
+    const name = materialName(base, group.materialIndex);
+    if (helperMaterial(name)) continue;
+    if (name.includes('eyelashes')) continue;
 
-  const lowPos = low.attributes.position;
-  const map = new Int32Array(lowPos.count);
-
-  for (let i=0; i<lowPos.count; i++) {
-    const x=lowPos.getX(i), y=lowPos.getY(i), z=lowPos.getZ(i);
-    let best=0;
-    let bestD=Infinity;
-    for (let j=0; j<sourcePos.count; j++) {
-      const dx=x-sourcePos.getX(j), dy=y-sourcePos.getY(j), dz=z-sourcePos.getZ(j);
-      const d=dx*dx+dy*dy+dz*dz;
-      if (d < bestD) { bestD=d; best=j; }
+    const end = group.start + group.count;
+    for (let o = group.start; o + 2 < end; o += 3) {
+      const a = index ? index.getX(o) : o;
+      const b = index ? index.getX(o + 1) : o + 1;
+      const c = index ? index.getX(o + 2) : o + 2;
+      triRecords.push([a, b, c]);
     }
-    map[i]=best;
   }
 
-  low.morphAttributes = { position: [] };
-  low.morphTargetsRelative = false;
-  morphs.forEach(morph => {
-    const arr = new Float32Array(lowPos.count * 3);
-    for (let i=0; i<lowPos.count; i++) {
-      const src = map[i];
-      arr[i*3] = morph.getX(src);
-      arr[i*3+1] = morph.getY(src);
-      arr[i*3+2] = morph.getZ(src);
+  if (!triRecords.length) return null;
+
+  const stride = Math.max(1, Math.ceil(triRecords.length / targetTriangles));
+  const selected = [];
+  for (let i = 0; i < triRecords.length; i += stride) selected.push(triRecords[i]);
+
+  const map = [];
+  for (const [a, b, c] of selected) {
+    map.push(a, b, b, c, c, a);
+  }
+
+  const out = new THREE.BufferGeometry();
+  const p = new Float32Array(map.length * 3);
+  for (let i = 0; i < map.length; i++) {
+    const s = map[i];
+    p[i * 3] = pos.getX(s);
+    p[i * 3 + 1] = pos.getY(s);
+    p[i * 3 + 2] = pos.getZ(s);
+  }
+  out.setAttribute('position', new THREE.BufferAttribute(p, 3));
+  out.morphAttributes = { position: [] };
+  out.morphTargetsRelative = source.morphTargetsRelative;
+
+  morphs.forEach((morph, mi) => {
+    const mp = new Float32Array(map.length * 3);
+    for (let i = 0; i < map.length; i++) {
+      const s = map[i];
+      mp[i * 3] = morph.getX(s);
+      mp[i * 3 + 1] = morph.getY(s);
+      mp[i * 3 + 2] = morph.getZ(s);
     }
-    low.morphAttributes.position.push(new THREE.Float32BufferAttribute(arr,3));
+    out.morphAttributes.position[mi] = new THREE.BufferAttribute(mp, 3);
   });
-  return low;
+
+  out.computeBoundingSphere();
+  return out;
+}
+
+function setMorphArray(object, count) {
+  object.morphTargetInfluences = new Array(count).fill(0);
+  object.morphTargetDictionary = {};
+  for (let i = 0; i < count; i++) object.morphTargetDictionary[`morph${i}`] = i;
 }
 
 function buildLayers() {
-  baseMeshes.forEach((base,index) => {
+  baseMeshes.forEach((base, index) => {
     const g = base.geometry;
     const holder = new THREE.Group();
     holder.name = `part-${index}`;
@@ -319,33 +370,24 @@ function buildLayers() {
     const contour = new THREE.Mesh(g, makeContourMaterial());
     contour.scale.setScalar(1.0015);
 
-    let wireGeometry = g;
-    if (index === largestMeshIndex) {
-      setStatus('BUILDING LOW-RES WIRE CAGE');
-      try {
-        wireGeometry = makeLowResMorphGeometry(g, 1050);
-      } catch (err) {
-        console.warn('Low-res cage failed; using source mesh.', err);
-        wireGeometry = g;
-      }
-    }
-    const wire = new THREE.Mesh(wireGeometry, wireMat.clone());
-    wire.userData.opacityScale = meshWireScale(base);
-    wire.scale.setScalar(1.0007);
+    const wireGeo = makeSparseWireGeometry(base, portraitLayout() ? 720 : 1100);
+    const wire = wireGeo ? new THREE.LineSegments(wireGeo, makeWireMaterial()) : null;
 
-    solid.renderOrder=1;
-    wire.renderOrder=2;
-    contour.renderOrder=3;
-    [solid,wire,contour].forEach(m=>{
+    solid.renderOrder = 1;
+    if (wire) wire.renderOrder = 2;
+    contour.renderOrder = 3;
+
+    [solid, contour, wire].filter(Boolean).forEach(m => {
       m.position.copy(base.position);
       m.rotation.copy(base.rotation);
-      m.scale.multiply(base.scale);
+      m.scale.copy(base.scale);
       holder.add(m);
-      m.updateMorphTargets();
     });
 
+    if (wire) setMorphArray(wire, g.morphAttributes.position.length);
+
     headRig.add(holder);
-    layerMeshes.push({ solid, wire, contour, partIndex:index });
+    layerMeshes.push({ solid, wire, contour, partIndex: index });
   });
 
   const box = new THREE.Box3().setFromObject(headRig);
@@ -356,41 +398,47 @@ function buildLayers() {
   const scale = targetSize / Math.max(size.x, size.y);
   headRig.scale.setScalar(scale);
   headRig.position.set(
-    -center.x*scale,
-    -center.y*scale + (portrait ? 4.0 : .8),
-    -center.z*scale + 2.8
+    -center.x * scale,
+    -center.y * scale + (portrait ? 4 : 0.8),
+    -center.z * scale + 2.8
   );
 }
 
 function syncMorphs() {
-  const identity = [0,1,2,3].map(i=>Number(document.querySelector(`#id${i}`).value));
+  const identity = [0, 1, 2, 3].map(i => Number(document.querySelector(`#id${i}`).value));
   const jaw = Number(document.querySelector('#jaw').value);
-  layerMeshes.forEach(({solid,wire,contour}) => {
-    [solid,wire,contour].filter(Boolean).forEach(m => {
-      if(!m.morphTargetInfluences) m.updateMorphTargets();
-      if(!m.morphTargetInfluences) return;
-      for(let i=0;i<4;i++) m.morphTargetInfluences[i] = identity[i];
+
+  layerMeshes.forEach(({ solid, wire, contour }) => {
+    [solid, contour].forEach(m => {
+      if (!m.morphTargetInfluences) m.updateMorphTargets();
+      if (!m.morphTargetInfluences) return;
+      for (let i = 0; i < 4; i++) m.morphTargetInfluences[i] = identity[i];
       m.morphTargetInfluences[4] = jaw;
     });
+
+    if (wire?.morphTargetInfluences) {
+      for (let i = 0; i < 4; i++) wire.morphTargetInfluences[i] = identity[i];
+      wire.morphTargetInfluences[4] = jaw;
+    }
   });
 }
 
 function enableMorphControls() {
-  document.querySelectorAll('.identity input, #jaw').forEach(el=>el.disabled=false);
-  ready=true;
-  setStatus('READY / LOW-RES CAGE + LIVE CONTOUR', 'ready');
+  document.querySelectorAll('.identity input, #jaw').forEach(el => el.disabled = false);
+  ready = true;
+  setStatus('READY / SPARSE CAGE + LIVE CONTOUR', 'ready');
   syncMorphs();
 }
 
-function setStatus(text, kind='') {
-  document.querySelector('#status').textContent=text;
-  const dot=document.querySelector('#statusDot');
-  dot.className='statusDot'+(kind?` ${kind}`:'');
+function setStatus(text, kind = '') {
+  document.querySelector('#status').textContent = text;
+  const dot = document.querySelector('#statusDot');
+  dot.className = 'statusDot' + (kind ? ` ${kind}` : '');
 }
 
 const loader = new OBJLoader();
 function loadObj(name) {
-  return new Promise((resolve,reject)=>loader.load(FACEKIT+name, resolve, undefined, reject));
+  return new Promise((resolve, reject) => loader.load(FACEKIT + name, resolve, undefined, reject));
 }
 
 async function boot() {
@@ -399,17 +447,19 @@ async function boot() {
     const base = await loadObj('generic_neutral_mesh.obj');
     prepareBase(base);
 
-    for(let i=0;i<TARGETS.length;i++) {
-      setStatus(`LOADING MORPH ${i+1}/${TARGETS.length}`);
+    for (let i = 0; i < TARGETS.length; i++) {
+      setStatus(`LOADING MORPH ${i + 1}/${TARGETS.length}`);
       const target = await loadObj(TARGETS[i]);
       attachTarget(target, i);
+      // Yield once between files so mobile browsers stay responsive.
+      await new Promise(resolve => requestAnimationFrame(resolve));
     }
 
-    // Build only after morph targets exist. This is important for the custom
-    // contour shader: it must compile with morph-target support from frame one.
+    setStatus('BUILDING SPARSE WIRE CAGE');
+    await new Promise(resolve => requestAnimationFrame(resolve));
     buildLayers();
     enableMorphControls();
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     setStatus('LOAD FAILED — SEE CONSOLE', 'error');
   }
@@ -423,46 +473,50 @@ const ui = {
   jaw: document.querySelector('#jaw')
 };
 
-function pct(v){ return `${Math.round(Number(v)*100)}%`; }
+function pct(v) { return `${Math.round(Number(v) * 100)}%`; }
+
 function updateLayerUI() {
-  document.querySelector('#wireOut').value=pct(ui.wire.value);
-  document.querySelector('#solidOut').value=pct(ui.solid.value);
-  document.querySelector('#contourOut').value=pct(ui.contour.value);
-  layerMeshes.forEach(({solid,wire,contour})=>{
+  document.querySelector('#wireOut').value = pct(ui.wire.value);
+  document.querySelector('#solidOut').value = pct(ui.solid.value);
+  document.querySelector('#contourOut').value = pct(ui.contour.value);
+
+  layerMeshes.forEach(({ solid, wire, contour }) => {
     setSolidOpacity(solid, ui.solid.value);
-    wire.material.opacity=Number(ui.wire.value) * (wire.userData.opacityScale ?? 1);
-    contour.material.uniforms.uOpacity.value=Number(ui.contour.value);
+    if (wire) wire.material.uniforms.uOpacity.value = Number(ui.wire.value);
+    contour.material.uniforms.uOpacity.value = Number(ui.contour.value);
   });
 }
-['wire','solid','contour'].forEach(k=>ui[k].addEventListener('input',updateLayerUI));
 
-for(let i=0;i<4;i++) {
-  const el=document.querySelector(`#id${i}`);
-  el.addEventListener('input',()=>{
-    document.querySelector(`#id${i}Out`).value=Number(el.value).toFixed(2);
+['wire', 'solid', 'contour'].forEach(k => ui[k].addEventListener('input', updateLayerUI));
+
+for (let i = 0; i < 4; i++) {
+  const el = document.querySelector(`#id${i}`);
+  el.addEventListener('input', () => {
+    document.querySelector(`#id${i}Out`).value = Number(el.value).toFixed(2);
     syncMorphs();
   });
 }
-ui.jaw.addEventListener('input',()=>{
-  document.querySelector('#jawOut').value=pct(ui.jaw.value);
+
+ui.jaw.addEventListener('input', () => {
+  document.querySelector('#jawOut').value = pct(ui.jaw.value);
   syncMorphs();
 });
 
-document.querySelector('#zeroIdentity').addEventListener('click',()=>{
-  for(let i=0;i<4;i++) {
-    const el=document.querySelector(`#id${i}`);
-    el.value=0;
-    document.querySelector(`#id${i}Out`).value='0.00';
+document.querySelector('#zeroIdentity').addEventListener('click', () => {
+  for (let i = 0; i < 4; i++) {
+    const el = document.querySelector(`#id${i}`);
+    el.value = 0;
+    document.querySelector(`#id${i}Out`).value = '0.00';
   }
   syncMorphs();
 });
 
-document.querySelector('#randomIdentity').addEventListener('click',()=>{
-  for(let i=0;i<4;i++) {
-    const v=(Math.random()*1.1-.55);
-    const el=document.querySelector(`#id${i}`);
-    el.value=v.toFixed(2);
-    document.querySelector(`#id${i}Out`).value=Number(el.value).toFixed(2);
+document.querySelector('#randomIdentity').addEventListener('click', () => {
+  for (let i = 0; i < 4; i++) {
+    const v = Math.random() * 1.1 - 0.55;
+    const el = document.querySelector(`#id${i}`);
+    el.value = v.toFixed(2);
+    document.querySelector(`#id${i}Out`).value = Number(el.value).toFixed(2);
   }
   syncMorphs();
 });
@@ -470,20 +524,27 @@ document.querySelector('#randomIdentity').addEventListener('click',()=>{
 function setView(name) {
   const portrait = portraitLayout();
   const views = portrait
-    ? { front:[0,4,48], three:[20,4,43], side:[45,4,8] }
-    : { front:[0,-.3,43], three:[22,1,36], side:[39,.5,5] };
-  const [x,y,z]=views[name];
-  camera.position.set(x,y,z);
-  controls.target.set(0, portrait ? 4 : .6, 3);
+    ? { front: [0, 4, 48], three: [20, 4, 43], side: [45, 4, 8] }
+    : { front: [0, -0.3, 43], three: [22, 1, 36], side: [39, 0.5, 5] };
+  const [x, y, z] = views[name];
+  camera.position.set(x, y, z);
+  controls.target.set(0, portrait ? 4 : 0.6, 3);
   controls.update();
 }
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+
+document.querySelectorAll('[data-view]').forEach(b =>
+  b.addEventListener('click', () => setView(b.dataset.view))
+);
 
 function resize() {
-  const w=canvas.clientWidth, h=canvas.clientHeight;
-  if(canvas.width!==Math.floor(w*renderer.getPixelRatio()) || canvas.height!==Math.floor(h*renderer.getPixelRatio())) {
-    renderer.setSize(w,h,false);
-    camera.aspect=w/h;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  if (
+    canvas.width !== Math.floor(w * renderer.getPixelRatio()) ||
+    canvas.height !== Math.floor(h * renderer.getPixelRatio())
+  ) {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
 }
@@ -493,21 +554,24 @@ function animate() {
   requestAnimationFrame(animate);
   resize();
   controls.update();
-  const t=clock.getElapsedTime();
+  const t = clock.getElapsedTime();
 
-  if(ui.drift.checked && ready) {
-    const w=.67 + Math.sin(t*.23)*.11 + Math.sin(t*.071)*.05;
-    const c=.24 + Math.sin(t*.17+1.4)*.13;
-    const s=.10 + Math.sin(t*.11+3.1)*.055;
-    layerMeshes.forEach(({solid,wire,contour})=>{
-      wire.material.opacity=Math.max(0,Math.min(1,w*Number(ui.wire.value)/.78)) * (wire.userData.opacityScale ?? 1);
-      contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));
-      setSolidOpacity(solid, Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));
+  if (ui.drift.checked && ready) {
+    const w = 0.67 + Math.sin(t * 0.23) * 0.11 + Math.sin(t * 0.071) * 0.05;
+    const c = 0.24 + Math.sin(t * 0.17 + 1.4) * 0.13;
+    const s = 0.10 + Math.sin(t * 0.11 + 3.1) * 0.055;
+
+    layerMeshes.forEach(({ solid, wire, contour }) => {
+      if (wire) wire.material.uniforms.uOpacity.value = Math.max(0.04, Math.min(1, w * Number(ui.wire.value) / 0.78));
+      contour.material.uniforms.uOpacity.value = Math.max(0, Math.min(1, c * Number(ui.contour.value) / 0.34));
+      setSolidOpacity(solid, Math.max(0, Math.min(0.5, s * Number(ui.solid.value) / 0.14)));
     });
-  } else updateLayerUI();
+  } else {
+    updateLayerUI();
+  }
 
-  headRig.rotation.y = Math.sin(t*.19)*.018;
-  renderer.render(scene,camera);
+  headRig.rotation.y = Math.sin(t * 0.19) * 0.018;
+  renderer.render(scene, camera);
 }
 
 updateLayerUI();
