@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { SimplifyModifier } from 'three/addons/modifiers/SimplifyModifier.js';
 
 const FACEKIT = 'https://cdn.jsdelivr.net/gh/USC-ICT/ICT-FaceKit@master/FaceXModel/';
 const TARGETS = [
@@ -39,7 +40,7 @@ controls.enablePan = false;
 const headRig = new THREE.Group();
 scene.add(headRig);
 
-// Sparse wireframe space: enough geometry to establish volume, never enough to become a Tron floor.
+// Sparse wireframe chamber.
 const gridMat = new THREE.LineBasicMaterial({ color: 0x53131b, transparent: true, opacity: 0.24 });
 function makePlaneGrid(size=110, divisions=11) {
   const g = new THREE.BufferGeometry();
@@ -60,8 +61,10 @@ const axisGeo = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(-60,0,-18), new THREE.Vector3(60,0,-18),
   new THREE.Vector3(0,-35,-18), new THREE.Vector3(0,35,-18)
 ]);
-const axes = new THREE.LineSegments(axisGeo, new THREE.LineBasicMaterial({color:0x7c1822, transparent:true, opacity:.17}));
-scene.add(axes);
+scene.add(new THREE.LineSegments(
+  axisGeo,
+  new THREE.LineBasicMaterial({color:0x7c1822, transparent:true, opacity:.17})
+));
 
 const solidMat = new THREE.MeshStandardMaterial({
   color: 0x440b12,
@@ -74,55 +77,64 @@ const solidMat = new THREE.MeshStandardMaterial({
   depthTest: true,
   side: THREE.FrontSide
 });
+
 const wireMat = new THREE.MeshBasicMaterial({
   color: 0xff2638,
   wireframe: true,
   transparent: true,
   opacity: .78,
-  depthWrite: false
-});
-const contourMat = new THREE.ShaderMaterial({
-  uniforms: {
-    uColor: { value: new THREE.Color(0xff6a74) },
-    uOpacity: { value: .34 },
-    uFrequency: { value: .58 }
-  },
-  transparent: true,
   depthWrite: false,
-  blending: THREE.AdditiveBlending,
-  side: THREE.DoubleSide,
-  vertexShader: `
-    varying vec3 vObj;
-    varying vec3 vNormalW;
-    varying vec3 vWorld;
-    void main(){
-      vObj = position;
-      vec4 w = modelMatrix * vec4(position,1.0);
-      vWorld = w.xyz;
-      vNormalW = normalize(mat3(modelMatrix) * normal);
-      gl_Position = projectionMatrix * viewMatrix * w;
-    }
-  `,
-  fragmentShader: `
-    uniform vec3 uColor;
-    uniform float uOpacity;
-    uniform float uFrequency;
-    varying vec3 vObj;
-    varying vec3 vNormalW;
-    varying vec3 vWorld;
-    void main(){
-      float phase = vObj.y * uFrequency;
-      float d = abs(fract(phase) - .5);
-      float aa = max(fwidth(phase) * 1.35, .012);
-      float iso = smoothstep(.47-aa, .5, d);
-      vec3 V = normalize(cameraPosition - vWorld);
-      float rim = pow(1.0 - abs(dot(normalize(vNormalW), V)), 2.4);
-      float a = max(iso, rim * .32) * uOpacity;
-      if(a < .018) discard;
-      gl_FragColor = vec4(uColor, a);
-    }
-  `
+  depthTest: true
 });
+
+function makeContourMaterial() {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: new THREE.Color(0xff6a74) },
+      uOpacity: { value: .34 },
+      uFrequency: { value: .58 }
+    },
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+    vertexShader: `
+      #include <common>
+      #include <morphtarget_pars_vertex>
+      varying vec3 vObj;
+      varying vec3 vNormalW;
+      varying vec3 vWorld;
+      void main(){
+        #include <begin_vertex>
+        #include <morphtarget_vertex>
+        vObj = transformed;
+        vec4 w = modelMatrix * vec4(transformed,1.0);
+        vWorld = w.xyz;
+        vNormalW = normalize(mat3(modelMatrix) * normal);
+        gl_Position = projectionMatrix * viewMatrix * w;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      uniform float uFrequency;
+      varying vec3 vObj;
+      varying vec3 vNormalW;
+      varying vec3 vWorld;
+      void main(){
+        float phase = vObj.y * uFrequency;
+        float d = abs(fract(phase) - .5);
+        float aa = max(fwidth(phase) * 1.35, .012);
+        float iso = smoothstep(.47-aa, .5, d);
+        vec3 V = normalize(cameraPosition - vWorld);
+        float rim = pow(1.0 - abs(dot(normalize(vNormalW), V)), 2.4);
+        float a = max(iso, rim * .32) * uOpacity;
+        if(a < .018) discard;
+        gl_FragColor = vec4(uColor, a);
+      }
+    `
+  });
+}
 
 scene.add(new THREE.HemisphereLight(0x7b1d27, 0x050507, 0.6));
 const key = new THREE.DirectionalLight(0xff4d5d, 1.5); key.position.set(-7,10,16); scene.add(key);
@@ -130,7 +142,9 @@ const rim = new THREE.DirectionalLight(0x63101b, .9); rim.position.set(12,2,-10)
 
 const layerMeshes = [];
 let baseMeshes = [];
+let largestMeshIndex = -1;
 let ready = false;
+const simplify = new SimplifyModifier();
 
 function meshList(root) {
   const arr=[];
@@ -142,6 +156,17 @@ function materialsOf(material) {
   return Array.isArray(material) ? material : [material];
 }
 
+function materialNames(base) {
+  return materialsOf(base.material).map(m => String(m?.name || '').toLowerCase());
+}
+
+function meshWireScale(base) {
+  const names = materialNames(base);
+  if (names.length && names.every(n => n.includes('eyeblend') || n.includes('eyeocclusion') || n.includes('lacrimalfluid'))) return 0;
+  if (names.length && names.every(n => n.includes('sclera') || n.includes('iris') || n.includes('teeth') || n.includes('gumstongue') || n.includes('eyelashes'))) return .16;
+  return 1;
+}
+
 function buildSolidMaterial(sourceMaterial) {
   const name = String(sourceMaterial?.name || '').toLowerCase();
   const m = solidMat.clone();
@@ -149,8 +174,6 @@ function buildSolidMaterial(sourceMaterial) {
   m.userData.opacityScale = 1;
   m.userData.hiddenFromSolid = false;
 
-  // These are technical helper surfaces intended for realistic eye shaders.
-  // In a monochrome translucent material they read as huge rings/goggles instead.
   if (name.includes('eyeblend') || name.includes('eyeocclusion') || name.includes('lacrimalfluid')) {
     m.visible = false;
     m.userData.hiddenFromSolid = true;
@@ -210,29 +233,119 @@ function findCounterpart(base, targetMeshes, index) {
   return same && same.geometry.attributes.position.count === base.geometry.attributes.position.count ? same : null;
 }
 
-function buildLayers(baseRoot) {
+function prepareBase(baseRoot) {
   baseMeshes = meshList(baseRoot);
-  baseMeshes.forEach((base, index) => {
+  let largest = -1;
+  let largestCount = -1;
+  baseMeshes.forEach((base,index) => {
     const g = base.geometry;
     if (!g.attributes.normal) g.computeVertexNormals();
+    g.morphAttributes = g.morphAttributes || {};
     g.morphAttributes.position = [];
     g.morphTargetsRelative = false;
+    const count = g.attributes.position.count;
+    if (count > largestCount) {
+      largestCount = count;
+      largest = index;
+    }
+  });
+  largestMeshIndex = largest;
+}
 
+function attachTarget(targetRoot, morphIndex) {
+  const targets = meshList(targetRoot);
+  let matched=0;
+  baseMeshes.forEach((base, partIndex) => {
+    const target = findCounterpart(base, targets, partIndex);
+    if (!target) return;
+    base.geometry.morphAttributes.position[morphIndex] = target.geometry.attributes.position.clone();
+    matched++;
+  });
+  if (matched === 0) throw new Error(`No compatible meshes found for morph ${morphIndex}`);
+}
+
+// Simplify the main FaceKit surface once, then map each simplified vertex back to
+// its nearest source vertex. That lets every PCA/expression morph use the exact
+// same low-poly topology instead of independently simplifying each expression.
+function makeLowResMorphGeometry(sourceGeometry, targetVertexCount=1050) {
+  const sourcePos = sourceGeometry.attributes.position;
+  if (!sourcePos || sourcePos.count <= targetVertexCount * 1.25) return sourceGeometry;
+
+  const morphs = sourceGeometry.morphAttributes?.position || [];
+  const input = sourceGeometry.clone();
+  input.morphAttributes = {};
+
+  const removeCount = Math.max(0, sourcePos.count - targetVertexCount);
+  const low = simplify.modify(input, removeCount);
+  if (!low.attributes.normal) low.computeVertexNormals();
+
+  const lowPos = low.attributes.position;
+  const map = new Int32Array(lowPos.count);
+
+  for (let i=0; i<lowPos.count; i++) {
+    const x=lowPos.getX(i), y=lowPos.getY(i), z=lowPos.getZ(i);
+    let best=0;
+    let bestD=Infinity;
+    for (let j=0; j<sourcePos.count; j++) {
+      const dx=x-sourcePos.getX(j), dy=y-sourcePos.getY(j), dz=z-sourcePos.getZ(j);
+      const d=dx*dx+dy*dy+dz*dz;
+      if (d < bestD) { bestD=d; best=j; }
+    }
+    map[i]=best;
+  }
+
+  low.morphAttributes = { position: [] };
+  low.morphTargetsRelative = false;
+  morphs.forEach(morph => {
+    const arr = new Float32Array(lowPos.count * 3);
+    for (let i=0; i<lowPos.count; i++) {
+      const src = map[i];
+      arr[i*3] = morph.getX(src);
+      arr[i*3+1] = morph.getY(src);
+      arr[i*3+2] = morph.getZ(src);
+    }
+    low.morphAttributes.position.push(new THREE.Float32BufferAttribute(arr,3));
+  });
+  return low;
+}
+
+function buildLayers() {
+  baseMeshes.forEach((base,index) => {
+    const g = base.geometry;
     const holder = new THREE.Group();
     holder.name = `part-${index}`;
 
     const solid = new THREE.Mesh(g, makeSolidMaterials(base));
-    const wire = new THREE.Mesh(g, wireMat.clone());
-    const contour = new THREE.Mesh(g, contourMat.clone());
+    const contour = new THREE.Mesh(g, makeContourMaterial());
     contour.scale.setScalar(1.0015);
 
-    solid.renderOrder=1; wire.renderOrder=2; contour.renderOrder=3;
+    let wireGeometry = g;
+    if (index === largestMeshIndex) {
+      setStatus('BUILDING LOW-RES WIRE CAGE');
+      try {
+        wireGeometry = makeLowResMorphGeometry(g, 1050);
+      } catch (err) {
+        console.warn('Low-res cage failed; using source mesh.', err);
+        wireGeometry = g;
+      }
+    }
+    const wire = new THREE.Mesh(wireGeometry, wireMat.clone());
+    wire.userData.opacityScale = meshWireScale(base);
+    wire.scale.setScalar(1.0007);
+
+    solid.renderOrder=1;
+    wire.renderOrder=2;
+    contour.renderOrder=3;
     [solid,wire,contour].forEach(m=>{
-      m.position.copy(base.position); m.rotation.copy(base.rotation); m.scale.copy(base.scale);
+      m.position.copy(base.position);
+      m.rotation.copy(base.rotation);
+      m.scale.multiply(base.scale);
       holder.add(m);
+      m.updateMorphTargets();
     });
+
     headRig.add(holder);
-    layerMeshes.push({ solid, wire, contour, geometry:g, partIndex:index });
+    layerMeshes.push({ solid, wire, contour, partIndex:index });
   });
 
   const box = new THREE.Box3().setFromObject(headRig);
@@ -249,24 +362,11 @@ function buildLayers(baseRoot) {
   );
 }
 
-function attachTarget(targetRoot, morphIndex) {
-  const targets = meshList(targetRoot);
-  let matched=0;
-  layerMeshes.forEach(({geometry, partIndex}) => {
-    const base = baseMeshes[partIndex];
-    const target = findCounterpart(base, targets, partIndex);
-    if (!target) return;
-    geometry.morphAttributes.position[morphIndex] = target.geometry.attributes.position.clone();
-    matched++;
-  });
-  if (matched === 0) throw new Error(`No compatible meshes found for morph ${morphIndex}`);
-}
-
 function syncMorphs() {
   const identity = [0,1,2,3].map(i=>Number(document.querySelector(`#id${i}`).value));
   const jaw = Number(document.querySelector('#jaw').value);
   layerMeshes.forEach(({solid,wire,contour}) => {
-    [solid,wire,contour].forEach(m => {
+    [solid,wire,contour].filter(Boolean).forEach(m => {
       if(!m.morphTargetInfluences) m.updateMorphTargets();
       if(!m.morphTargetInfluences) return;
       for(let i=0;i<4;i++) m.morphTargetInfluences[i] = identity[i];
@@ -278,7 +378,7 @@ function syncMorphs() {
 function enableMorphControls() {
   document.querySelectorAll('.identity input, #jaw').forEach(el=>el.disabled=false);
   ready=true;
-  setStatus('READY / 4 ID MODES + JAW', 'ready');
+  setStatus('READY / LOW-RES CAGE + LIVE CONTOUR', 'ready');
   syncMorphs();
 }
 
@@ -297,14 +397,17 @@ async function boot() {
   try {
     setStatus('LOADING NEUTRAL / ~2.6 MB');
     const base = await loadObj('generic_neutral_mesh.obj');
-    buildLayers(base);
-    setStatus('NEUTRAL READY / LOADING MORPHS');
+    prepareBase(base);
 
     for(let i=0;i<TARGETS.length;i++) {
       setStatus(`LOADING MORPH ${i+1}/${TARGETS.length}`);
       const target = await loadObj(TARGETS[i]);
       attachTarget(target, i);
     }
+
+    // Build only after morph targets exist. This is important for the custom
+    // contour shader: it must compile with morph-target support from frame one.
+    buildLayers();
     enableMorphControls();
   } catch(err) {
     console.error(err);
@@ -327,7 +430,7 @@ function updateLayerUI() {
   document.querySelector('#contourOut').value=pct(ui.contour.value);
   layerMeshes.forEach(({solid,wire,contour})=>{
     setSolidOpacity(solid, ui.solid.value);
-    wire.material.opacity=Number(ui.wire.value);
+    wire.material.opacity=Number(ui.wire.value) * (wire.userData.opacityScale ?? 1);
     contour.material.uniforms.uOpacity.value=Number(ui.contour.value);
   });
 }
@@ -347,14 +450,19 @@ ui.jaw.addEventListener('input',()=>{
 
 document.querySelector('#zeroIdentity').addEventListener('click',()=>{
   for(let i=0;i<4;i++) {
-    const el=document.querySelector(`#id${i}`); el.value=0; document.querySelector(`#id${i}Out`).value='0.00';
+    const el=document.querySelector(`#id${i}`);
+    el.value=0;
+    document.querySelector(`#id${i}Out`).value='0.00';
   }
   syncMorphs();
 });
+
 document.querySelector('#randomIdentity').addEventListener('click',()=>{
   for(let i=0;i<4;i++) {
     const v=(Math.random()*1.1-.55);
-    const el=document.querySelector(`#id${i}`); el.value=v.toFixed(2); document.querySelector(`#id${i}Out`).value=Number(el.value).toFixed(2);
+    const el=document.querySelector(`#id${i}`);
+    el.value=v.toFixed(2);
+    document.querySelector(`#id${i}Out`).value=Number(el.value).toFixed(2);
   }
   syncMorphs();
 });
@@ -374,7 +482,9 @@ document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',(
 function resize() {
   const w=canvas.clientWidth, h=canvas.clientHeight;
   if(canvas.width!==Math.floor(w*renderer.getPixelRatio()) || canvas.height!==Math.floor(h*renderer.getPixelRatio())) {
-    renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w,h,false);
+    camera.aspect=w/h;
+    camera.updateProjectionMatrix();
   }
 }
 
@@ -390,7 +500,7 @@ function animate() {
     const c=.24 + Math.sin(t*.17+1.4)*.13;
     const s=.10 + Math.sin(t*.11+3.1)*.055;
     layerMeshes.forEach(({solid,wire,contour})=>{
-      wire.material.opacity=Math.max(.05,Math.min(1,w*Number(ui.wire.value)/.78));
+      wire.material.opacity=Math.max(0,Math.min(1,w*Number(ui.wire.value)/.78)) * (wire.userData.opacityScale ?? 1);
       contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));
       setSolidOpacity(solid, Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));
     });
