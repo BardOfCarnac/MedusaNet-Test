@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0b0c10" />
+<title>Voice Face Puppet — HeadAudio</title>
+<link rel="stylesheet" href="../voice-face-puppet/style.css">
+<style>
+.model-grid{display:grid;grid-template-columns:1fr auto;gap:7px 10px;align-items:center;margin-top:8px}
+.viseme-row{display:contents}.viseme-name{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#cfd5dc}.viseme-bar{width:115px;height:6px;background:#252a33;border-radius:99px;overflow:hidden}.viseme-bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:inherit;transition:width .045s linear}.viseme-name.active{color:#fff;font-weight:800}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0}.stat{padding:8px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.14)}.stat b{display:block;font-size:13px}.stat span{display:block;font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
+.compare-links{display:flex;gap:7px;flex-wrap:wrap}.compare-links a{flex:1;text-align:center;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:10px;background:rgba(255,255,255,.025)}
+#silenceBtn.calibrating{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.18),0 0 24px rgba(255,95,95,.16)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo" aria-hidden="true"></div><div class="titleWrap"><h1>Voice Face Puppet</h1><div class="subtitle">HeadAudio · Gaussian / Mahalanobis 15-viseme model</div></div></div>
+  <div class="topBtns"><button id="permissionBtn">Ask for mic</button><button id="micBtn" class="primary">Mic on</button><button id="drawerBtn" class="drawerBtn">Controls</button></div>
+</header>
+<main>
+<section class="stage">
+  <div class="notice" id="notice" hidden></div>
+  <div class="faceBox" aria-label="Animated face"><svg viewBox="0 0 600 600" role="img"><g id="headGroup">
+    <ellipse id="headGlow" cx="300" cy="306" rx="182" ry="221" fill="rgba(255,95,95,.055)" />
+    <path id="head" class="faceStroke" d="M300 80 C190 80 132 165 132 284 C132 420 205 510 300 530 C395 510 468 420 468 284 C468 165 410 80 300 80Z" />
+    <path id="earL" class="softStroke" d="M136 245 C103 232 99 304 124 337" /><path id="earR" class="softStroke" d="M464 245 C497 232 501 304 476 337" />
+    <g id="brows"><path id="browL" class="accentStroke" d="M196 224 Q238 204 270 220" /><path id="browR" class="accentStroke" d="M330 220 Q362 204 404 224" /></g>
+    <g id="eyes"><path id="eyeLineL" class="faceStroke" d="M190 266 Q230 240 274 266 Q230 289 190 266Z" /><path id="eyeLineR" class="faceStroke" d="M326 266 Q370 240 410 266 Q370 289 326 266Z" /><g id="irisL"><circle class="iris" cx="234" cy="266" r="12"/><circle class="pupil" cx="234" cy="266" r="5"/></g><g id="irisR"><circle class="iris" cx="366" cy="266" r="12"/><circle class="pupil" cx="366" cy="266" r="5"/></g><path id="lidL" d="M188 266 Q230 221 276 266 Q230 268 188 266Z" fill="#090a0d" opacity="0" /><path id="lidR" d="M324 266 Q370 221 412 266 Q370 268 324 266Z" fill="#090a0d" opacity="0" /></g>
+    <path id="nose" class="softStroke" d="M301 278 C294 318 288 341 304 350 C313 354 319 350 325 346" />
+    <g id="mouthGroup"><path id="mouth" class="mouthFill" d="M248 392 Q300 379 352 392 Q300 404 248 392Z" /><path id="teeth" d="M255 392 Q300 384 345 392 Q300 393 255 392Z" fill="#dfe5eb" opacity="0" /><path id="tongue" d="M283 400 Q300 392 317 400 Q300 411 283 400Z" fill="#ff7474" opacity="0" /><path id="upperLip" class="lipAccent" d="M248 392 Q300 382 352 392" /><path id="lowerLip" class="lipSoft" d="M248 392 Q300 406 352 392" /></g>
+    <path id="chin" class="softStroke" d="M264 465 Q300 478 336 465" opacity=".28" /><path id="hair" class="accentStroke" d="M164 200 C172 116 231 72 302 80 C389 63 440 136 443 204 C401 173 363 157 318 156 C262 156 219 174 164 200Z" opacity=".8" />
+  </g></svg></div>
+  <div class="hud"><span class="pill" id="modePill">IDLE</span><span class="pill">voice <span class="meter"><span id="meterFill"></span></span></span><span class="pill" id="shapePill">SIL</span><span class="pill" id="confidencePill">gap —</span></div>
+</section>
+<aside id="controls">
+  <details class="section" open><summary>HeadAudio model</summary><div class="sectionBody">
+    <div class="stat-grid"><div class="stat"><b id="vadDb">— dB</b><span>signal</span></div><div class="stat"><b id="vadState">inactive</b><span>VAD</span></div><div class="stat"><b id="activeViseme">sil</b><span>prediction</span></div><div class="stat"><b id="confidence">—</b><span>distance gap</span></div></div>
+    <div class="control"><label for="speakerMean">Speaker mean Hz</label><output id="speakerMeanOut">150</output><input id="speakerMean" type="range" min="50" max="500" step="5" value="150"></div>
+    <div class="control"><label for="vadActive">Speech-on threshold</label><output id="vadActiveOut">-40 dB</output><input id="vadActive" type="range" min="-70" max="-20" step="1" value="-40"></div>
+    <div class="control"><label for="vadInactive">Speech-off threshold</label><output id="vadInactiveOut">-50 dB</output><input id="vadInactive" type="range" min="-80" max="-25" step="1" value="-50"></div>
+    <div class="control"><label for="silSensitivity">Silence sensitivity</label><output id="silSensitivityOut">1.20</output><input id="silSensitivity" type="range" min="0" max="4" step="0.05" value="1.2"></div>
+    <button id="silenceBtn" style="width:100%;margin-top:8px">Calibrate 3s of silence</button>
+    <div class="note">Silence calibration is HeadAudio's own online calibration step. Keep quiet for the three-second window; it creates a local silence prototype for the current room/microphone.</div>
+  </div></details>
+
+  <details class="section" open><summary>15 viseme outputs</summary><div class="sectionBody"><div class="model-grid" id="visemeGrid"></div></div></details>
+
+  <details class="section"><summary>Diagnostics</summary><div class="sectionBody">
+    <div class="diag" id="diag">Checking…</div>
+    <div class="row" style="margin-top:8px"><button id="permissionDiagBtn">Ask Chrome for mic</button><button id="diagBtn">Refresh</button></div>
+  </div></details>
+
+  <details class="section"><summary>Compare</summary><div class="sectionBody"><div class="compare-links"><a href="../voice-face-puppet-wlipsync/">Calibrated wLipSync</a><a href="../voice-face-puppet/">15-viseme engine</a></div></div></details>
+
+  <div class="status" id="status">Ready. Tap <b>Ask for mic</b>, then <b>Mic on</b>.</div>
+</aside><div class="scrim" id="scrim"></div>
+</main>
+</div>
+<script type="module" src="puppet.js"></script>
+</body></html>
