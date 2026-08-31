@@ -56,14 +56,23 @@
     </section>
 
     <section>
-      <div class="sectionTitle"><span>04</span> VIEW</div>
+      <div class="sectionTitle"><span>04</span> DIAGNOSTIC RECORDING</div>
+      <p class="sentence" id="diagnosticSentence">Father packed five bright blue puppets in a good box, then Joe chose three sheep by the old gate.</p>
+      <p class="small">Read it naturally, at your normal pace. The recorder captures the audio and both trackers at once. A little silence before and after the sentence is useful.</p>
+      <div class="buttonRow"><button id="recordBtn">RECORD 12s</button><button id="downloadCaptureBtn" disabled>DOWNLOAD BUNDLE</button></div>
+      <div class="captureMeter"><span id="captureMeterFill"></span></div>
+      <p class="small" id="captureStatus">No diagnostic recording yet.</p>
+    </section>
+
+    <section>
+      <div class="sectionTitle"><span>05</span> VIEW</div>
       <div class="buttonRow three"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div>
       <label class="toggleLine"><input id="wire" type="checkbox" checked><span>Wire overlay</span></label>
       <label class="toggleLine"><input id="drift" type="checkbox" checked><span>Subtle idle drift</span></label>
     </section>
 
     <section>
-      <div class="sectionTitle"><span>05</span> TRAINING</div>
+      <div class="sectionTitle"><span>06</span> TRAINING</div>
       <p class="small">This page reuses calibration already saved on this GitHub Pages origin. Train or refine the models in their dedicated labs.</p>
       <div class="links">
         <a href="../voice-face-puppet-wlipsync/">wLipSync trainer</a>
@@ -77,5 +86,6 @@
   <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM · SWITCH MODELS LIVE</div>
 </div>
 <script type="module" src="compare.js"></script>
+<script type="module" src="capture.js"></script>
 </body>
 </html>
