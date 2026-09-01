@@ -37,9 +37,9 @@ const mouthSoftMat=new THREE.MeshStandardMaterial({color:0x070001,emissive:0x020
 const mouthTeethMat=new THREE.MeshStandardMaterial({color:0x241519,emissive:0x030101,roughness:.9,metalness:0,transparent:true,opacity:.18,depthTest:true,depthWrite:true,side:THREE.DoubleSide});
 
 function makeContourMaterial(){return new THREE.ShaderMaterial({
-  uniforms:{uColor:{value:new THREE.Color(0xff6a74)},uOpacity:{value:.34},uFrequency:{value:.58}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+  uniforms:{uColor:{value:new THREE.Color(0xff6a74)},uOpacity:{value:.34},uFrequency:{value:.82},uTime:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
   vertexShader:`#include <common>\n#include <morphtarget_pars_vertex>\nvarying vec3 vObj;varying vec3 vNormalW;varying vec3 vWorld;void main(){\n#include <begin_vertex>\n#include <morphtarget_vertex>\nvObj=transformed;vec4 w=modelMatrix*vec4(transformed,1.0);vWorld=w.xyz;vNormalW=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*w;}`,
-  fragmentShader:`uniform vec3 uColor;uniform float uOpacity;uniform float uFrequency;varying vec3 vObj;varying vec3 vNormalW;varying vec3 vWorld;void main(){float phase=vObj.y*uFrequency;float d=abs(fract(phase)-.5);float aa=max(fwidth(phase)*1.35,.012);float iso=smoothstep(.47-aa,.5,d);vec3 V=normalize(cameraPosition-vWorld);float edge=pow(1.0-abs(dot(normalize(vNormalW),V)),2.4);float a=max(iso,edge*.32)*uOpacity;if(a<.018)discard;gl_FragColor=vec4(uColor,a);}`
+  fragmentShader:`uniform vec3 uColor;uniform float uOpacity;uniform float uFrequency;uniform float uTime;varying vec3 vObj;varying vec3 vNormalW;varying vec3 vWorld;void main(){float flow=vObj.x*uFrequency+sin(vObj.y*.84+uTime*.58)*.16+sin(vObj.z*1.28-uTime*.34)*.11;float sweep=flow+uTime*.11;float d=abs(fract(sweep)-.5);float aa=max(fwidth(sweep)*1.4,.012);float band=smoothstep(.47-aa,.5,d);vec3 V=normalize(cameraPosition-vWorld);float edge=pow(1.0-abs(dot(normalize(vNormalW),V)),2.25);float pulse=.9+.1*sin(uTime*1.35+vObj.y*.42);float a=max(band,edge*.30)*uOpacity*pulse;if(a<.018)discard;gl_FragColor=vec4(uColor,a);}`
 });}
 
 const layerMeshes=[];let baseMeshes=[],ready=false;
@@ -76,7 +76,7 @@ function buildLayers(){
     const solid=new THREE.Mesh(g,makeSolidMaterials(base));
     const contourGeo=buildGroupedGeometry(base,name=>!excludedContour(name));
     const contour=contourGeo?new THREE.Mesh(contourGeo,makeContourMaterial()):null;if(contour)contour.scale.setScalar(1.0015);
-    const low=buildClusteredSkin(base,{portrait:portraitLayout(),excludedSurface,logLabel:'FaceKit Lab 13'});
+    const low=buildClusteredSkin(base,{portrait:portraitLayout(),excludedSurface,logLabel:'FaceKit Lab 14'});
     let wire=null,depth=null;
     if(low){depth=new THREE.Mesh(low,depthMat.clone());wire=new THREE.Mesh(low,wireMat.clone());wire.scale.setScalar(1.002);setMorphArray(depth,low.morphAttributes.position.length);setMorphArray(wire,low.morphAttributes.position.length);depth.renderOrder=0;wire.renderOrder=2;}
 
@@ -105,9 +105,9 @@ function updateEyes(){layerMeshes.forEach(({eyes})=>{if(eyes)eyes.visible=true;}
 function syncMorphs(){const{identity,jaw}=morphValues();layerMeshes.forEach(({solid,wire,contour,depth,eyes,mouthSoft,mouthTeeth})=>[solid,wire,contour,depth,eyes,mouthSoft,mouthTeeth].forEach(m=>applyMorphs(m,identity,jaw)));updateEyes();updateMouthInterior();}
 
 function setStatus(text,kind=''){document.querySelector('#status').textContent=text;document.querySelector('#statusDot').className='statusDot'+(kind?` ${kind}`:'');}
-function enableMorphControls(){document.querySelectorAll('.identity input,#jaw').forEach(el=>el.disabled=false);ready=true;setStatus('READY / LOW-POLY + BLACK EYES + MOUTH','ready');syncMorphs();}
+function enableMorphControls(){document.querySelectorAll('.identity input,#jaw').forEach(el=>el.disabled=false);ready=true;setStatus('READY / ANIMATED VERTICAL CONTOUR','ready');syncMorphs();}
 const loader=new OBJLoader(),loadObj=name=>new Promise((res,rej)=>loader.load(FACEKIT+name,res,undefined,rej));
-async function boot(){try{setStatus('LOADING NEUTRAL / ~2.6 MB');const base=await loadObj('generic_neutral_mesh.obj');prepareBase(base);for(let i=0;i<TARGETS.length;i++){setStatus(`LOADING MORPH ${i+1}/${TARGETS.length}`);attachTarget(await loadObj(TARGETS[i]),i);await new Promise(r=>requestAnimationFrame(r));}setStatus('BUILDING LOW-POLY + BLACK EYES');await new Promise(r=>requestAnimationFrame(r));buildLayers();enableMorphControls();}catch(err){console.error(err);setStatus('LOAD FAILED — SEE CONSOLE','error');}}
+async function boot(){try{setStatus('LOADING NEUTRAL / ~2.6 MB');const base=await loadObj('generic_neutral_mesh.obj');prepareBase(base);for(let i=0;i<TARGETS.length;i++){setStatus(`LOADING MORPH ${i+1}/${TARGETS.length}`);attachTarget(await loadObj(TARGETS[i]),i);await new Promise(r=>requestAnimationFrame(r));}setStatus('BUILDING ANIMATED VERTICAL CONTOUR');await new Promise(r=>requestAnimationFrame(r));buildLayers();enableMorphControls();}catch(err){console.error(err);setStatus('LOAD FAILED — SEE CONSOLE','error');}}
 
 const ui={wire:document.querySelector('#wire'),solid:document.querySelector('#solid'),contour:document.querySelector('#contour'),drift:document.querySelector('#drift'),jaw:document.querySelector('#jaw')},pct=v=>`${Math.round(Number(v)*100)}%`;
 function updateLayerUI(){document.querySelector('#wireOut').value=pct(ui.wire.value);document.querySelector('#solidOut').value=pct(ui.solid.value);document.querySelector('#contourOut').value=pct(ui.contour.value);layerMeshes.forEach(({solid,wire,contour,eyes})=>{setSolidOpacity(solid,ui.solid.value);if(wire)wire.material.opacity=Number(ui.wire.value);if(contour)contour.material.uniforms.uOpacity.value=Number(ui.contour.value);if(eyes)eyes.visible=true;});updateMouthInterior();}
@@ -120,5 +120,5 @@ function setView(name){const views=portraitLayout()?{front:[0,4,48],three:[20,4,
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
 const clock=new THREE.Clock();
-function animate(){requestAnimationFrame(animate);resize();controls.update();const t=clock.getElapsedTime();if(ui.drift.checked&&ready){const w=.67+Math.sin(t*.23)*.11+Math.sin(t*.071)*.05,c=.24+Math.sin(t*.17+1.4)*.13,s=.10+Math.sin(t*.11+3.1)*.055;layerMeshes.forEach(({solid,wire,contour,eyes})=>{if(wire)wire.material.opacity=Math.max(.04,Math.min(1,w*Number(ui.wire.value)/.78));if(contour)contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));setSolidOpacity(solid,Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));if(eyes)eyes.visible=true;});updateMouthInterior();}else updateLayerUI();headRig.rotation.y=Math.sin(t*.19)*.018;renderer.render(scene,camera);}
+function animate(){requestAnimationFrame(animate);resize();controls.update();const t=clock.getElapsedTime();layerMeshes.forEach(({contour})=>{if(contour)contour.material.uniforms.uTime.value=t;});if(ui.drift.checked&&ready){const w=.67+Math.sin(t*.23)*.11+Math.sin(t*.071)*.05,c=.24+Math.sin(t*.17+1.4)*.13,s=.10+Math.sin(t*.11+3.1)*.055;layerMeshes.forEach(({solid,wire,contour,eyes})=>{if(wire)wire.material.opacity=Math.max(.04,Math.min(1,w*Number(ui.wire.value)/.78));if(contour)contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));setSolidOpacity(solid,Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));if(eyes)eyes.visible=true;});updateMouthInterior();}else updateLayerUI();headRig.rotation.y=Math.sin(t*.19)*.018;renderer.render(scene,camera);}
 updateLayerUI();boot();animate();
