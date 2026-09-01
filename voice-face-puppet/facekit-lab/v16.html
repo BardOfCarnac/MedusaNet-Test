@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#050507" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Voice Face Puppet — FaceKit Lab 16</title>
+  <link rel="stylesheet" href="style.css?v=16" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="stage" aria-label="Interactive ICT FaceKit head"></canvas>
+    <header class="topbar">
+      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>16</span></h1></div>
+      <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING HARD RED SHADING</div></div>
+    </header>
+    <aside class="panel">
+      <section>
+        <div class="sectionTitle"><span>01</span> REPRESENTATION</div>
+        <label class="control"><span>Wireframe</span><output id="wireOut">0%</output><input id="wire" type="range" min="0" max="1" step="0.01" value="0" /></label>
+        <label class="control"><span>Skin shell</span><output id="solidOut">100%</output><input id="solid" type="range" min="0" max="1" step="0.01" value="1" /></label>
+        <label class="control"><span>Contour map</span><output id="contourOut">0%</output><input id="contour" type="range" min="0" max="1" step="0.01" value="0" /></label>
+        <label class="toggleLine"><input id="drift" type="checkbox" /><span>Slow layer drift</span></label>
+      </section>
+      <section>
+        <div class="sectionTitle"><span>02</span> IDENTITY PCA</div>
+        <p class="small">These are FaceKit's own first four linear identity modes, not hand-made head scaling.</p>
+        <label class="control identity"><span>Mode 00</span><output id="id0Out">0.00</output><input id="id0" type="range" min="-1" max="1" step="0.01" value="0" disabled /></label>
+        <label class="control identity"><span>Mode 01</span><output id="id1Out">0.00</output><input id="id1" type="range" min="-1" max="1" step="0.01" value="0" disabled /></label>
+        <label class="control identity"><span>Mode 02</span><output id="id2Out">0.00</output><input id="id2" type="range" min="-1" max="1" step="0.01" value="0" disabled /></label>
+        <label class="control identity"><span>Mode 03</span><output id="id3Out">0.00</output><input id="id3" type="range" min="-1" max="1" step="0.01" value="0" disabled /></label>
+        <div class="buttonRow"><button id="randomIdentity">RANDOM ID</button><button id="zeroIdentity">ZERO</button></div>
+      </section>
+      <section>
+        <div class="sectionTitle"><span>03</span> EXPRESSION TEST</div>
+        <label class="control"><span>Jaw open</span><output id="jawOut">0%</output><input id="jaw" type="range" min="0" max="1" step="0.01" value="0" disabled /></label>
+        <p class="small">One genuine FaceKit expression target, included only to prove the same geometry can later take the voice/viseme mapping.</p>
+      </section>
+      <section class="viewSection"><div class="sectionTitle"><span>04</span> VIEW</div><div class="buttonRow three"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div></section>
+    </aside>
+    <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM</div>
+    <a class="back" href="../">← V6 PUPPET</a>
+  </div>
+  <script type="module" src="entry-v16.js?v=16"></script>
+</body>
+</html>
