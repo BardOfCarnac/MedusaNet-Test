@@ -184,6 +184,20 @@ function buildClusteredSkin(base, quality=1){
   }
   if(!triangles.length)return null;
 
+  const edgeKey=(a,b)=>a<b?`${a}|${b}`:`${b}|${a}`;
+  const sourceEdges=new Map();
+  for(const [a,b,c] of triangles){
+    for(const [u,v] of [[a,b],[b,c],[c,a]]){
+      const k=edgeKey(u,v), rec=sourceEdges.get(k);
+      if(rec)rec.count++;
+      else sourceEdges.set(k,{count:1,u,v});
+    }
+  }
+  const sourceBoundary=new Set();
+  for(const e of sourceEdges.values()){
+    if(e.count===1){sourceBoundary.add(e.u);sourceBoundary.add(e.v);}
+  }
+
   const box=new THREE.Box3();
   for(const vi of used)box.expandByPoint(new THREE.Vector3(pos.getX(vi),pos.getY(vi),pos.getZ(vi)));
   const size=box.getSize(new THREE.Vector3());
@@ -196,35 +210,42 @@ function buildClusteredSkin(base, quality=1){
     const nx=(pos.getX(vi)-box.min.x)/(size.x+eps);
     const ny=(pos.getY(vi)-box.min.y)/(size.y+eps);
     const nz=(pos.getZ(vi)-box.min.z)/(size.z+eps);
-    const ix=Math.min(gx-1,Math.max(0,Math.floor(nx*gx)));
-    const iy=Math.min(gy-1,Math.max(0,Math.floor(ny*gy)));
-    const iz=Math.min(gz-1,Math.max(0,Math.floor(nz*gz)));
-    return `${ix}|${iy}|${iz}`;
+    const boundary=sourceBoundary.has(vi);
+    const feature=nz>.55 && nx>.12 && nx<.88 && ny>.20 && ny<.76;
+    const density=boundary?2.35:(feature?1.50:1.0);
+    const dx=Math.max(2,Math.round(gx*density));
+    const dy=Math.max(2,Math.round(gy*density));
+    const dz=Math.max(2,Math.round(gz*density));
+    const ix=Math.min(dx-1,Math.max(0,Math.floor(nx*dx)));
+    const iy=Math.min(dy-1,Math.max(0,Math.floor(ny*dy)));
+    const iz=Math.min(dz-1,Math.max(0,Math.floor(nz*dz)));
+    return `${boundary?'b':feature?'f':'g'}|${ix}|${iy}|${iz}`;
   };
 
   const clusterMap=new Map();
   for(const vi of used){
-    const key=cellOf(vi);
-    let cl=clusterMap.get(key);
-    if(!cl){cl={members:[],index:clusterMap.size};clusterMap.set(key,cl);}
+    const k=cellOf(vi);
+    let cl=clusterMap.get(k);
+    if(!cl){cl={members:[],index:clusterMap.size,sourceBoundary:false};clusterMap.set(k,cl);}
     cl.members.push(vi);
+    if(sourceBoundary.has(vi))cl.sourceBoundary=true;
   }
   const clusters=[...clusterMap.values()];
   const sourceToCluster=new Map();
   clusters.forEach(cl=>cl.members.forEach(vi=>sourceToCluster.set(vi,cl.index)));
 
-  const outPos=new Float32Array(clusters.length*3);
-  const outMorphs=morphs.map(()=>new Float32Array(clusters.length*3));
+  const basePoints=clusters.map(()=>new THREE.Vector3());
+  const morphPoints=morphs.map(()=>clusters.map(()=>new THREE.Vector3()));
   clusters.forEach((cl,ci)=>{
-    let x=0,y=0,z=0;
-    const sums=morphs.map(()=>[0,0,0]);
     for(const vi of cl.members){
-      x+=pos.getX(vi);y+=pos.getY(vi);z+=pos.getZ(vi);
-      morphs.forEach((m,mi)=>{sums[mi][0]+=m.getX(vi);sums[mi][1]+=m.getY(vi);sums[mi][2]+=m.getZ(vi);});
+      basePoints[ci].x+=pos.getX(vi);basePoints[ci].y+=pos.getY(vi);basePoints[ci].z+=pos.getZ(vi);
+      morphs.forEach((m,mi)=>{
+        morphPoints[mi][ci].x+=m.getX(vi);morphPoints[mi][ci].y+=m.getY(vi);morphPoints[mi][ci].z+=m.getZ(vi);
+      });
     }
     const n=cl.members.length;
-    outPos[ci*3]=x/n;outPos[ci*3+1]=y/n;outPos[ci*3+2]=z/n;
-    sums.forEach((s,mi)=>{outMorphs[mi][ci*3]=s[0]/n;outMorphs[mi][ci*3+1]=s[1]/n;outMorphs[mi][ci*3+2]=s[2]/n;});
+    basePoints[ci].multiplyScalar(1/n);
+    morphPoints.forEach(points=>points[ci].multiplyScalar(1/n));
   });
 
   const triSet=new Set(); const outIndex=[];
@@ -232,9 +253,76 @@ function buildClusteredSkin(base, quality=1){
     const ca=sourceToCluster.get(a),cb=sourceToCluster.get(b),cc=sourceToCluster.get(c);
     if(ca===cb||cb===cc||cc===ca)continue;
     const sorted=[ca,cb,cc].sort((u,v)=>u-v).join(',');
-    if(triSet.has(sorted))continue; triSet.add(sorted);
-    outIndex.push(ca,cb,cc);
+    if(triSet.has(sorted))continue;
+    triSet.add(sorted); outIndex.push(ca,cb,cc);
   }
+
+  const outEdges=new Map();
+  for(let i=0;i<outIndex.length;i+=3){
+    const a=outIndex[i],b=outIndex[i+1],c=outIndex[i+2];
+    for(const [u,v] of [[a,b],[b,c],[c,a]]){
+      const k=edgeKey(u,v), rec=outEdges.get(k);
+      if(rec)rec.count++;
+      else outEdges.set(k,{count:1,u,v});
+    }
+  }
+  const boundaryEdges=[...outEdges.values()].filter(e=>e.count===1);
+  const outgoing=new Map();
+  for(const e of boundaryEdges){
+    if(!outgoing.has(e.u))outgoing.set(e.u,[]);
+    outgoing.get(e.u).push(e.v);
+  }
+  const usedDirected=new Set();
+  const dkey=(a,b)=>`${a}>${b}`;
+  const loops=[];
+  for(const first of boundaryEdges){
+    if(usedDirected.has(dkey(first.u,first.v)))continue;
+    const loop=[first.u];
+    let a=first.u,b=first.v,closed=false;
+    for(let guard=0;guard<500;guard++){
+      usedDirected.add(dkey(a,b));
+      loop.push(b);
+      if(b===loop[0]){loop.pop();closed=true;break;}
+      const next=(outgoing.get(b)||[]).find(v=>!usedDirected.has(dkey(b,v)));
+      if(next===undefined)break;
+      a=b;b=next;
+    }
+    if(closed&&loop.length>=3)loops.push(loop);
+  }
+
+  const lowBox=new THREE.Box3();basePoints.forEach(p=>lowBox.expandByPoint(p));
+  const lowSize=lowBox.getSize(new THREE.Vector3());
+  const maxRepairRadius=lowSize.length()*.105;
+  let repaired=0,preserved=0;
+
+  for(const loop of loops){
+    const support=loop.filter(i=>clusters[i]?.sourceBoundary).length/loop.length;
+    if(support>=.55){preserved++;continue;}
+    if(loop.length>36)continue;
+
+    const center=new THREE.Vector3();loop.forEach(i=>center.add(basePoints[i]));center.multiplyScalar(1/loop.length);
+    let radius=0;loop.forEach(i=>radius=Math.max(radius,center.distanceTo(basePoints[i])));
+    if(radius>maxRepairRadius)continue;
+
+    const centerIndex=basePoints.length;
+    basePoints.push(center);
+    morphPoints.forEach(points=>{
+      const c=new THREE.Vector3();loop.forEach(i=>c.add(points[i]));points.push(c.multiplyScalar(1/loop.length));
+    });
+    for(let i=0;i<loop.length;i++){
+      const a=loop[i],b=loop[(i+1)%loop.length];
+      outIndex.push(b,a,centerIndex);
+    }
+    repaired++;
+  }
+
+  const outPos=new Float32Array(basePoints.length*3);
+  basePoints.forEach((p,i)=>{outPos[i*3]=p.x;outPos[i*3+1]=p.y;outPos[i*3+2]=p.z;});
+  const outMorphs=morphPoints.map(points=>{
+    const arr=new Float32Array(points.length*3);
+    points.forEach((p,i)=>{arr[i*3]=p.x;arr[i*3+1]=p.y;arr[i*3+2]=p.z;});
+    return arr;
+  });
 
   const g=new THREE.BufferGeometry();
   g.setAttribute('position',new THREE.BufferAttribute(outPos,3));
@@ -243,6 +331,7 @@ function buildClusteredSkin(base, quality=1){
   g.morphTargetsRelative=src.morphTargetsRelative;
   g.computeVertexNormals();
   g.computeBoundingSphere();
+  console.info(`FaceKit Lab 08: preserved ${preserved} source opening${preserved===1?'':'s'}, repaired ${repaired} reduction hole${repaired===1?'':'s'}`);
   return g;
 }
 
@@ -308,7 +397,7 @@ function setStatus(text,kind=''){
 }
 function enableMorphControls(){
   document.querySelectorAll('.identity input,#jaw').forEach(el=>el.disabled=false);
-  ready=true; setStatus('READY / TRUE LOW-POLY SKIN + LIVE CONTOUR','ready'); syncMorphs();
+  ready=true; setStatus('READY / FEATURE-PRESERVED LOW-POLY + LIVE CONTOUR','ready'); syncMorphs();
 }
 
 const loader=new OBJLoader();
@@ -322,7 +411,7 @@ async function boot(){
       attachTarget(await loadObj(TARGETS[i]),i);
       await new Promise(r=>requestAnimationFrame(r));
     }
-    setStatus('BUILDING LOW-POLY SKIN');
+    setStatus('BUILDING FEATURE-PRESERVED LOW-POLY SKIN');
     await new Promise(r=>requestAnimationFrame(r));
     buildLayers(); enableMorphControls();
   }catch(err){console.error(err);setStatus('LOAD FAILED — SEE CONSOLE','error');}
