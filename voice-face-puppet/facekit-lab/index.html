@@ -4,8 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#050507" />
-  <title>Voice Face Puppet — FaceKit Lab</title>
-  <link rel="stylesheet" href="style.css?v=2" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Voice Face Puppet — FaceKit Lab 16</title>
+  <link rel="stylesheet" href="style.css?v=16" />
   <script type="importmap">
   {
     "imports": {
@@ -19,16 +22,16 @@
   <div id="app">
     <canvas id="stage" aria-label="Interactive ICT FaceKit head"></canvas>
     <header class="topbar">
-      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>14</span></h1></div>
-      <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING BASE MESH</div></div>
+      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>16</span></h1></div>
+      <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING HARD RED SHADING</div></div>
     </header>
     <aside class="panel">
       <section>
         <div class="sectionTitle"><span>01</span> REPRESENTATION</div>
-        <label class="control"><span>Wireframe</span><output id="wireOut">78%</output><input id="wire" type="range" min="0" max="1" step="0.01" value="0.78" /></label>
-        <label class="control"><span>Skin shell</span><output id="solidOut">14%</output><input id="solid" type="range" min="0" max="1" step="0.01" value="0.14" /></label>
-        <label class="control"><span>Contour map</span><output id="contourOut">34%</output><input id="contour" type="range" min="0" max="1" step="0.01" value="0.34" /></label>
-        <label class="toggleLine"><input id="drift" type="checkbox" checked /><span>Slow layer drift</span></label>
+        <label class="control"><span>Wireframe</span><output id="wireOut">0%</output><input id="wire" type="range" min="0" max="1" step="0.01" value="0" /></label>
+        <label class="control"><span>Skin shell</span><output id="solidOut">100%</output><input id="solid" type="range" min="0" max="1" step="0.01" value="1" /></label>
+        <label class="control"><span>Contour map</span><output id="contourOut">0%</output><input id="contour" type="range" min="0" max="1" step="0.01" value="0" /></label>
+        <label class="toggleLine"><input id="drift" type="checkbox" /><span>Slow layer drift</span></label>
       </section>
       <section>
         <div class="sectionTitle"><span>02</span> IDENTITY PCA</div>
@@ -49,6 +52,6 @@
     <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM</div>
     <a class="back" href="../">← V6 PUPPET</a>
   </div>
-  <script type="module" src="lab.js?v=14"></script>
+  <script type="module" src="entry-v16.js?v=16"></script>
 </body>
 </html>
