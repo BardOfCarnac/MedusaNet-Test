@@ -7,8 +7,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Voice Face Puppet — FaceKit Lab 17</title>
-  <link rel="stylesheet" href="style.css?v=17" />
+  <title>Voice Face Puppet — FaceKit Lab 18</title>
+  <link rel="stylesheet" href="style.css?v=18" />
   <script type="importmap">
   {
     "imports": {
@@ -22,8 +22,8 @@
   <div id="app">
     <canvas id="stage" aria-label="Interactive ICT FaceKit head"></canvas>
     <header class="topbar">
-      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>17</span></h1></div>
-      <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING DIRECT RED SHADING</div></div>
+      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>18</span></h1></div>
+      <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING DIRECT HARSH RED KEY</div></div>
     </header>
     <aside class="panel">
       <section>
@@ -48,10 +48,20 @@
         <p class="small">One genuine FaceKit expression target, included only to prove the same geometry can later take the voice/viseme mapping.</p>
       </section>
       <section class="viewSection"><div class="sectionTitle"><span>04</span> VIEW</div><div class="buttonRow three"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div></section>
+      <section>
+        <div class="sectionTitle"><span>05</span> HARSH RED KEY</div>
+        <p class="small">This light now lives in the same code that creates the face. At intensity 0 the face should fall back to the shadow lift only.</p>
+        <label class="control"><span>Left / right</span><output id="lightXOut">0.0</output><input id="lightX" type="range" min="-30" max="30" step="0.2" value="0" /></label>
+        <label class="control"><span>Height</span><output id="lightYOut">22.0</output><input id="lightY" type="range" min="0" max="35" step="0.2" value="22" /></label>
+        <label class="control"><span>Front / back</span><output id="lightZOut">14.0</output><input id="lightZ" type="range" min="-20" max="40" step="0.2" value="14" /></label>
+        <label class="control"><span>Intensity</span><output id="lightIntensityOut">6.0</output><input id="lightIntensity" type="range" min="0" max="12" step="0.1" value="6" /></label>
+        <label class="control"><span>Shadow lift</span><output id="lightFillOut">4%</output><input id="lightFill" type="range" min="0" max="0.5" step="0.005" value="0.035" /></label>
+        <div class="buttonRow"><button id="lightTop">TOP</button><button id="lightThree">¾ HARSH</button></div>
+      </section>
     </aside>
     <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM</div>
     <a class="back" href="../">← V6 PUPPET</a>
   </div>
-  <script type="module" src="entry-v17.js?v=17"></script>
+  <script type="module" src="lab-v18.js?v=18"></script>
 </body>
 </html>
