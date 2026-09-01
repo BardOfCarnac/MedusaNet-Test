@@ -37,7 +37,7 @@ const mouthTeethMat=new THREE.MeshStandardMaterial({color:0x241519,emissive:0x03
 
 function makeContourMaterial(){return new THREE.ShaderMaterial({
   uniforms:{uColor:{value:new THREE.Color(0xff6a74)},uOpacity:{value:.34},uFrequency:{value:.58}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
-  vertexShader:`#include <common>\n#include <morphtarget_pars_vertex>\nvarying vec3 vObj;varying vec3 vNormalW;varying vec3 vWorld;void main(){#include <begin_vertex>\n#include <morphtarget_vertex>\nvObj=transformed;vec4 w=modelMatrix*vec4(transformed,1.0);vWorld=w.xyz;vNormalW=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*w;}`,
+  vertexShader:`#include <common>\n#include <morphtarget_pars_vertex>\nvarying vec3 vObj;varying vec3 vNormalW;varying vec3 vWorld;void main(){\n#include <begin_vertex>\n#include <morphtarget_vertex>\nvObj=transformed;vec4 w=modelMatrix*vec4(transformed,1.0);vWorld=w.xyz;vNormalW=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*w;}`,
   fragmentShader:`uniform vec3 uColor;uniform float uOpacity;uniform float uFrequency;varying vec3 vObj;varying vec3 vNormalW;varying vec3 vWorld;void main(){float phase=vObj.y*uFrequency;float d=abs(fract(phase)-.5);float aa=max(fwidth(phase)*1.35,.012);float iso=smoothstep(.47-aa,.5,d);vec3 V=normalize(cameraPosition-vWorld);float edge=pow(1.0-abs(dot(normalize(vNormalW),V)),2.4);float a=max(iso,edge*.32)*uOpacity;if(a<.018)discard;gl_FragColor=vec4(uColor,a);}`
 });}
 
