@@ -31,6 +31,7 @@ export function buildClusteredSkin(base,{quality=1,portrait=false,excludedSurfac
   const pos=src.attributes.position;
   const idx=src.index;
   const morphs=src.morphAttributes.position||[];
+  const jawMorph=morphs[4]||null;
   const groups=src.groups?.length?src.groups:[{start:0,count:idx?idx.count:pos.count,materialIndex:0}];
   const triangles=[];const used=new Set();
   for(const group of groups){
@@ -60,23 +61,48 @@ export function buildClusteredSkin(base,{quality=1,portrait=false,excludedSurfac
   const size=box.getSize(new THREE.Vector3());
   const gx=Math.round((portrait?20:24)*quality),gy=Math.round((portrait?25:30)*quality),gz=Math.round((portrait?18:22)*quality);
   const eps=1e-9;
+
+  // The neutral FaceKit lips can sit almost exactly on top of one another.
+  // Pure spatial clustering therefore welded upper- and lower-lip vertices into
+  // the same low-poly vertex. Once welded, jawOpen had no seam left to open.
+  // Keep spatially coincident vertices apart whenever FaceKit's real jawOpen
+  // morph says they move differently. We only use this signature in the
+  // central/lower front of the face so the rest of the mesh stays inexpensive.
+  const jawSignature=(vi,nx,ny,nz)=>{
+    if(!jawMorph)return 'j0';
+    const mouthZone=nz>.52&&nx>.14&&nx<.86&&ny>.10&&ny<.62;
+    if(!mouthZone)return 'j0';
+    const dx=(jawMorph.getX(vi)-pos.getX(vi))/(size.x+eps);
+    const dy=(jawMorph.getY(vi)-pos.getY(vi))/(size.y+eps);
+    const dz=(jawMorph.getZ(vi)-pos.getZ(vi))/(size.z+eps);
+    const mag=Math.sqrt(dx*dx+dy*dy+dz*dz);
+    if(mag<.0025)return 'j0';
+    const qx=Math.max(-2,Math.min(2,Math.round(dx*45)));
+    const qy=Math.max(-5,Math.min(5,Math.round(dy*85)));
+    const qz=Math.max(-3,Math.min(3,Math.round(dz*55)));
+    return `j${qx}_${qy}_${qz}`;
+  };
+
   const cellOf=vi=>{
     const nx=(pos.getX(vi)-box.min.x)/(size.x+eps),ny=(pos.getY(vi)-box.min.y)/(size.y+eps),nz=(pos.getZ(vi)-box.min.z)/(size.z+eps);
     const boundary=sourceBoundary.has(vi);
     const feature=nz>.55&&nx>.12&&nx<.88&&ny>.20&&ny<.76;
-    const density=boundary?2.35:(feature?1.5:1);
+    const jawKey=jawSignature(vi,nx,ny,nz);
+    const jawMoving=jawKey!=='j0';
+    const density=boundary?2.35:(feature?(jawMoving?1.75:1.5):1);
     const dx=Math.max(2,Math.round(gx*density)),dy=Math.max(2,Math.round(gy*density)),dz=Math.max(2,Math.round(gz*density));
     const ix=Math.min(dx-1,Math.max(0,Math.floor(nx*dx))),iy=Math.min(dy-1,Math.max(0,Math.floor(ny*dy))),iz=Math.min(dz-1,Math.max(0,Math.floor(nz*dz)));
-    return `${boundary?'b':feature?'f':'g'}|${ix}|${iy}|${iz}`;
+    return `${boundary?'b':feature?'f':'g'}|${jawKey}|${ix}|${iy}|${iz}`;
   };
 
   const clusterMap=new Map();
   for(const vi of used){
     const k=cellOf(vi);let cl=clusterMap.get(k);
-    if(!cl){cl={members:[],index:clusterMap.size,sourceBoundary:false};clusterMap.set(k,cl);}
+    if(!cl){cl={members:[],index:clusterMap.size,sourceBoundary:false,jawSplit:k.includes('|j')&&!k.includes('|j0|')};clusterMap.set(k,cl);}
     cl.members.push(vi);if(sourceBoundary.has(vi))cl.sourceBoundary=true;
   }
   const clusters=[...clusterMap.values()];
+  const jawSplitClusters=clusters.filter(cl=>cl.jawSplit).length;
   const sourceToCluster=new Map();clusters.forEach(cl=>cl.members.forEach(vi=>sourceToCluster.set(vi,cl.index)));
   const basePoints=clusters.map(()=>new THREE.Vector3());
   const morphPoints=morphs.map(()=>clusters.map(()=>new THREE.Vector3()));
@@ -134,7 +160,7 @@ export function buildClusteredSkin(base,{quality=1,portrait=false,excludedSurfac
   g.setAttribute('position',new THREE.BufferAttribute(outPos,3));g.setIndex(outIndex);
   g.morphAttributes={position:outMorphs.map(a=>new THREE.BufferAttribute(a,3))};g.morphTargetsRelative=src.morphTargetsRelative;
   g.computeVertexNormals();g.computeBoundingSphere();
-  console.info(`${logLabel}: preserved ${preserved} source opening${preserved===1?'':'s'}, repaired ${repaired} reduction hole${repaired===1?'':'s'}`);
+  console.info(`${logLabel}: ${clusters.length} clusters (${jawSplitClusters} jaw-split), preserved ${preserved} source opening${preserved===1?'':'s'}, repaired ${repaired} reduction hole${repaired===1?'':'s'}`);
   return g;
 }
 
