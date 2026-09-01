@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090c"><title>Voice Face Puppet — natural consonant trainer</title>
+<link rel="stylesheet" href="../voice-face-puppet/style.css">
+<style>
+body{background:#08090c}.app{max-width:980px;margin:auto}.hero{display:grid;grid-template-columns:1fr;gap:14px}.cue{min-height:210px;border:1px solid var(--line);border-radius:18px;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,rgba(255,95,95,.09),transparent 55%),rgba(0,0,0,.15);text-align:center;padding:18px}.cue .word{font:700 clamp(38px,10vw,86px)/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.cue .sub{margin-top:10px;color:var(--muted);font:11px/1.4 ui-monospace,monospace}.cue.go .word{color:var(--accent);text-shadow:0 0 24px rgba(255,95,95,.22)}.sessions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.session{padding:12px;text-align:left}.session b,.session span{display:block}.session b{font-size:13px}.session span{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.35}.session.ready{border-color:rgba(150,255,185,.5)}.session.recording{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.16)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.14)}.stat b,.stat span{display:block}.stat b{font-size:13px}.stat span{font-size:9px;color:var(--muted);margin-top:4px}.result{white-space:pre-wrap;font:10px/1.55 ui-monospace,monospace;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.15)}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button,.actions a{flex:1;min-width:130px;text-align:center}.actions a{border:1px solid var(--line);border-radius:10px;padding:9px;color:inherit;text-decoration:none;background:rgba(255,255,255,.025);font-size:10px}.note{font-size:10px;line-height:1.55;color:var(--muted)}@media(max-width:700px){.sessions{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}}@media(max-width:430px){.sessions{grid-template-columns:1fr}}
+</style>
+</head><body><div class="app">
+<header><div class="brand"><div class="logo"></div><div class="titleWrap"><h1>Natural Consonant Trainer</h1><div class="subtitle">HeadAudio · onset-calibrated words</div></div></div><div class="topBtns"><button id="permissionBtn">Ask for mic</button><button id="micBtn" class="primary">Mic on</button></div></header>
+<main style="display:block"><div class="hero">
+<section class="section"><div class="sectionBody">
+<div class="note">This trainer deliberately does <b>not</b> ask you to sustain consonants. Each session flashes ordinary words at a fixed cadence. Say each word once when it appears. The trainer finds the speech onset and keeps only the first ~100 ms, so the following vowel cannot dominate the prototype.</div>
+<div class="cue" id="cue"><div><div class="word" id="cueWord">READY</div><div class="sub" id="cueSub">Turn the mic on, calibrate silence, then choose one consonant family.</div></div></div>
+<div class="actions" style="margin-top:10px"><button id="silenceBtn">Calibrate 3s silence</button><button id="applyBtn">Apply saved prototypes</button><a href="../voice-face-puppet-3d-compare/?v=4">Back to 3D comparison</a></div>
+</div></section>
+<section class="section"><div class="sectionBody"><div class="sessions" id="sessions"></div></div></section>
+<section class="section"><div class="sectionBody"><div class="stats"><div class="stat"><b id="signal">— dB</b><span>signal</span></div><div class="stat"><b id="prediction">sil</b><span>raw HeadAudio</span></div><div class="stat"><b id="saved">0</b><span>context prototypes</span></div><div class="stat"><b id="statusMini">idle</b><span>trainer</span></div></div><div class="result" id="result" style="margin-top:10px">No contextual consonant prototypes yet.</div></div></section>
+</div></main></div><script type="module" src="trainer.js"></script></body></html>
