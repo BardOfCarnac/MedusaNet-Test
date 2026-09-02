@@ -2,10 +2,10 @@ export const CONSONANTS=['PP','FF','TH','DD','SS','kk','nn','RR','CH'];
 
 export const GATE_CONFIG={
   PP:{threshold:.62,margin:.18,persist:3,maxStrength:.96,holdMs:82},
-  FF:{threshold:.68,margin:.20,persist:4,maxStrength:.58,holdMs:58},
+  FF:{threshold:.68,margin:.20,persist:3,maxStrength:.58,holdMs:62},
   TH:{threshold:.60,margin:.16,persist:2,maxStrength:.68,holdMs:72},
   DD:{threshold:.68,margin:.22,persist:3,maxStrength:.44,holdMs:66},
-  SS:{threshold:.68,margin:.20,persist:3,maxStrength:.50,holdMs:58},
+  SS:{threshold:.69,margin:.21,persist:3,maxStrength:.50,holdMs:66},
   kk:{threshold:.70,margin:.22,persist:3,maxStrength:.36,holdMs:64},
   nn:{threshold:.82,margin:.28,persist:4,maxStrength:.30,holdMs:62},
   RR:{threshold:.72,margin:.22,persist:3,maxStrength:.52,holdMs:76},
@@ -17,8 +17,8 @@ const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 export class ConsonantGate{
   constructor(options={}){
     this.speechGateDb=options.speechGateDb??-52;
-    this.attack=options.attack??.52;
-    this.release=options.release??.28;
+    this.attack=options.attack??.58;
+    this.release=options.release??.22;
     this.reset();
   }
   reset(){
@@ -57,9 +57,9 @@ export class ConsonantGate{
       const thresholdSpan=Math.max(.08,1-acfg.threshold);
       const weightScore=clamp((aw-acfg.threshold)/thresholdSpan);
       const marginScore=clamp((amargin-acfg.margin)/Math.max(.08,.42-acfg.margin));
-      const evidence=Math.max(.30,Math.sqrt(Math.max(0,weightScore*marginScore)));
+      const evidence=Math.max(.34,Math.sqrt(Math.max(0,weightScore*marginScore)));
       target=acfg.maxStrength*evidence;
-      if(!qualified&&stillHeld)target*=.64;
+      if(!qualified&&stillHeld)target*=.72;
     }
     this.envelope += (target-this.envelope)*(target>this.envelope?this.attack:this.release);
     if(this.envelope<.015&&!this.active)this.envelope=0;
