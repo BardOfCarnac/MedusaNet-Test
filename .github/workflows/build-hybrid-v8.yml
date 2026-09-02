@@ -1,0 +1,26 @@
+name: Build hybrid V8
+on:
+  push:
+    paths:
+      - 'voice-face-puppet-3d-compare/build_v8.py'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build V8
+        run: python3 voice-face-puppet-3d-compare/build_v8.py
+      - name: Check JavaScript
+        run: |
+          node --check voice-face-puppet-3d-compare/hybrid-gate-v3.js
+          node --check voice-face-puppet-3d-compare/compare-v8.js
+          node --check voice-face-puppet-3d-compare/capture-v6.js
+      - name: Commit V8
+        run: |
+          git config user.name 'BardOfCarnac'
+          git config user.email '114069933+BardOfCarnac@users.noreply.github.com'
+          git add voice-face-puppet-3d-compare/hybrid-gate-v3.js voice-face-puppet-3d-compare/compare-v8.js voice-face-puppet-3d-compare/capture-v6.js voice-face-puppet-3d-compare/index.html
+          git commit -m 'Correct hybrid lip sync V8' || exit 0
+          git push
