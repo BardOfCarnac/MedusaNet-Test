@@ -17,6 +17,18 @@
     }
   }
   </script>
+  <script>
+    // One-time calibration migration: the user's editor moves from 2026-09-02
+    // are now baked into the shared presets, so remove the old local offsets once.
+    try {
+      const marker='facekit-mask-calibration-baked-20260902-a';
+      if(!localStorage.getItem(marker)){
+        localStorage.removeItem('facekit-mask-editor-v21');
+        localStorage.removeItem('facekit-mask-editor-v20');
+        localStorage.setItem(marker,'1');
+      }
+    } catch (_) {}
+  </script>
 </head>
 <body>
   <div id="app">
@@ -40,7 +52,7 @@
           <button aria-pressed="false" data-mask="clown">CLOWN</button>
           <button aria-pressed="false" data-mask="professor">PROFESSOR</button>
         </div>
-        <p class="small maskNote">Mask geometry and editor defaults now come from a shared preset schema. Professor has smaller upright glasses and thicker, more deeply arched scalp-rooted hair.</p>
+        <p class="small maskNote">The calibrated clown and professor positions are now baked into the shared preset schema. Editor sliders are for fresh offsets from those defaults.</p>
       </section>
       <section id="maskEditorSection">
         <div class="sectionTitle"><span>03</span> MASK EDITOR</div>
@@ -80,6 +92,6 @@
     <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM</div>
     <a class="back" href="../">← V6 PUPPET</a>
   </div>
-  <script type="module" src="lab-v21.js?v=21"></script>
+  <script type="module" src="lab-v21.js?v=21b"></script>
 </body>
 </html>
