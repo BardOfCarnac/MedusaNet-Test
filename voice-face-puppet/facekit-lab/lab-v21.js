@@ -234,6 +234,8 @@ function buildLayers(){
     const solid=new THREE.Mesh(g,makeSolidMaterials(base));solid.castShadow=true;solid.receiveShadow=true;
     const contourGeo=buildGroupedGeometry(base,name=>!excludedContour(name));
     const contour=contourGeo?new THREE.Mesh(contourGeo,makeContourMaterial()):null;if(contour)contour.scale.setScalar(1.0015);
+    const contourDepth=contourGeo?new THREE.Mesh(contourGeo,depthMat.clone()):null;
+    if(contourDepth){contourDepth.renderOrder=-5;contourDepth.visible=false;setFullMorphs(contourDepth);}
     const low=buildClusteredSkin(base,{portrait:portraitLayout(),excludedSurface,logLabel:'FaceKit Lab 21'});
     let wire=null,depth=null;
     if(low){depth=new THREE.Mesh(low,depthMat.clone());wire=new THREE.Mesh(low,wireMat.clone());wire.scale.setScalar(1.002);setMorphArray(depth,low.morphAttributes.position.length);setMorphArray(wire,low.morphAttributes.position.length);depth.renderOrder=0;wire.renderOrder=2;}
@@ -242,8 +244,8 @@ function buildLayers(){
     const mouthSoft=softGeo?new THREE.Mesh(softGeo,mouthSoftMat.clone()):null,mouthTeeth=teethGeo?new THREE.Mesh(teethGeo,mouthTeethMat.clone()):null;
     if(mouthSoft){mouthSoft.renderOrder=1.35;setFullMorphs(mouthSoft);}if(mouthTeeth){mouthTeeth.renderOrder=1.4;setFullMorphs(mouthTeeth);}
     solid.renderOrder=1;if(contour)contour.renderOrder=3;setFullMorphs(solid);setFullMorphs(contour);
-    [depth,solid,eyes,mouthSoft,mouthTeeth,wire,contour].filter(Boolean).forEach(m=>{m.position.copy(base.position);m.rotation.copy(base.rotation);m.scale.copy(base.scale);holder.add(m);});
-    headRig.add(holder);layerMeshes.push({solid,wire,contour,depth,eyes,mouthSoft,mouthTeeth});
+    [contourDepth,depth,solid,eyes,mouthSoft,mouthTeeth,wire,contour].filter(Boolean).forEach(m=>{m.position.copy(base.position);m.rotation.copy(base.rotation);m.scale.copy(base.scale);holder.add(m);});
+    headRig.add(holder);layerMeshes.push({solid,wire,contour,contourDepth,depth,eyes,mouthSoft,mouthTeeth});
   });
   const box=new THREE.Box3().setFromObject(headRig),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),target=portraitLayout()?15.5:23,scale=target/Math.max(size.x,size.y);
   buildMaskAccessories(box,size,center);headRig.scale.setScalar(scale);headRig.position.set(-center.x*scale,-center.y*scale+(portraitLayout()?4:.8),-center.z*scale+2.8);
@@ -256,7 +258,7 @@ function updateMouthInterior(){
   layerMeshes.forEach(({mouthSoft,mouthTeeth})=>{if(mouthSoft){mouthSoft.visible=true;mouthSoft.material.opacity=softOpacity;}if(mouthTeeth){mouthTeeth.visible=true;mouthTeeth.material.opacity=teethOpacity;}});
 }
 function updateEyes(){layerMeshes.forEach(({eyes})=>{if(eyes)eyes.visible=true;});}
-function syncMorphs(){const{identity,jaw}=morphValues();layerMeshes.forEach(({solid,wire,contour,depth,eyes,mouthSoft,mouthTeeth})=>[solid,wire,contour,depth,eyes,mouthSoft,mouthTeeth].forEach(m=>applyMorphs(m,identity,jaw)));updateEyes();updateMouthInterior();}
+function syncMorphs(){const{identity,jaw}=morphValues();layerMeshes.forEach(({solid,wire,contour,contourDepth,depth,eyes,mouthSoft,mouthTeeth})=>[solid,wire,contour,contourDepth,depth,eyes,mouthSoft,mouthTeeth].forEach(m=>applyMorphs(m,identity,jaw)));updateEyes();updateMouthInterior();}
 
 function setStatus(text,kind=''){document.querySelector('#status').textContent=text;document.querySelector('#statusDot').className='statusDot'+(kind?` ${kind}`:'');}
 function enableMorphControls(){document.querySelectorAll('.identity input,#jaw').forEach(el=>el.disabled=false);ready=true;setStatus(`READY / ${currentMask.toUpperCase()} MASK`,'ready');syncMorphs();}
@@ -271,8 +273,8 @@ function updateLightUI(){
 }
 function updateLayerUI(){
   document.querySelector('#wireOut').value=pct(ui.wire.value);document.querySelector('#solidOut').value=pct(ui.solid.value);document.querySelector('#contourOut').value=pct(ui.contour.value);
-  const wireAmount=Number(ui.wire.value);
-  layerMeshes.forEach(({solid,wire,contour,depth,eyes})=>{setSolidOpacity(solid,ui.solid.value);if(wire)wire.material.opacity=wireAmount;if(depth)depth.visible=wireAmount>.015;if(contour)contour.material.uniforms.uOpacity.value=Number(ui.contour.value);if(eyes)eyes.visible=true;});updateMouthInterior();
+  const wireAmount=Number(ui.wire.value),contourAmount=Number(ui.contour.value);
+  layerMeshes.forEach(({solid,wire,contour,contourDepth,depth,eyes})=>{setSolidOpacity(solid,ui.solid.value);if(wire)wire.material.opacity=wireAmount;if(depth)depth.visible=wireAmount>.015;if(contour)contour.material.uniforms.uOpacity.value=contourAmount;if(contourDepth)contourDepth.visible=contourAmount>.015;if(eyes)eyes.visible=true;});updateMouthInterior();
 }
 
 const editorEls={section:document.querySelector('#maskEditorSection'),part:document.querySelector('#maskPart'),x:document.querySelector('#partX'),y:document.querySelector('#partY'),z:document.querySelector('#partZ'),scale:document.querySelector('#partScale'),xOut:document.querySelector('#partXOut'),yOut:document.querySelector('#partYOut'),zOut:document.querySelector('#partZOut'),scaleOut:document.querySelector('#partScaleOut'),resetPart:document.querySelector('#resetPart'),resetMask:document.querySelector('#resetMask')};
@@ -316,5 +318,5 @@ function setView(name){const views=portraitLayout()?{front:[0,4,48],three:[20,4,
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
 const clock=new THREE.Clock();
-function animate(){requestAnimationFrame(animate);resize();controls.update();const t=clock.getElapsedTime();layerMeshes.forEach(({contour})=>{if(contour)contour.material.uniforms.uTime.value=t;});if(ui.drift.checked&&ready){const w=.67+Math.sin(t*.23)*.11+Math.sin(t*.071)*.05,c=.24+Math.sin(t*.17+1.4)*.13,s=.10+Math.sin(t*.11+3.1)*.055;layerMeshes.forEach(({solid,wire,contour,depth,eyes})=>{if(wire)wire.material.opacity=Math.max(.04,Math.min(1,w*Number(ui.wire.value)/.78));if(depth)depth.visible=Number(ui.wire.value)>.015;if(contour)contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));setSolidOpacity(solid,Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));if(eyes)eyes.visible=true;});updateMouthInterior();}else updateLayerUI();headRig.rotation.y=Math.sin(t*.19)*.018;updateAnimatedHair(t);renderer.render(scene,camera);}
+function animate(){requestAnimationFrame(animate);resize();controls.update();const t=clock.getElapsedTime();layerMeshes.forEach(({contour})=>{if(contour)contour.material.uniforms.uTime.value=t;});if(ui.drift.checked&&ready){const w=.67+Math.sin(t*.23)*.11+Math.sin(t*.071)*.05,c=.24+Math.sin(t*.17+1.4)*.13,s=.10+Math.sin(t*.11+3.1)*.055;layerMeshes.forEach(({solid,wire,contour,contourDepth,depth,eyes})=>{if(wire)wire.material.opacity=Math.max(.04,Math.min(1,w*Number(ui.wire.value)/.78));if(depth)depth.visible=Number(ui.wire.value)>.015;if(contour)contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));if(contourDepth)contourDepth.visible=Number(ui.contour.value)>.015;setSolidOpacity(solid,Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));if(eyes)eyes.visible=true;});updateMouthInterior();}else updateLayerUI();headRig.rotation.y=Math.sin(t*.19)*.018;updateAnimatedHair(t);renderer.render(scene,camera);}
 updateLightUI();updateLayerUI();refreshPartPicker();setMask('base',false);boot();animate();
