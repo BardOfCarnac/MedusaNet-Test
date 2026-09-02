@@ -1,0 +1,23 @@
+name: Add V7 diagnostic replay
+on:
+  push:
+    paths:
+      - '.github/workflows/add-v7-diagnostic-replay.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add replay control
+        run: python3 scripts/add_v7_replay.py
+      - name: Check runtime
+        run: node --check voice-face-puppet-3d-compare/compare-v7.js
+      - name: Commit replay
+        run: |
+          git config user.name 'BardOfCarnac'
+          git config user.email '114069933+BardOfCarnac@users.noreply.github.com'
+          git add voice-face-puppet-3d-compare/compare-v7.js voice-face-puppet-3d-compare/index.html
+          git commit -m 'Add slow diagnostic replay to hybrid V7' || exit 0
+          git push
