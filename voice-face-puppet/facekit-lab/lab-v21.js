@@ -87,7 +87,7 @@ function addAnimatedHairStrand(group,points,material,radius,{phase=0,tangent,zSi
   const curve=new THREE.CatmullRomCurve3(points,false,'catmullrom',.55);
   const hairMat=material.clone(),root=points[0].clone(),tip=points[points.length-1],length=Math.max(.001,root.distanceTo(tip));
   const side=new THREE.Vector3(tangent?.x||1,tangent?.y||0,0).normalize();
-  const depthSign=zSign===0?(Math.sin(phase*3.1)>=0?.42:-.42):zSign;
+  const depthSign=zSign===0 ? (Math.sin(phase*3.1)>=0 ? .42 : -.42) : zSign;
   hairMat.onBeforeCompile=shader=>{
     shader.uniforms.uHairTime={value:0};
     shader.uniforms.uHairPhase={value:phase};
