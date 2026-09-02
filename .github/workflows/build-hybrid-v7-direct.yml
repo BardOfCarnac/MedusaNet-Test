@@ -1,0 +1,26 @@
+name: Build hybrid V7 direct
+on:
+  push:
+    paths:
+      - '.github/workflows/build-hybrid-v7-direct.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build calibrated V7 files
+        run: python3 scripts/build_hybrid_v7.py
+      - name: Check JavaScript
+        run: |
+          node --check voice-face-puppet-3d-compare/compare-v7.js
+          node --check voice-face-puppet-3d-compare/hybrid-gate-v2.js
+          node --check voice-face-puppet-3d-compare/capture-v5.js
+      - name: Commit V7
+        run: |
+          git config user.name 'BardOfCarnac'
+          git config user.email '114069933+BardOfCarnac@users.noreply.github.com'
+          git add voice-face-puppet-3d-compare/compare-v7.js voice-face-puppet-3d-compare/hybrid-gate-v2.js voice-face-puppet-3d-compare/capture-v5.js voice-face-puppet-3d-compare/index.html
+          git commit -m 'Calibrate hybrid face movement V7' || exit 0
+          git push
