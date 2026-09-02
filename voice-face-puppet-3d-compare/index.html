@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050507">
-<title>Voice Face Puppet — 3D Lip Sync Compare</title>
+<title>Voice Face Puppet — 3D Hybrid Lip Sync</title>
 <link rel="stylesheet" href="style.css">
 <script type="importmap">
 {"imports":{
@@ -15,24 +15,24 @@
 </head>
 <body>
 <div id="app">
-  <canvas id="stage" aria-label="3D FaceKit lip sync comparison"></canvas>
+  <canvas id="stage" aria-label="3D FaceKit hybrid lip sync comparison"></canvas>
   <header class="topbar">
     <div>
-      <div class="eyebrow">VOICE FACE PUPPET / 3D TRACKER A-B</div>
-      <h1>ICT FACEKIT <span>× STABILIZED VISEMES</span></h1>
+      <div class="eyebrow">VOICE FACE PUPPET / 3D HYBRID TEST</div>
+      <h1>ICT FACEKIT <span>× HYBRID LIP SYNC</span></h1>
     </div>
     <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING HEAD</div></div>
   </header>
 
   <aside class="panel">
     <section>
-      <div class="sectionTitle"><span>01</span> LIP SYNC MODEL</div>
+      <div class="sectionTitle"><span>01</span> OUTPUT MODE</div>
       <div class="trackerSwitch">
-        <button id="wlBtn" class="selected">wLipSync</button>
-        <button id="haBtn">HeadAudio Stabilized</button>
+        <button id="wlBtn">wLipSync only</button>
+        <button id="haBtn" class="selected">Hybrid + consonants</button>
       </div>
       <div class="readout">
-        <div><span>ACTIVE</span><b id="activeModel">wLipSync</b></div>
+        <div><span>ACTIVE</span><b id="activeModel">Hybrid · wLipSync + HeadAudio</b></div>
         <div><span>SHAPE</span><b id="shapeOut">—</b></div>
       </div>
       <p class="small" id="profileInfo">Reading saved calibration…</p>
@@ -43,7 +43,7 @@
       <div class="buttonRow"><button id="permissionBtn">ASK FOR MIC</button><button id="micBtn">MIC ON</button></div>
       <button id="silenceBtn" class="wide">CALIBRATE HEADAUDIO SILENCE</button>
       <div class="meter"><span id="meterFill"></span></div>
-      <p class="small" id="micStatus">Both trackers will analyse the same microphone stream simultaneously.</p>
+      <p class="small" id="micStatus">wLipSync owns the continuous vowel/jaw motion. HeadAudio listens in parallel only for consonant articulations.</p>
     </section>
 
     <section>
@@ -58,16 +58,16 @@
       <div class="morphRow"><span>mouthUpperUp</span><i><em id="mUpper"></em></i></div>
       <div class="morphRow"><span>jawForward</span><i><em id="mForward"></em></i></div>
       <div class="morphRow"><span>mouthStretch</span><i><em id="mStretch"></em></i></div>
-      <p class="small">HeadAudio now uses covariance-normalized Gaussian likelihoods, equal-weight mixtures per viseme, and the saved personal prototypes. The old transient consonant overrides are disabled from animation and retained only for diagnostics.</p>
+      <p class="small">Hybrid mode never lets HeadAudio replace the wLipSync vowel. It can only add gated PP, FF, TH, DD, SS, kk, nn, RR or CH articulation. Personal HeadAudio vowel prototypes are deliberately excluded.</p>
     </section>
 
     <section>
-      <div class="sectionTitle"><span>04</span> DIAGNOSTIC RECORDING V3</div>
+      <div class="sectionTitle"><span>04</span> DIAGNOSTIC RECORDING V4 · HYBRID</div>
       <p class="sentence" id="diagnosticSentence">Father packed five bright blue puppets in a good box, then Joe chose three sheep by the old gate.</p>
-      <p class="small">Read it naturally at your normal pace. V3 records wLipSync, raw HeadAudio, the new stabilized HeadAudio output, and the old transient candidate scores without allowing those transient templates to alter the mouth.</p>
+      <p class="small">V4 records the wLipSync vowel base, raw HeadAudio consonant evidence, every gate decision, the final consonant overlay strength, MFCC features and the microphone audio. This is the version to send back for threshold tuning.</p>
       <div class="buttonRow"><button id="recordBtn">RECORD 12s</button><button id="downloadCaptureBtn" disabled>DOWNLOAD BUNDLE</button></div>
       <div class="captureMeter"><span id="captureMeterFill"></span></div>
-      <p class="small" id="captureStatus">No V3 diagnostic recording yet.</p>
+      <p class="small" id="captureStatus">No V4 hybrid diagnostic recording yet.</p>
     </section>
 
     <section>
@@ -79,21 +79,19 @@
 
     <section>
       <div class="sectionTitle"><span>06</span> TRAINING</div>
-      <p class="small">Your existing calibration remains saved on this origin. The transient trainer is now legacy/diagnostic until we rebuild the stop-consonant method.</p>
+      <p class="small">Your saved wLipSync profile remains the vowel base. HeadAudio hybrid mode loads only your saved consonant prototypes; the expanded HeadAudio vowel work remains saved but is no longer fed into this runtime.</p>
       <div class="links">
-        <a href="../voice-face-puppet-wlipsync/">wLipSync trainer</a>
-        <a href="../voice-face-puppet-headaudio-phonemes/">HeadAudio vowels</a>
-        <a href="../voice-face-puppet-headaudio-temporal/">Legacy transient trainer</a>
+        <a href="../voice-face-puppet-wlipsync/">wLipSync vowel trainer</a>
+        <a href="../voice-face-puppet-headaudio-trained/">HeadAudio consonant trainer</a>
+        <a href="../voice-face-puppet-headaudio-phonemes/">HeadAudio vowel research build</a>
       </div>
     </section>
   </aside>
 
-  <div class="hud"><span id="hudModel">WLIPSYNC</span><span id="hudShape">—</span><span id="hudTemporal">5-VOWEL</span></div>
-  <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM · SWITCH MODELS LIVE</div>
+  <div class="hud"><span id="hudModel">HYBRID</span><span id="hudShape">—</span><span id="hudTemporal">HA — · gated</span></div>
+  <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM · A/B HYBRID AGAINST WLIPSYNC</div>
 </div>
-<script type="module" src="headaudio-aa-fix.js"></script>
-<script type="module" src="compare-v4.js"></script>
-<script>var legacyTemporalWouldFire=[];</script>
-<script type="module" src="capture-v3.js"></script>
+<script type="module" src="compare-v5.js"></script>
+<script type="module" src="capture-v4.js"></script>
 </body>
 </html>
