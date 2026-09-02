@@ -16,84 +16,16 @@
 <body>
 <div id="app">
   <canvas id="stage" aria-label="3D FaceKit hybrid lip sync comparison"></canvas>
-  <header class="topbar">
-    <div>
-      <div class="eyebrow">VOICE FACE PUPPET / 3D HYBRID TEST</div>
-      <h1>ICT FACEKIT <span>× HYBRID LIP SYNC</span></h1>
-    </div>
-    <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING HEAD</div></div>
-  </header>
-
+  <header class="topbar"><div><div class="eyebrow">VOICE FACE PUPPET / 3D HYBRID TEST</div><h1>ICT FACEKIT <span>× HYBRID LIP SYNC</span></h1></div><div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING HEAD</div></div></header>
   <aside class="panel">
-    <section>
-      <div class="sectionTitle"><span>01</span> OUTPUT MODE</div>
-      <div class="trackerSwitch">
-        <button id="wlBtn">wLipSync only</button>
-        <button id="haBtn" class="selected">Hybrid + consonants</button>
-      </div>
-      <div class="readout">
-        <div><span>ACTIVE</span><b id="activeModel">Hybrid · wLipSync + HeadAudio</b></div>
-        <div><span>SHAPE</span><b id="shapeOut">—</b></div>
-      </div>
-      <p class="small" id="profileInfo">Reading saved calibration…</p>
-    </section>
-
-    <section>
-      <div class="sectionTitle"><span>02</span> MICROPHONE</div>
-      <div class="buttonRow"><button id="permissionBtn">ASK FOR MIC</button><button id="micBtn">MIC ON</button></div>
-      <button id="silenceBtn" class="wide">CALIBRATE HEADAUDIO SILENCE</button>
-      <div class="meter"><span id="meterFill"></span></div>
-      <p class="small" id="micStatus">wLipSync owns the continuous vowel/jaw motion. HeadAudio listens in parallel only for consonant articulations.</p>
-    </section>
-
-    <section>
-      <div class="sectionTitle"><span>03</span> FACEKIT ARKIT OUTPUT</div>
-      <div class="morphRow"><span>jawOpen</span><i><em id="mJaw"></em></i></div>
-      <div class="morphRow"><span>mouthFunnel</span><i><em id="mFunnel"></em></i></div>
-      <div class="morphRow"><span>mouthPucker</span><i><em id="mPucker"></em></i></div>
-      <div class="morphRow"><span>mouthPress L/R</span><i><em id="mPress"></em></i></div>
-      <div class="morphRow"><span>mouthDimple L/R</span><i><em id="mDimple"></em></i></div>
-      <div class="morphRow"><span>mouthRoll</span><i><em id="mRoll"></em></i></div>
-      <div class="morphRow"><span>mouthLowerDown</span><i><em id="mLower"></em></i></div>
-      <div class="morphRow"><span>mouthUpperUp</span><i><em id="mUpper"></em></i></div>
-      <div class="morphRow"><span>jawForward</span><i><em id="mForward"></em></i></div>
-      <div class="morphRow"><span>mouthStretch</span><i><em id="mStretch"></em></i></div>
-      <p class="small">Hybrid mode never lets HeadAudio replace the wLipSync vowel. It can only add gated PP, FF, TH, DD, SS, kk, nn, RR or CH articulation. Personal HeadAudio vowel prototypes are deliberately excluded.</p>
-    </section>
-
-    <section>
-      <div class="sectionTitle"><span>04</span> DIAGNOSTIC RECORDING V6 · HYBRID</div>
-      <p class="sentence" id="diagnosticSentence">Father packed five bright blue puppets in a good box, then Joe chose three sheep by the old gate.</p>
-      <p class="small">V6 records the wLipSync vowel base, raw HeadAudio consonant evidence, every gate decision, the final consonant overlay strength, MFCC features and the microphone audio. This is the version to send back for threshold tuning.</p>
-      <button id="replayBtn" class="wide">REPLAY DIAGNOSTIC · 0.55×</button>
-      <p class="small">Replays the uploaded diagnostic take through the corrected V7 FaceKit mapping at 55% speed, with the tightened consonant gate baked into the replay.</p>
-      <div class="buttonRow"><button id="recordBtn">RECORD 12s</button><button id="downloadCaptureBtn" disabled>DOWNLOAD BUNDLE</button></div>
-      <div class="captureMeter"><span id="captureMeterFill"></span></div>
-      <p class="small" id="captureStatus">No V6 hybrid diagnostic recording yet.</p>
-    </section>
-
-    <section>
-      <div class="sectionTitle"><span>05</span> VIEW</div>
-      <div class="buttonRow three"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div>
-      <label class="toggleLine"><input id="wire" type="checkbox" checked><span>Wire overlay</span></label>
-      <label class="toggleLine"><input id="drift" type="checkbox" checked><span>Subtle idle drift</span></label>
-    </section>
-
-    <section>
-      <div class="sectionTitle"><span>06</span> TRAINING</div>
-      <p class="small">Your saved wLipSync profile remains the vowel base. HeadAudio hybrid mode loads only your saved consonant prototypes; the expanded HeadAudio vowel work remains saved but is no longer fed into this runtime.</p>
-      <div class="links">
-        <a href="../voice-face-puppet-wlipsync/">wLipSync vowel trainer</a>
-        <a href="../voice-face-puppet-headaudio-consonants/">V8 consonant trainer</a>
-        <a href="../voice-face-puppet-headaudio-phonemes/">HeadAudio vowel research build</a>
-      </div>
-    </section>
+    <section><div class="sectionTitle"><span>01</span> OUTPUT MODE</div><div class="trackerSwitch"><button id="wlBtn">wLipSync only</button><button id="haBtn" class="selected">Hybrid + consonants</button></div><div class="readout"><div><span>ACTIVE</span><b id="activeModel">Hybrid · wLipSync + HeadAudio</b></div><div><span>SHAPE</span><b id="shapeOut">—</b></div></div><p class="small" id="profileInfo">Reading saved calibration…</p></section>
+    <section><div class="sectionTitle"><span>02</span> MICROPHONE</div><div class="buttonRow"><button id="permissionBtn">ASK FOR MIC</button><button id="micBtn">MIC ON</button></div><button id="silenceBtn" class="wide">CALIBRATE HEADAUDIO SILENCE</button><div class="meter"><span id="meterFill"></span></div><p class="small" id="micStatus">wLipSync owns the continuous vowel/jaw motion. HeadAudio listens in parallel only for consonant articulations.</p></section>
+    <section><div class="sectionTitle"><span>03</span> FACEKIT ARKIT OUTPUT</div><div class="morphRow"><span>jawOpen</span><i><em id="mJaw"></em></i></div><div class="morphRow"><span>mouthFunnel</span><i><em id="mFunnel"></em></i></div><div class="morphRow"><span>mouthPucker</span><i><em id="mPucker"></em></i></div><div class="morphRow"><span>mouthPress L/R</span><i><em id="mPress"></em></i></div><div class="morphRow"><span>mouthDimple L/R</span><i><em id="mDimple"></em></i></div><div class="morphRow"><span>mouthRoll</span><i><em id="mRoll"></em></i></div><div class="morphRow"><span>mouthLowerDown</span><i><em id="mLower"></em></i></div><div class="morphRow"><span>mouthUpperUp</span><i><em id="mUpper"></em></i></div><div class="morphRow"><span>jawForward</span><i><em id="mForward"></em></i></div><div class="morphRow"><span>mouthStretch</span><i><em id="mStretch"></em></i></div><p class="small">V8 never lets HeadAudio replace the wLipSync vowel. It can only add gated PP, FF, TH, SS or CH articulation. Tongue/back-of-mouth classes DD, kk, nn and RR are ignored by the live face.</p></section>
+    <section><div class="sectionTitle"><span>04</span> DIAGNOSTIC RECORDING V6 · HYBRID</div><p class="sentence" id="diagnosticSentence">Father packed five bright blue puppets in a good box, then Joe chose three sheep by the old gate.</p><p class="small">V6 records the wLipSync vowel base, raw HeadAudio evidence, every V8 gate decision, final consonant overlay strength, MFCC features and microphone audio.</p><button id="replayBtn" class="wide">REPLAY PRIOR DIAGNOSTIC · 0.55×</button><p class="small">This is the earlier diagnostic take replayed through the current V8 FaceKit easing for visual comparison. Make a new V6 diagnostic recording to assess the new V8 consonant gate itself.</p><div class="buttonRow"><button id="recordBtn">RECORD 12s</button><button id="downloadCaptureBtn" disabled>DOWNLOAD BUNDLE</button></div><div class="captureMeter"><span id="captureMeterFill"></span></div><p class="small" id="captureStatus">No V6 hybrid diagnostic recording yet.</p></section>
+    <section><div class="sectionTitle"><span>05</span> VIEW</div><div class="buttonRow three"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div><label class="toggleLine"><input id="wire" type="checkbox" checked><span>Wire overlay</span></label><label class="toggleLine"><input id="drift" type="checkbox" checked><span>Subtle idle drift</span></label></section>
+    <section><div class="sectionTitle"><span>06</span> TRAINING</div><p class="small">Your saved wLipSync profile remains the vowel base. V8 loads only personal PP/FF/TH/SS/CH HeadAudio prototypes. The older vowel and internal-mouth research prototypes stay saved but are excluded from this runtime.</p><div class="links"><a href="../voice-face-puppet-wlipsync/">wLipSync vowel trainer</a><a href="../voice-face-puppet-headaudio-consonants/">V8 consonant trainer</a><a href="../voice-face-puppet-headaudio-phonemes/">HeadAudio vowel research build</a></div></section>
   </aside>
-
-  <div class="hud"><span id="hudModel">HYBRID V8</span><span id="hudShape">—</span><span id="hudTemporal">HA — · gated</span></div>
-  <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM · A/B HYBRID AGAINST WLIPSYNC</div>
+  <div class="hud"><span id="hudModel">HYBRID V8</span><span id="hudShape">—</span><span id="hudTemporal">HA — · gated</span></div><div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM · A/B HYBRID AGAINST WLIPSYNC</div>
 </div>
-<script type="module" src="compare-v8.js"></script>
-<script type="module" src="capture-v6.js"></script>
-</body>
-</html>
+<script type="module" src="compare-v8.js"></script><script type="module" src="capture-v6.js"></script>
+</body></html>
