@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { buildGroupedGeometry, buildClusteredSkin, setMorphArray } from './facekit-geometry.js?v=13';
-import { MASK_PRESETS, partsForMask, partPreset } from './mask-presets-v21.js?v=1';
+import { MASK_PRESETS, partsForMask, partPreset } from './mask-presets-v21.js?v=2';
 
 const FACEKIT='https://cdn.jsdelivr.net/gh/USC-ICT/ICT-FaceKit@master/FaceXModel/';
 const TARGETS=['identity000.obj','identity001.obj','identity002.obj','identity003.obj','jawOpen.obj'];
@@ -22,7 +22,7 @@ const camera=new THREE.PerspectiveCamera(34,1,.1,500);camera.position.set(0,port
 const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=.065;controls.target.set(0,portraitLayout()?4:.6,3);controls.minDistance=24;controls.maxDistance=80;controls.enablePan=false;
 const headRig=new THREE.Group();scene.add(headRig);
 const maskRoot=new THREE.Group();maskRoot.name='mask-root';headRig.add(maskRoot);
-const maskGroups=new Map(),maskParts=new Map();let currentMask='base',maskSize=null;
+const maskGroups=new Map(),maskParts=new Map(),animatedHairMaterials=[];let currentMask='base',maskSize=null;
 
 const gridMat=new THREE.LineBasicMaterial({color:0x53131b,transparent:true,opacity:.24});
 function makePlaneGrid(size=110,divisions=11){
@@ -83,6 +83,34 @@ function addTube(group,points,material,radius,segments=10){
   const curve=new THREE.CatmullRomCurve3(points,false,'catmullrom',.55);
   const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,segments,radius,6,false),material.clone());mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;
 }
+function addAnimatedHairStrand(group,points,material,radius,{phase=0,tangent,zSign=0,sizeRef,motion,segments=12}={}){
+  const curve=new THREE.CatmullRomCurve3(points,false,'catmullrom',.55);
+  const hairMat=material.clone(),root=points[0].clone(),tip=points[points.length-1],length=Math.max(.001,root.distanceTo(tip));
+  const side=new THREE.Vector3(tangent?.x||1,tangent?.y||0,0).normalize();
+  const depthSign=zSign===0?(Math.sin(phase*3.1)>=0?.42:-.42):zSign;
+  hairMat.onBeforeCompile=shader=>{
+    shader.uniforms.uHairTime={value:0};
+    shader.uniforms.uHairPhase={value:phase};
+    shader.uniforms.uHairRoot={value:root};
+    shader.uniforms.uHairSide={value:side};
+    shader.uniforms.uHairLength={value:length};
+    shader.uniforms.uHairSpeed={value:motion?.speed??.82};
+    shader.uniforms.uHairSideAmp={value:(sizeRef?.x||1)*(motion?.sideAmp??.012)};
+    shader.uniforms.uHairLiftAmp={value:(sizeRef?.y||1)*(motion?.liftAmp??.028)};
+    shader.uniforms.uHairDepthAmp={value:(sizeRef?.z||1)*(motion?.depthAmp??.018)};
+    shader.uniforms.uHairDepthSign={value:depthSign};
+    shader.uniforms.uHairTipBias={value:motion?.tipBias??1.45};
+    shader.uniforms.uHairMidBias={value:motion?.midBias??.82};
+    shader.uniforms.uHairRootStiffness={value:motion?.rootStiffness??.16};
+    shader.vertexShader=shader.vertexShader.replace('#include <common>',`#include <common>\nuniform float uHairTime;\nuniform float uHairPhase;\nuniform vec3 uHairRoot;\nuniform vec3 uHairSide;\nuniform float uHairLength;\nuniform float uHairSpeed;\nuniform float uHairSideAmp;\nuniform float uHairLiftAmp;\nuniform float uHairDepthAmp;\nuniform float uHairDepthSign;\nuniform float uHairTipBias;\nuniform float uHairMidBias;\nuniform float uHairRootStiffness;`);
+    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>\nfloat hairProgress=clamp(length(position-uHairRoot)/max(uHairLength,0.001),0.0,1.0);\nfloat hairRootWeight=smoothstep(uHairRootStiffness,1.0,hairProgress);\nfloat hairMid=pow(hairProgress,1.25)*uHairMidBias;\nfloat hairTip=pow(hairProgress,2.15)*uHairTipBias;\nfloat hairWeight=hairRootWeight*(hairMid*0.32+hairTip*0.68);\nfloat hairA=sin(uHairTime*uHairSpeed+uHairPhase);\nfloat hairB=cos(uHairTime*uHairSpeed*0.77+uHairPhase*1.37);\nfloat hairC=sin(uHairTime*uHairSpeed*1.19+uHairPhase*0.83);\ntransformed+=uHairSide*(uHairSideAmp*hairA*hairWeight);\ntransformed.y+=uHairLiftAmp*hairB*hairWeight;\ntransformed.z+=uHairDepthAmp*hairC*hairWeight*uHairDepthSign;`);
+    hairMat.userData.hairShader=shader;
+  };
+  hairMat.customProgramCacheKey=()=> 'facekit-anemone-hair-v1';
+  animatedHairMaterials.push(hairMat);
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,segments,radius,6,false),hairMat);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;
+}
+function updateAnimatedHair(time){animatedHairMaterials.forEach(material=>{const shader=material.userData.hairShader;if(shader)shader.uniforms.uHairTime.value=time;});}
 
 const EDIT_KEY='facekit-mask-editor-v21',LEGACY_EDIT_KEY='facekit-mask-editor-v20';
 const defaultEdit=()=>({x:0,y:0,z:0,scale:1});
@@ -170,7 +198,7 @@ function buildProfessorMask(box,size,center){
       const p1=start.clone().add(new THREE.Vector3(radial.x*reachX*h.arc.p1[0]+tangent.x*bend*h.arc.p1[2],radial.y*reachY*h.arc.p1[1]+tangent.y*bend*h.arc.p1[3],zOut*h.arc.p1[4]));
       const p2=start.clone().add(new THREE.Vector3(radial.x*reachX*h.arc.p2[0]+tangent.x*bend*h.arc.p2[2],radial.y*reachY*h.arc.p2[1]+tangent.y*bend*h.arc.p2[3],zOut*h.arc.p2[4]+size.z*.016*curl));
       const p3=start.clone().add(new THREE.Vector3(radial.x*reachX*h.arc.p3[0]+tangent.x*bend*h.arc.p3[2],radial.y*reachY*h.arc.p3[1]+tangent.y*bend*h.arc.p3[3],zOut*h.arc.p3[4]+size.z*.020*wobble));
-      addTube(hair,[start,p1,p2,p3],hairMat,size.x*layer.rad,12);
+      addAnimatedHairStrand(hair,[start,p1,p2,p3],hairMat,size.x*layer.rad,{phase:layer.phase+i*.23,tangent,zSign:layer.zSign,sizeRef:size,motion:h.motion,segments:12});
     }
   });
   group.add(hair);return group;
@@ -178,7 +206,7 @@ function buildProfessorMask(box,size,center){
 
 const MASK_BUILDERS={clown:buildClownMask,professor:buildProfessorMask};
 function buildMaskAccessories(box,size,center){
-  maskRoot.clear();maskGroups.clear();maskParts.clear();maskSize=size.clone();
+  maskRoot.clear();maskGroups.clear();maskParts.clear();animatedHairMaterials.length=0;maskSize=size.clone();
   Object.keys(MASK_PRESETS).forEach(name=>{
     const group=name==='base'?new THREE.Group():MASK_BUILDERS[name]?.(box,size,center);
     if(!group)return;group.name=`mask-${name}`;maskRoot.add(group);maskGroups.set(name,group);
@@ -288,5 +316,5 @@ function setView(name){const views=portraitLayout()?{front:[0,4,48],three:[20,4,
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
 const clock=new THREE.Clock();
-function animate(){requestAnimationFrame(animate);resize();controls.update();const t=clock.getElapsedTime();layerMeshes.forEach(({contour})=>{if(contour)contour.material.uniforms.uTime.value=t;});if(ui.drift.checked&&ready){const w=.67+Math.sin(t*.23)*.11+Math.sin(t*.071)*.05,c=.24+Math.sin(t*.17+1.4)*.13,s=.10+Math.sin(t*.11+3.1)*.055;layerMeshes.forEach(({solid,wire,contour,depth,eyes})=>{if(wire)wire.material.opacity=Math.max(.04,Math.min(1,w*Number(ui.wire.value)/.78));if(depth)depth.visible=Number(ui.wire.value)>.015;if(contour)contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));setSolidOpacity(solid,Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));if(eyes)eyes.visible=true;});updateMouthInterior();}else updateLayerUI();headRig.rotation.y=Math.sin(t*.19)*.018;renderer.render(scene,camera);}
+function animate(){requestAnimationFrame(animate);resize();controls.update();const t=clock.getElapsedTime();layerMeshes.forEach(({contour})=>{if(contour)contour.material.uniforms.uTime.value=t;});if(ui.drift.checked&&ready){const w=.67+Math.sin(t*.23)*.11+Math.sin(t*.071)*.05,c=.24+Math.sin(t*.17+1.4)*.13,s=.10+Math.sin(t*.11+3.1)*.055;layerMeshes.forEach(({solid,wire,contour,depth,eyes})=>{if(wire)wire.material.opacity=Math.max(.04,Math.min(1,w*Number(ui.wire.value)/.78));if(depth)depth.visible=Number(ui.wire.value)>.015;if(contour)contour.material.uniforms.uOpacity.value=Math.max(0,Math.min(1,c*Number(ui.contour.value)/.34));setSolidOpacity(solid,Math.max(0,Math.min(.5,s*Number(ui.solid.value)/.14)));if(eyes)eyes.visible=true;});updateMouthInterior();}else updateLayerUI();headRig.rotation.y=Math.sin(t*.19)*.018;updateAnimatedHair(t);renderer.render(scene,camera);}
 updateLightUI();updateLayerUI();refreshPartPicker();setMask('base',false);boot();animate();
