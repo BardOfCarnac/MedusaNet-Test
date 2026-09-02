@@ -7,8 +7,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Voice Face Puppet — FaceKit Lab 22</title>
-  <link rel="stylesheet" href="style.css?v=22" />
+  <title>Voice Face Puppet — FaceKit Lab 23</title>
+  <link rel="stylesheet" href="style.css?v=23" />
   <script type="importmap">
   {
     "imports": {
@@ -34,7 +34,7 @@
   <div id="app">
     <canvas id="stage" aria-label="Interactive ICT FaceKit head"></canvas>
     <header class="topbar">
-      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>22</span></h1></div>
+      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>23</span></h1></div>
       <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING PRESET MASK RIG</div></div>
     </header>
     <aside class="panel">
@@ -87,6 +87,15 @@
           <button aria-pressed="false" data-expression="startled">STARTLED</button>
         </div>
         <label class="control"><span>Expression strength</span><output id="expressionStrengthOut">70%</output><input id="expressionStrength" type="range" min="0" max="1.35" step="0.01" value="0.7" disabled /></label>
+        <div class="subTitle">BEHAVIOUR</div>
+        <div class="motionGrid">
+          <button class="active" aria-pressed="true" data-motion="hold">HOLD</button>
+          <button aria-pressed="false" data-motion="breathe">BREATHE</button>
+          <button aria-pressed="false" data-motion="surface">SURFACE</button>
+          <button aria-pressed="false" data-motion="wander">WANDER</button>
+        </div>
+        <label class="control"><span>Motion pace</span><output id="motionPaceOut">75%</output><input id="motionPace" type="range" min="0.35" max="1.6" step="0.01" value="0.75" disabled /></label>
+        <label class="toggleLine"><input id="naturalBlink" type="checkbox" checked disabled /><span>Natural asymmetric blinks</span></label>
       </section>
       <section class="viewSection"><div class="sectionTitle"><span>06</span> VIEW</div><div class="buttonRow three"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div></section>
       <section>
@@ -102,6 +111,6 @@
     <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM</div>
     <a class="back" href="../">← V6 PUPPET</a>
   </div>
-  <script type="module" src="lab-v22.js?v=22a"></script>
+  <script type="module" src="lab-v23.js?v=23a"></script>
 </body>
 </html>
