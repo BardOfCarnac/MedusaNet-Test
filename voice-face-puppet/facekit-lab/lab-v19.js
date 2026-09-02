@@ -78,37 +78,63 @@ function setSolidOpacity(mesh,value){const v=Number(value);materialsOf(mesh.mate
 function addMesh(group,geometry,material,position,scale=null,rotation=null){
   const mesh=new THREE.Mesh(geometry,material.clone());mesh.position.copy(position);if(scale)mesh.scale.copy(scale);if(rotation)mesh.rotation.set(rotation.x,rotation.y,rotation.z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;
 }
+function addHairStrand(group,points,material,radius){
+  const curve=new THREE.CatmullRomCurve3(points,false,'catmullrom',.55);
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,9,radius,5,false),material.clone());mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;
+}
 function buildClownMask(box,size,center){
   const group=new THREE.Group();group.name='mask-clown';
-  const front=box.max.z+size.z*.035;
-  addMesh(group,new THREE.SphereGeometry(size.x*.087,28,18),maskMat,new THREE.Vector3(center.x,center.y-size.y*.015,front+size.z*.025));
+  const noseRadius=size.x*.066,noseY=center.y+size.y*.025,noseZ=box.max.z+noseRadius*.28;
+  addMesh(group,new THREE.SphereGeometry(noseRadius,28,20),maskMat,new THREE.Vector3(center.x,noseY,noseZ));
   const cloud=(sideSign)=>{
     const tuft=new THREE.Group();
-    const baseX=center.x+sideSign*size.x*.555,baseY=center.y+size.y*.205,baseZ=center.z-size.z*.02;
-    const puffs=[[0,0,.115,.12],[-.035,.085,.09,.10],[.035,.09,.10,.105],[-.055,-.06,.095,.10],[.055,-.05,.10,.105],[0,.165,.085,.09],[0,-.125,.082,.09]];
-    puffs.forEach(([ox,oy,rx,ry])=>addMesh(tuft,new THREE.SphereGeometry(1,20,14),maskMat,new THREE.Vector3(baseX+sideSign*size.x*ox,baseY+size.y*oy,baseZ),new THREE.Vector3(size.x*rx,size.y*ry,size.z*.105)));
+    const baseX=center.x+sideSign*size.x*.43,baseY=center.y+size.y*.19,baseZ=center.z-size.z*.035;
+    const puffs=[
+      [0,0,.115,.105,.10],
+      [.052,.055,.085,.082,.075],
+      [-.042,.060,.090,.088,.080],
+      [.045,-.055,.082,.075,.072],
+      [-.040,-.050,.090,.080,.078],
+      [0,.105,.077,.070,.070]
+    ];
+    puffs.forEach(([dx,dy,rx,ry,rz])=>addMesh(tuft,new THREE.SphereGeometry(1,20,15),maskMat,new THREE.Vector3(baseX+sideSign*size.x*dx,baseY+size.y*dy,baseZ),new THREE.Vector3(size.x*rx,size.y*ry,size.z*rz)));
     group.add(tuft);
   };
   cloud(-1);cloud(1);return group;
 }
 function buildProfessorMask(box,size,center){
   const group=new THREE.Group();group.name='mask-professor';
-  const front=box.max.z+size.z*.026,r=size.x*.158,tube=size.x*.012,eyeY=center.y+size.y*.105,eyeX=size.x*.205;
+  const front=box.max.z+size.z*.012,r=size.x*.116,tube=size.x*.0085,eyeY=center.y+size.y*.105,eyeX=size.x*.155;
   [-1,1].forEach(s=>addMesh(group,new THREE.TorusGeometry(r,tube,10,42),glassMat,new THREE.Vector3(center.x+s*eyeX,eyeY,front)));
-  addMesh(group,new THREE.CylinderGeometry(tube*.9,tube*.9,size.x*.115,10),glassMat,new THREE.Vector3(center.x,eyeY,front),null,new THREE.Euler(0,0,Math.PI/2));
-  [-1,1].forEach(s=>addMesh(group,new THREE.CylinderGeometry(tube*.8,tube*.8,size.x*.18,8),glassMat,new THREE.Vector3(center.x+s*(eyeX+r+size.x*.07),eyeY+size.y*.005,front-size.z*.04),null,new THREE.Euler(0,0,Math.PI/2)));
-  const up=new THREE.Vector3(0,1,0),hairMat=maskMat.clone();hairMat.roughness=.92;
-  const rings=[{z:center.z-size.z*.18,count:24,len:.17},{z:center.z+size.z*.00,count:20,len:.145}];
-  rings.forEach((ring,ri)=>{for(let i=0;i<ring.count;i++){
-    const a=(i/(ring.count-1))*Math.PI*.92+Math.PI*.04;
-    const x=center.x+Math.cos(a)*size.x*.54;
-    const y=center.y+size.y*.19+Math.sin(a)*size.y*.43;
-    const z=ring.z;
-    const dir=new THREE.Vector3(Math.cos(a)*.8,Math.sin(a)*1.05,(ri?0.10:-.08)).normalize();
-    const len=size.y*(ring.len+(i%3)*.014),rad=size.x*(.018+(i%4)*.003);
-    const hair=new THREE.Mesh(new THREE.ConeGeometry(rad,len,7),hairMat.clone());
-    hair.position.set(x,y,z);hair.quaternion.setFromUnitVectors(up,dir);hair.castShadow=true;group.add(hair);
-  }});
+  addMesh(group,new THREE.CylinderGeometry(tube*.82,tube*.82,size.x*.075,10),glassMat,new THREE.Vector3(center.x,eyeY,front),null,new THREE.Euler(0,0,Math.PI/2));
+  [-1,1].forEach(s=>addMesh(group,new THREE.CylinderGeometry(tube*.72,tube*.72,size.x*.13,8),glassMat,new THREE.Vector3(center.x+s*(eyeX+r+size.x*.065),eyeY+size.y*.003,front-size.z*.035),null,new THREE.Euler(0,0,Math.PI/2)));
+
+  const hairMat=maskMat.clone();hairMat.roughness=.96;hairMat.metalness=0;
+  const layers=[
+    {count:23,z:center.z-size.z*.18,reach:.16,rad:.0052,phase:0},
+    {count:20,z:center.z-size.z*.08,reach:.13,rad:.0045,phase:.8},
+    {count:17,z:center.z+size.z*.01,reach:.105,rad:.0040,phase:1.5}
+  ];
+  layers.forEach((layer,li)=>{
+    for(let i=0;i<layer.count;i++){
+      const u=i/(layer.count-1),a=Math.PI*(.08+.84*u);
+      const radial=new THREE.Vector2(Math.cos(a),Math.sin(a));
+      const tangent=new THREE.Vector2(-radial.y,radial.x);
+      const start=new THREE.Vector3(
+        center.x+radial.x*size.x*.405,
+        center.y+size.y*.18+radial.y*size.y*.345,
+        layer.z
+      );
+      const wobble=Math.sin(i*1.73+layer.phase),curl=Math.cos(i*1.21+layer.phase);
+      const reachX=size.x*(layer.reach+.018*(i%4));
+      const reachY=size.y*(layer.reach*.62+.012*((i+2)%5));
+      const bend=size.x*(.035*wobble+.018*curl);
+      const p1=start.clone().add(new THREE.Vector3(radial.x*reachX*.35+tangent.x*bend*.35,radial.y*reachY*.30+tangent.y*bend*.22,size.z*.018*wobble));
+      const p2=start.clone().add(new THREE.Vector3(radial.x*reachX*.78+tangent.x*bend,radial.y*reachY*.72+tangent.y*bend*.55,size.z*.030*curl));
+      const p3=start.clone().add(new THREE.Vector3(radial.x*reachX+tangent.x*bend*.72,radial.y*reachY+tangent.y*bend,size.z*.020*wobble));
+      addHairStrand(group,[start,p1,p2,p3],hairMat,size.x*layer.rad);
+    }
+  });
   return group;
 }
 function buildMaskAccessories(box,size,center){
