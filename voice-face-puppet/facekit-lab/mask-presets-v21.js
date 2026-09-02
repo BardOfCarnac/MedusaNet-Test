@@ -6,9 +6,9 @@ export const MASK_PRESETS={
   clown:{
     label:'Clown',
     parts:[
-      {id:'clown-nose',label:'Nose',editor:{position:.25,scale:[.5,1.6]},anchor:{x:0,y:.035,z:'face'},shape:{type:'sphere',radius:.064,embed:.70}},
-      {id:'clown-left',label:'Left tuft',editor:{position:.25,scale:[.5,1.6]},anchor:{x:-.43,y:.19,z:-.035},shape:{type:'cloud'}},
-      {id:'clown-right',label:'Right tuft',editor:{position:.25,scale:[.5,1.6]},anchor:{x:.43,y:.19,z:-.035},shape:{type:'cloud'}}
+      {id:'clown-nose',label:'Nose',editor:{position:.25,scale:[.5,1.6]},anchor:{x:0,y:.085,z:'face'},shape:{type:'sphere',radius:.08768,embed:.70}},
+      {id:'clown-left',label:'Left tuft',editor:{position:.25,scale:[.5,1.6]},anchor:{x:-.40,y:.245,z:-.035},shape:{type:'cloud'}},
+      {id:'clown-right',label:'Right tuft',editor:{position:.25,scale:[.5,1.6]},anchor:{x:.40,y:.245,z:-.035},shape:{type:'cloud'}}
     ],
     cloudPuffs:[
       [0,0,.115,.120,.105],
@@ -23,22 +23,22 @@ export const MASK_PRESETS={
   professor:{
     label:'Professor',
     parts:[
-      {id:'prof-glasses',label:'Glasses',editor:{position:.25,scale:[.5,1.6]},anchor:{x:0,y:.102,z:'face'},shape:{type:'glasses'}},
-      {id:'prof-hair',label:'Hair',editor:{position:.25,scale:[.5,1.6]},anchor:{x:0,y:.175,z:0},shape:{type:'hair'}}
+      {id:'prof-glasses',label:'Glasses',editor:{position:.25,scale:[.5,1.6]},anchor:{x:0,y:.152,z:'face'},shape:{type:'glasses'}},
+      {id:'prof-hair',label:'Hair',editor:{position:.25,scale:[.5,1.6]},anchor:{x:0,y:.170,z:0},shape:{type:'hair'}}
     ],
     glasses:{
-      frontInset:-.004,
-      lensRadius:.081,
-      tubeRadius:.0078,
-      eyeX:.116,
-      bridgeY:.018,
-      bridgeInnerX:.022,
-      templeMidX:.255,
-      templeEndX:.355,
-      templeMidY:.010,
-      templeEndY:.004,
-      templeMidZ:-.018,
-      templeEndZ:-.090
+      frontInset:-.084,
+      lensRadius:.09396,
+      tubeRadius:.009048,
+      eyeX:.13456,
+      bridgeY:.02088,
+      bridgeInnerX:.02552,
+      templeMidX:.29580,
+      templeEndX:.41180,
+      templeMidY:.01160,
+      templeEndY:.00464,
+      templeMidZ:-.02088,
+      templeEndZ:-.10440
     },
     hair:{
       rootX:.305,
