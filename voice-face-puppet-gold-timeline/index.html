@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050507">
+<title>Gold Standard Lip-Sync Editor</title>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+}}
+</script>
+<style>
+:root{color-scheme:dark;--red:#ff2638;--red2:#ff6a76;--ink:#050507;--panel:#0a090c;--line:rgba(255,80,94,.24);--text:#eee5e7;--muted:#9a8388;--soft:#1c1115}
+*{box-sizing:border-box}html,body{margin:0;background:var(--ink);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;height:100%;overflow:hidden}button,input,select{font:inherit}button{border:1px solid var(--line);background:rgba(255,38,56,.05);color:#cdb9bd;min-height:34px;padding:7px 10px;cursor:pointer}button:hover,button:active,button.selected{border-color:rgba(255,80,94,.75);color:#fff;background:rgba(255,38,56,.14)}button:disabled{opacity:.38}.primary{border-color:rgba(255,80,94,.7);color:#fff}.app{height:100dvh;display:grid;grid-template-rows:44vh 56vh;overflow:hidden}.stageWrap{position:relative;min-height:0;border-bottom:1px solid var(--line)}#stage{width:100%;height:100%;display:block;touch-action:none}.topbar{position:absolute;z-index:5;top:0;left:0;right:0;padding:16px 18px;display:flex;justify-content:space-between;pointer-events:none}.eyebrow{font-size:9px;letter-spacing:.16em;color:var(--muted)}h1{margin:4px 0 0;font-size:17px;letter-spacing:.06em}h1 span{color:var(--red);font-weight:400}.status{font-size:9px;letter-spacing:.08em;color:var(--muted);background:rgba(5,5,7,.72);border:1px solid var(--line);padding:7px 8px}.hud{position:absolute;z-index:5;left:16px;bottom:12px;display:flex;gap:6px;pointer-events:none}.hud span{border:1px solid var(--line);background:rgba(5,5,7,.72);padding:6px 7px;color:#b9a4a8;font-size:9px}.hud span:first-child{color:#fff}.viewBtns{position:absolute;right:14px;bottom:12px;z-index:6;display:flex;gap:6px}.viewBtns button{min-height:29px;font-size:8px;padding:5px 8px}.workspace{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px;background:linear-gradient(180deg,#07070a,#050507)}.editor{min-width:0;min-height:0;overflow:auto;padding:12px 14px 30px;border-right:1px solid var(--line)}.inspector{min-height:0;overflow:auto;padding:12px 13px 24px;background:rgba(10,9,12,.9)}.sentence{border:1px solid var(--line);background:rgba(255,38,56,.045);padding:10px 12px;font:12px/1.55 ui-monospace,monospace;margin-bottom:10px}.sentence .word{opacity:.62}.sentence .word.active{opacity:1;color:#fff;text-shadow:0 0 12px rgba(255,38,56,.45)}.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.toolbar button,.toolbar label{flex:0 0 auto}.fileBtn{border:1px solid var(--line);background:rgba(255,38,56,.05);padding:8px 10px;cursor:pointer;color:#cdb9bd;font-size:9px;display:flex;align-items:center}.fileBtn input{display:none}.timeRead{margin-left:auto;color:var(--muted);font-size:10px;align-self:center}.waveWrap{position:relative;height:100px;border:1px solid var(--line);background:#070609;overflow:hidden;touch-action:none}.waveWrap canvas{position:absolute;inset:0;width:100%;height:100%}.playhead{position:absolute;top:0;bottom:0;width:1px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.6);pointer-events:none;z-index:4}.wordLane,.timeline{position:relative;min-width:900px}.scrollX{overflow-x:auto;overflow-y:hidden;border:1px solid var(--line);border-top:0}.wordLane{height:28px;background:#08070a}.wordBlock{position:absolute;top:0;height:100%;border-right:1px solid rgba(255,80,94,.18);padding:6px 6px 0;color:#a68e93;font-size:9px;overflow:hidden;white-space:nowrap}.wordBlock.active{background:rgba(255,38,56,.1);color:#fff}.timeline{height:74px;background:#070609;touch-action:none}.seg{position:absolute;top:0;height:100%;border-right:1px solid rgba(255,255,255,.1);background:rgba(255,38,56,.045);padding:9px 6px 5px;overflow:hidden;cursor:pointer}.seg:nth-child(odd){background:rgba(255,38,56,.075)}.seg.selected{outline:1px solid var(--red);z-index:3;background:rgba(255,38,56,.15)}.seg.active{box-shadow:inset 0 -3px 0 var(--red)}.seg b{display:block;color:#fff;font-size:11px}.seg small{display:block;color:var(--muted);font-size:8px;margin-top:4px}.handle{position:absolute;right:-5px;top:0;width:10px;height:100%;cursor:ew-resize;z-index:4}.laneLegend{display:flex;justify-content:space-between;color:#705d61;font-size:8px;margin:5px 2px 9px}.sectionTitle{display:flex;gap:8px;align-items:center;color:#d6c5c8;font-size:9px;letter-spacing:.12em;margin:0 0 9px}.sectionTitle span{color:var(--red)}.card{border:1px solid var(--line);padding:10px;margin-bottom:10px;background:rgba(0,0,0,.14)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}.field{display:grid;gap:5px;margin:8px 0}.field label{color:var(--muted);font-size:8px;letter-spacing:.08em;text-transform:uppercase}.field input[type=range]{width:100%;accent-color:var(--red)}.field input[type=number],.field select{width:100%;background:#08070a;color:#fff;border:1px solid var(--line);padding:8px}.mini{font-size:8px;color:var(--muted);line-height:1.45}.morphRow{display:grid;grid-template-columns:98px 1fr;gap:7px;align-items:center;margin:6px 0;font-size:8px;color:#a78f94}.morphRow i{height:5px;background:#211217;overflow:hidden}.morphRow em{display:block;height:100%;width:0;background:var(--red2)}.speedRow{display:flex;gap:5px}.speedRow button{flex:1}.danger{color:#ffb2ba}.kbd{border:1px solid var(--line);padding:1px 4px;color:#c8b4b8}.notice{position:absolute;left:50%;top:60px;transform:translateX(-50%);z-index:8;background:#110c0e;border:1px solid var(--red);padding:8px 10px;font-size:9px;color:#fff;display:none}.notice.show{display:block}
+@media(max-width:760px){.app{grid-template-rows:38vh 62vh}.workspace{grid-template-columns:1fr}.editor{border-right:0;padding:10px 10px 24px}.inspector{border-top:1px solid var(--line);overflow:visible}.workspace{overflow:auto}.sentence{font-size:11px}.timeRead{width:100%;margin-left:0}.waveWrap{height:84px}.topbar{padding:12px}.topbar h1{font-size:14px}.status{display:none}.timeline,.wordLane{min-width:1100px}.viewBtns{right:8px;bottom:8px}.hud{left:8px;bottom:8px}.hud span{font-size:8px;padding:5px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="stageWrap">
+    <canvas id="stage"></canvas>
+    <div class="topbar"><div><div class="eyebrow">VOICE FACE PUPPET / GOLD STANDARD EDITOR</div><h1>ICT FACEKIT <span>× MANUAL PHONEME TIMELINE</span></h1></div><div class="status" id="headStatus">LOADING HEAD</div></div>
+    <div class="notice" id="notice"></div>
+    <div class="hud"><span id="hudWord">—</span><span id="hudPhone">—</span><span id="hudViseme">REST</span><span id="hudMs">0 ms</span></div>
+    <div class="viewBtns"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div>
+  </section>
+
+  <section class="workspace">
+    <div class="editor">
+      <div class="sentence" id="sentence"></div>
+      <div class="toolbar">
+        <button id="recordBtn" class="primary">RECORD SENTENCE</button>
+        <button id="playBtn" disabled>PLAY</button>
+        <button id="rewBtn" disabled>−100 ms</button><button id="fwdBtn" disabled>+100 ms</button>
+        <label class="fileBtn">LOAD AUDIO<input id="audioFile" type="file" accept="audio/*"></label>
+        <label class="fileBtn">IMPORT PROJECT<input id="projectFile" type="file" accept="application/json,.json"></label>
+        <button id="exportBtn" disabled>EXPORT PROJECT</button>
+        <div class="timeRead" id="timeRead">0.000 / 0.000 s</div>
+      </div>
+      <div class="waveWrap" id="waveWrap"><canvas id="wave"></canvas><div class="playhead" id="waveHead"></div></div>
+      <div class="scrollX" id="timelineScroll">
+        <div class="wordLane" id="wordLane"></div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+      <div class="laneLegend"><span>Click a phoneme to edit it · drag its right edge to move a boundary</span><span><span class="kbd">Space</span> play/pause · ←/→ 20 ms</span></div>
+      <audio id="audio" preload="auto"></audio>
+    </div>
+
+    <aside class="inspector">
+      <div class="sectionTitle"><span>01</span> SELECTED PHONEME</div>
+      <div class="card">
+        <div class="grid2"><div class="field"><label>Word</label><input id="selWord" disabled></div><div class="field"><label>Phone</label><input id="selPhone" disabled></div></div>
+        <div class="field"><label>Visual viseme</label><select id="visemeSelect"></select></div>
+        <div class="field"><label>Pose strength <output id="strengthOut"></output></label><input id="strength" type="range" min="0" max="1.5" step="0.01" value="1"></div>
+        <div class="grid2"><div class="field"><label>Start ms</label><input id="startMs" type="number" step="1"></div><div class="field"><label>End ms</label><input id="endMs" type="number" step="1"></div></div>
+        <div class="grid2"><button id="startHere">START = PLAYHEAD</button><button id="endHere">END = PLAYHEAD</button></div>
+      </div>
+
+      <div class="sectionTitle"><span>02</span> PLAYBACK</div>
+      <div class="card">
+        <div class="field"><label>Coarticulation <output id="blendOut"></output></label><input id="blend" type="range" min="0" max="180" step="5" value="70"></div>
+        <div class="speedRow"><button data-speed="0.5">0.5×</button><button data-speed="0.75">0.75×</button><button data-speed="1" class="selected">1×</button></div>
+        <p class="mini">Coarticulation crossfades neighbouring mouth poses around each phoneme boundary. This is visual smoothing, not recognition.</p>
+      </div>
+
+      <div class="sectionTitle"><span>03</span> CURRENT FACEKIT OUTPUT</div>
+      <div class="card" id="morphs"></div>
+
+      <div class="sectionTitle"><span>04</span> PROJECT</div>
+      <div class="card">
+        <button id="resetBtn" style="width:100%">RESET TEMPLATE TIMINGS</button>
+        <p class="mini">The initial timeline is only a proportional template. Your edits are the ground truth. Exporting includes the timeline and the audio recording so we can analyse the finished performance later.</p>
+      </div>
+    </aside>
+  </section>
+</div>
+<script type="module" src="editor.js"></script>
+</body>
+</html>
