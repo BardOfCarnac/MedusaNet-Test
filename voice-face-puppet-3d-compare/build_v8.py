@@ -57,3 +57,5 @@ idx=idx.replace('compare-v7.js','compare-v8.js').replace('capture-v5.js','captur
 idx=idx.replace('../voice-face-puppet-headaudio-trained/','../voice-face-puppet-headaudio-consonants/')
 idx=idx.replace('HeadAudio consonant trainer','V8 consonant trainer')
 (root/'index.html').write_text(idx)
+
+# trigger build-hybrid-v8 workflow
