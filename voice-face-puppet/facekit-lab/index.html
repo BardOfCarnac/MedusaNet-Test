@@ -7,8 +7,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Voice Face Puppet — FaceKit Lab 23</title>
-  <link rel="stylesheet" href="style.css?v=23" />
+  <title>Voice Face Puppet — FaceKit Lab 24</title>
+  <link rel="stylesheet" href="style.css?v=24" />
   <script type="importmap">
   {
     "imports": {
@@ -34,7 +34,7 @@
   <div id="app">
     <canvas id="stage" aria-label="Interactive ICT FaceKit head"></canvas>
     <header class="topbar">
-      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>23</span></h1></div>
+      <div><div class="eyebrow">VOICE FACE PUPPET / MODEL LAB</div><h1>ICT FACEKIT <span>24</span></h1></div>
       <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING PRESET MASK RIG</div></div>
     </header>
     <aside class="panel">
@@ -76,16 +76,17 @@
       <section>
         <div class="sectionTitle"><span>05</span> EXPRESSION KIT</div>
         <label class="control"><span>Jaw open</span><output id="jawOut">0%</output><input id="jaw" type="range" min="0" max="1" step="0.01" value="0" disabled /></label>
-        <p class="small">Sixteen genuine FaceKit/ARKit-style muscle shapes. Presets blend them; jaw remains independent for speech.</p>
-        <div class="expressionGrid">
-          <button class="active" aria-pressed="true" data-expression="neutral">NEUTRAL</button>
-          <button aria-pressed="false" data-expression="listening">LISTENING</button>
-          <button aria-pressed="false" data-expression="dubious">DUBIOUS</button>
-          <button aria-pressed="false" data-expression="amused">AMUSED</button>
-          <button aria-pressed="false" data-expression="concerned">CONCERNED</button>
-          <button aria-pressed="false" data-expression="thinking">THINKING</button>
-          <button aria-pressed="false" data-expression="startled">STARTLED</button>
+        <p class="small">Choose emotional territory; the face deals a compatible brow, eye and mouth performance from that family.</p>
+        <div class="expressionGrid families">
+          <button class="active" aria-pressed="true" data-family="attentive">ATTENTIVE</button>
+          <button aria-pressed="false" data-family="warm">WARM</button>
+          <button aria-pressed="false" data-family="sceptical">SCEPTICAL</button>
+          <button aria-pressed="false" data-family="concerned">CONCERNED</button>
+          <button aria-pressed="false" data-family="guarded">GUARDED</button>
+          <button aria-pressed="false" data-family="activated">ACTIVATED</button>
         </div>
+        <button id="dealAgain" class="wide">DEAL ANOTHER PERFORMANCE</button>
+        <p class="dealReadout" id="dealReadout">Waiting for expression deck…</p>
         <label class="control"><span>Expression strength</span><output id="expressionStrengthOut">70%</output><input id="expressionStrength" type="range" min="0" max="1.35" step="0.01" value="0.7" disabled /></label>
         <div class="subTitle">BEHAVIOUR</div>
         <div class="motionGrid">
@@ -111,6 +112,6 @@
     <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM</div>
     <a class="back" href="../">← V6 PUPPET</a>
   </div>
-  <script type="module" src="lab-v23-clean.js?v=1"></script>
+  <script type="module" src="lab-v24-clean.js?v=1"></script>
 </body>
 </html>
