@@ -45,6 +45,8 @@ select:focus { border-color:rgba(255,70,84,.7); }
 select:disabled { opacity:.35; }
 .buttonRow { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:12px; }
 .buttonRow.three, .buttonRow.masks { grid-template-columns:repeat(3,1fr); }
+.expressionGrid { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin:10px 0 13px; }
+.expressionGrid button:first-child { grid-column:1 / 3; }
 button { min-height:31px; border:1px solid rgba(255,70,84,.28); background:rgba(255,38,56,.045); color:#bfa9ad; font:9px ui-monospace, monospace; letter-spacing:.08em; cursor:pointer; }
 button:hover, button:active { color:#fff; border-color:rgba(255,70,84,.7); background:rgba(255,38,56,.12); }
 button.active, button[aria-pressed="true"] { color:#fff; border-color:var(--red); background:rgba(255,38,56,.18); box-shadow:inset 0 0 18px rgba(255,38,56,.08), 0 0 12px rgba(255,38,56,.08); }
