@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="../voice-face-puppet/style.css">
 <style>
 :root{--good:#9ff0b2;--warn:#ffd38a}
-.corpus{max-width:980px;margin:0 auto;padding:14px 14px 80px}.hero{padding:14px 0 8px}.hero h2{margin:0;font-size:22px}.hero p{color:var(--muted);line-height:1.5;margin:7px 0 0}.runbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.runbar button{flex:1;min-width:130px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}.stat{padding:9px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.16)}.stat b{display:block;font-size:15px}.stat span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}.now{border:1px solid var(--line);border-radius:14px;padding:12px;margin:12px 0;background:rgba(255,255,255,.025)}.now.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.14)}.now .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}.now .prompt{font-size:22px;font-weight:800;margin-top:5px}.now .hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}.progress{height:6px;background:#242833;border-radius:99px;overflow:hidden;margin-top:10px}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .08s linear}.sectionTitle{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}.promptGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.promptCard{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.12);display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.promptCard.done{border-color:rgba(159,240,178,.45)}.promptCard.bad{border-color:rgba(255,211,138,.5)}.promptCard.recording{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.18)}.promptCard b{display:block;font-size:12px}.promptCard small{display:block;color:var(--muted);font-size:9px;line-height:1.35;margin-top:3px}.promptCard button{padding:7px 9px}.quality{font:9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-top:4px}.quality.good{color:var(--good)}.quality.warn{color:var(--warn)}.footerActions{position:sticky;bottom:0;padding:10px 0;background:linear-gradient(transparent,rgba(5,6,8,.96) 25%);display:flex;gap:8px}.footerActions button{flex:1}.note{font-size:10px;line-height:1.45;color:var(--muted)}.diag{white-space:pre-wrap;font:10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}.pillRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.miniPill{border:1px solid var(--line);border-radius:99px;padding:5px 8px;font:9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
-@media(max-width:640px){.summary{grid-template-columns:repeat(2,1fr)}.promptGrid{grid-template-columns:1fr}.hero h2{font-size:19px}.now .prompt{font-size:19px}}
+html,body{min-height:100%;height:auto!important;overflow:auto!important}.app{height:auto!important;min-height:100dvh!important;overflow:visible!important}main{display:block!important;height:auto!important;min-height:0!important;overflow:visible!important}.corpus{max-width:980px;margin:0 auto;padding:14px 14px 118px}.hero{padding:14px 0 8px}.hero h2{margin:0;font-size:22px}.hero p{color:var(--muted);line-height:1.5;margin:7px 0 0}.runbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.runbar button{flex:1;min-width:130px}.downloadTop{width:100%;font-weight:800}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}.stat{padding:9px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.16)}.stat b{display:block;font-size:15px}.stat span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}.now{border:1px solid var(--line);border-radius:14px;padding:12px;margin:12px 0;background:rgba(255,255,255,.025)}.now.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.14)}.now .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}.now .prompt{font-size:22px;font-weight:800;margin-top:5px}.now .hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}.progress{height:6px;background:#242833;border-radius:99px;overflow:hidden;margin-top:10px}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .08s linear}.sectionTitle{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}.promptGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.promptCard{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.12);display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.promptCard.done{border-color:rgba(159,240,178,.45)}.promptCard.bad{border-color:rgba(255,211,138,.5)}.promptCard.recording{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,95,95,.18)}.promptCard b{display:block;font-size:12px}.promptCard small{display:block;color:var(--muted);font-size:9px;line-height:1.35;margin-top:3px}.promptCard button{padding:7px 9px}.quality{font:9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-top:4px}.quality.good{color:var(--good)}.quality.warn{color:var(--warn)}.footerActions{position:fixed;left:50%;transform:translateX(-50%);bottom:8px;z-index:100;width:min(980px,calc(100% - 20px));box-sizing:border-box;padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(5,6,8,.96);backdrop-filter:blur(12px);display:flex;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.45)}.footerActions button{flex:1}.note{font-size:10px;line-height:1.45;color:var(--muted)}.diag{white-space:pre-wrap;font:10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}.pillRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.miniPill{border:1px solid var(--line);border-radius:99px;padding:5px 8px;font:9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+@media(max-width:640px){.summary{grid-template-columns:repeat(2,1fr)}.promptGrid{grid-template-columns:1fr}.hero h2{font-size:19px}.now .prompt{font-size:19px}.footerActions{bottom:max(6px,env(safe-area-inset-bottom));width:calc(100% - 12px);padding:8px}.footerActions #clearBtn{flex:.55}.footerActions #downloadBtn{flex:1.45}}
 </style>
 </head>
 <body>
@@ -18,7 +18,7 @@
   <div class="brand"><div class="logo"></div><div class="titleWrap"><h1>Personal Voice Corpus</h1><div class="subtitle">single-speaker lip-sync training set</div></div></div>
   <div class="topBtns"><button id="permissionBtn">Ask for mic</button><button id="micCheckBtn">Mic check</button></div>
 </header>
-<main style="display:block;overflow:auto">
+<main>
 <div class="corpus">
   <div class="hero"><h2>Build the model from your voice</h2><p>Speak naturally. Don’t over-enunciate. Each clip is labelled independently so we can train a tiny speaker-specific acoustic model and keep your existing diagnostic sentence as a held-out test.</p></div>
 
@@ -33,6 +33,7 @@
     <button id="runVowelsBtn" class="primary">Record vowel set</button>
     <button id="runConsonantsBtn">Record consonant set</button>
     <button id="runAllBtn">Record everything</button>
+    <button id="downloadTopBtn" class="primary downloadTop" disabled>Download training bundle</button>
   </div>
 
   <div class="now" id="nowCard">
@@ -55,4 +56,15 @@
 </main>
 </div>
 <script type="module" src="corpus.js"></script>
+<script>
+(()=>{
+  const top=document.getElementById('downloadTopBtn');
+  const bottom=document.getElementById('downloadBtn');
+  if(!top||!bottom)return;
+  const sync=()=>{top.disabled=bottom.disabled};
+  top.addEventListener('click',()=>bottom.click());
+  new MutationObserver(sync).observe(bottom,{attributes:true,attributeFilter:['disabled']});
+  sync();
+})();
+</script>
 </body></html>
