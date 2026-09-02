@@ -1,0 +1,37 @@
+const COMMIT='d3af5f9ff86ab6b2b1913d411a4e1922ec101953';
+const BASE=`https://cdn.jsdelivr.net/gh/met4citizen/HeadAudio@${COMMIT}`;
+const MODULE=`${BASE}/dist/headaudio.min.mjs`,WORKLET=`${BASE}/dist/headworklet.min.mjs`,MODEL=`${BASE}/dist/model-en-mixed.bin`;
+const STORAGE='voice-face-headaudio-personal-v1',PREFIX='v8c:';
+const $=id=>document.getElementById(id),clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const visemes=['aa','E','I','O','U','PP','SS','TH','DD','FF','kk','nn','RR','CH','sil'];
+const targets=[
+ {key:'PP_M',label:'PP · closed lips',prompt:'MMMMM — steady closed-lip hum',code:'m',viseme:'PP',group:221},
+ {key:'FF_F',label:'FF · F',prompt:'FFFFF — lower lip gently on upper teeth',code:'f',viseme:'FF',group:222},
+ {key:'FF_V',label:'FF · V',prompt:'VVVVV — same lip/teeth pose, voiced',code:'v',viseme:'FF',group:223},
+ {key:'TH_T',label:'TH · thin',prompt:'THHHH — unvoiced TH as in thin',code:'t',viseme:'TH',group:224},
+ {key:'TH_D',label:'TH · this',prompt:'THHHH — voiced TH as in this',code:'d',viseme:'TH',group:225},
+ {key:'SS_S',label:'SS · S',prompt:'SSSSS — steady hiss',code:'s',viseme:'SS',group:226},
+ {key:'SS_Z',label:'SS · Z',prompt:'ZZZZZ — voiced hiss',code:'z',viseme:'SS',group:227},
+ {key:'CH_SH',label:'CH · SH',prompt:'SHHHH — steady sh as in sheep',code:'h',viseme:'CH',group:228},
+ {key:'CH_ZH',label:'CH · ZH',prompt:'ZHHHH — sound in measure',code:'j',viseme:'CH',group:229}
+].map(t=>({...t,visemeIndex:visemes.indexOf(t.viseme)}));
+let HeadAudio=null,node=null,ctx=null,stream=null,source=null,mic=false,capture=null,lastDb=-100;
+let personal=load();
+function load(){try{return JSON.parse(localStorage.getItem(STORAGE)||'{"prototypes":{},"speakerMean":150}')}catch{return{prototypes:{},speakerMean:150}}}
+function save(){localStorage.setItem(STORAGE,JSON.stringify(personal));renderState()}
+function status(t,w=false){$('status').innerHTML=t;$('status').classList.toggle('warn',w)}
+const ready=import(MODULE).then(m=>HeadAudio=m.HeadAudio);
+function protoKey(t){return PREFIX+t.key}
+function render(){for(const t of targets){const card=document.createElement('div');card.className='card';card.innerHTML=`<h2>${t.label}</h2><p>${t.prompt}</p><div class="row"><button data-k="${t.key}">TRAIN</button><button data-test="${t.key}">TEST PHRASE</button></div>`;$('train').append(card)}document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>begin(targets.find(t=>t.key===b.dataset.k)));document.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>test(targets.find(t=>t.key===b.dataset.test)));renderState()}
+function renderState(){for(const t of targets){const b=document.querySelector(`[data-k="${t.key}"]`),p=personal.prototypes?.[protoKey(t)];if(b){b.classList.toggle('ready',!!p);b.textContent=p?`RETRAIN · ${p.samples} FRAMES`:'TRAIN'}}}
+function apply(p){if(!node||!p)return;node.port.postMessage({event:'model',model:[{phoneme:p.code,group:p.group,viseme:p.viseme,mu:new Float32Array(p.mu),sigmaInvLower:new Float32Array(p.sigmaInvLower)}]})}
+function applyAll(){for(const [k,p] of Object.entries(personal.prototypes||{}))if(k.startsWith(PREFIX))apply(p)}
+async function ask(){try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());status('Microphone permission granted.')}catch(e){status(e.message||'Microphone permission denied.',true)}}
+async function toggle(){if(mic){stop();return}try{await ready;stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});ctx=new AudioContext();await ctx.resume();await ctx.audioWorklet.addModule(WORKLET);node=new HeadAudio(ctx,{processorOptions:{vadEventsEnabled:true,featureEventsEnabled:true,visemeEventsEnabled:true},parameterData:{vadMode:1,vadGateActiveDb:-40,vadGateInactiveDb:-50,silMode:1,silCalibrationWindowSec:3,silSensitivity:1.2,speakerMeanHz:personal.speakerMean||150}});await node.loadModel(MODEL);node.onfeature=o=>{if(capture&&o?.vector?.length===12)capture.records.push({vector:Array.from(o.vector),le:o.le||0})};node.onvad=o=>{if(Number.isFinite(o.db))lastDb=o.db;$('meterFill').style.width=`${clamp((lastDb+70)/45)*100}%`};node.oncalibrated=o=>{status(o?.error?`Silence calibration failed: ${o.error}`:'Silence calibrated. Train the consonants naturally.',!!o?.error)};source=ctx.createMediaStreamSource(stream);source.connect(node);applyAll();mic=true;$('micBtn').textContent='MIC OFF';status('Mic live. Calibrate silence, then train each sound without exaggerating it.')}catch(e){console.error(e);status(e.message||'Could not start HeadAudio.',true);stop(false)}}
+function stop(update=true){if(capture)finish(false);mic=false;try{source?.disconnect()}catch{};try{node?.disconnect()}catch{};stream?.getTracks().forEach(t=>t.stop());ctx?.close().catch(()=>{});source=node=stream=ctx=null;$('micBtn').textContent='MIC ON';if(update)status('Microphone stopped.')}
+function calibrate(){if(!node){status('Turn the mic on first.',true);return}status('Stay quiet for three seconds…');node.calibrate()}
+async function begin(t){if(!node){status('Turn the mic on first.',true);return}if(capture)return;const b=document.querySelector(`[data-k="${t.key}"]`);capture={t,records:[],b,oldVad:node.parameters.get('vadMode').value};b.classList.add('recording');document.querySelectorAll('[data-k]').forEach(x=>x.disabled=true);node.parameters.get('vadMode').value=0;status(`Get ready: ${t.prompt}`);await new Promise(r=>setTimeout(r,600));if(!capture)return;status(`GO — ${t.prompt}`);setTimeout(()=>finish(true),1900)}
+function finish(commit){if(!capture)return;const c=capture;capture=null;if(node)node.parameters.get('vadMode').value=c.oldVad??1;c.b.classList.remove('recording');document.querySelectorAll('[data-k]').forEach(x=>x.disabled=false);if(!commit)return;const rec=c.records.filter(r=>r.vector?.length===12).sort((a,b)=>b.le-a.le);const keep=rec.slice(0,Math.min(96,Math.max(20,Math.floor(rec.length*.72))));if(keep.length<16){status(`Only ${keep.length} usable frames. Try that sound again a little more clearly.`,true);return}try{const vectors=keep.map(r=>new Float32Array(r.vector));const q=node.training.computePrototype(c.t.code,c.t.group,c.t.visemeIndex,vectors);const p={name:protoKey(c.t),code:c.t.code,group:c.t.group,viseme:c.t.visemeIndex,mu:Array.from(q.mu),sigmaInvLower:Array.from(q.sigmaInvLower),samples:vectors.length,created:Date.now(),v8:true};personal.prototypes=personal.prototypes||{};personal.prototypes[protoKey(c.t)]=p;save();apply(p);status(`${c.t.label} trained from ${vectors.length} frames and applied live.`)}catch(e){console.error(e);status(`Training failed: ${e.message}`,true)}}
+function test(t){const phrases={PP_M:'mum, paper, baby, people',FF_F:'five, coffee, safe, very',FF_V:'very, vivid, over, move',TH_T:'thin, three, method, both',TH_D:'this, father, weather, breathe',SS_S:'see, sister, glass, box',SS_Z:'zero, easy, nose, choose',CH_SH:'sheep, pressure, wash, special',CH_ZH:'measure, vision, beige, usual'};status(`Say naturally: <b>${phrases[t.key]}</b>. Watch the V8 3D page afterwards for the actual gated result.`)}
+function clearV8(){personal.prototypes=personal.prototypes||{};for(const k of Object.keys(personal.prototypes))if(k.startsWith(PREFIX))delete personal.prototypes[k];save();status('V8 consonant prototypes cleared. Restart the mic on the 3D page to unload any already-active copies.')}
+$('permissionBtn').onclick=ask;$('micBtn').onclick=toggle;$('silenceBtn').onclick=calibrate;$('clearBtn').onclick=clearV8;render();
