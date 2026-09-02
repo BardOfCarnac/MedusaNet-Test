@@ -1,0 +1,20 @@
+name: Restrict V8 personal prototypes
+on:
+  push:
+    paths:
+      - 'voice-face-puppet-3d-compare/restrict_v8_personal.py'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 voice-face-puppet-3d-compare/restrict_v8_personal.py
+      - run: node --check voice-face-puppet-3d-compare/compare-v8.js
+      - run: |
+          git config user.name 'BardOfCarnac'
+          git config user.email '114069933+BardOfCarnac@users.noreply.github.com'
+          git add voice-face-puppet-3d-compare/compare-v8.js
+          git commit -m 'Use only clean V8 consonant prototypes' || exit 0
+          git push
