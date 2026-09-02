@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { ConsonantGate, CONSONANTS } from './hybrid-gate-v2.js';
+import { REPLAY_FRAMES, REPLAY_MORPH_KEYS, REPLAY_DURATION } from './diagnostic-replay-v7.js';
 
 const VISEMES=['aa','E','I','O','U','PP','SS','TH','DD','FF','kk','nn','RR','CH','sil'];
 const FACEKIT='https://cdn.jsdelivr.net/gh/USC-ICT/ICT-FaceKit@master/FaceXModel/';
@@ -114,8 +115,20 @@ function hybridState(now){
 }
 
 let active='hybrid',morph=blankMorphs();
+let diagnosticReplay={active:false,start:0,index:0,speed:.55};
+function stopDiagnosticReplay(){diagnosticReplay.active=false;diagnosticReplay.index=0;const b=$('replayBtn');if(b){b.textContent='REPLAY DIAGNOSTIC · 0.55×';b.classList.remove('selected')}if(faceReady)setStatus(mic?'HYBRID LIP SYNC LIVE':'HYBRID HEAD READY / WAITING FOR MIC','ready')}
+function startDiagnosticReplay(){stopMic(false);diagnosticReplay={active:true,start:performance.now(),index:0,speed:.55};const b=$('replayBtn');if(b){b.textContent='STOP REPLAY';b.classList.add('selected')}setStatus('REPLAYING RECORDED DIAGNOSTIC · 0.55×','ready')}
+function diagnosticReplayTarget(now){
+  const elapsed=(now-diagnosticReplay.start)*diagnosticReplay.speed;
+  if(elapsed>=REPLAY_DURATION){stopDiagnosticReplay();return {morphs:blankMorphs(),shape:'rest',level:0,overlay:null}}
+  while(diagnosticReplay.index<REPLAY_FRAMES.length-1&&REPLAY_FRAMES[diagnosticReplay.index+1].t<=elapsed)diagnosticReplay.index++;
+  const f=REPLAY_FRAMES[diagnosticReplay.index],morphs=blankMorphs();
+  for(let i=0;i<REPLAY_MORPH_KEYS.length;i++)morphs[REPLAY_MORPH_KEYS[i]]=f.m[i]||0;
+  return {morphs,shape:f.shape||'rest',level:f.level||0,overlay:f.c?{active:f.c,strength:f.s||0}:null};
+}
+window.VFPReplay={start:startDiagnosticReplay,stop:stopDiagnosticReplay,isActive:()=>diagnosticReplay.active};
 const MORPH_EASE={jawOpen:.30,mouthFunnel:.18,mouthPucker:.16,jawForward:.18,mouthStretch_L:.18,mouthStretch_R:.18,mouthRollLower:.24,mouthRollUpper:.24,mouthPress_L:.24,mouthPress_R:.24,mouthDimple_L:.22,mouthDimple_R:.22,mouthUpperUp_L:.22,mouthUpperUp_R:.22,mouthLowerDown_L:.22,mouthLowerDown_R:.22,mouthShrugUpper:.22};
-function selectModel(which){active=which;$('wlBtn').classList.toggle('selected',which==='wl');$('haBtn').classList.toggle('selected',which==='hybrid');$('activeModel').textContent=which==='wl'?'wLipSync only':'Hybrid · wLipSync + HeadAudio';$('hudModel').textContent=which==='wl'?'WLIPSYNC ONLY':'HYBRID'}
+function selectModel(which){if(diagnosticReplay.active)stopDiagnosticReplay();active=which;$('wlBtn').classList.toggle('selected',which==='wl');$('haBtn').classList.toggle('selected',which==='hybrid');$('activeModel').textContent=which==='wl'?'wLipSync only':'Hybrid · wLipSync + HeadAudio';$('hudModel').textContent=which==='wl'?'WLIPSYNC ONLY':'HYBRID'}
 function aggregate(m,...keys){return Math.max(...keys.map(k=>m[k]||0),0)}
 function setBar(id,v){const e=$(id);if(e)e.style.width=`${clamp(v)*100}%`}
 function applyMorphState(target){
@@ -126,10 +139,10 @@ function applyMorphState(target){
   window.LipSync3DOutput={model:active,baseVowel:target.shape,morphs:{...morph},level:target.level,consonantOverlay:active==='hybrid'?(target.overlay?.active||null):null,overlayStrength:active==='hybrid'?(target.overlay?.strength||0):0,headAudioRaw:haRawActive,headAudioGate:active==='hybrid'?target.overlay:null};
 }
 
-$('wlBtn').onclick=()=>selectModel('wl');$('haBtn').onclick=()=>selectModel('hybrid');$('permissionBtn').onclick=askMic;$('micBtn').onclick=startMic;$('silenceBtn').onclick=calibrateSilence;
+$('wlBtn').onclick=()=>selectModel('wl');$('haBtn').onclick=()=>selectModel('hybrid');if($('replayBtn'))$('replayBtn').onclick=()=>diagnosticReplay.active?stopDiagnosticReplay():startDiagnosticReplay();$('permissionBtn').onclick=askMic;$('micBtn').onclick=startMic;$('silenceBtn').onclick=calibrateSilence;
 function setView(name){const views=portrait()?{front:[0,4,48],three:[20,4,43],side:[45,4,8]}:{front:[0,-.3,43],three:[22,1,36],side:[39,.5,5]};const [x,y,z]=views[name];camera.position.set(x,y,z);controls.target.set(0,portrait()?4:.6,3);controls.update()}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=renderer.getPixelRatio();if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
 const clock=new THREE.Clock();let last=performance.now();
-function animate(now){requestAnimationFrame(animate);const dt=Math.min(50,now-last);last=now;resize();controls.update();haNode?.update(dt);applyMorphState(active==='wl'?wLipState():hybridState(now));const t=clock.getElapsedTime();headRig.rotation.y=$('drift').checked?Math.sin(t*.19)*.018:0;renderer.render(scene,camera)}
+function animate(now){requestAnimationFrame(animate);const dt=Math.min(50,now-last);last=now;resize();controls.update();haNode?.update(dt);applyMorphState(diagnosticReplay.active?diagnosticReplayTarget(now):(active==='wl'?wLipState():hybridState(now)));const t=clock.getElapsedTime();headRig.rotation.y=$('drift').checked?Math.sin(t*.19)*.018:0;renderer.render(scene,camera)}
 selectModel('hybrid');bootHead();requestAnimationFrame(animate);
