@@ -40,7 +40,7 @@ const $=id=>document.getElementById(id),clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b
 function loadJSON(k,f){try{return Object.assign({},f,JSON.parse(localStorage.getItem(k)||'{}'))}catch{return structuredClone(f)}}
 const personal=loadJSON(HA_PERSONAL,{prototypes:{},speakerMean:150});personal.prototypes=personal.prototypes||{};
 let wlSaved=null;try{wlSaved=JSON.parse(localStorage.getItem(WL_STORAGE)||'null')}catch{}
-const personalConsonants=Object.fromEntries(Object.entries(personal.prototypes).filter(([,p])=>CONSONANTS.includes(VISEMES[+p.viseme])));
+const personalConsonants=Object.fromEntries(Object.entries(personal.prototypes).filter(([k,p])=>k.startsWith('v8c:')&&CONSONANTS.includes(VISEMES[+p.viseme])));
 
 const canvas=$('stage'),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x040406,1);renderer.outputColorSpace=THREE.SRGBColorSpace;
