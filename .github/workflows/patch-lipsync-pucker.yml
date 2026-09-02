@@ -1,0 +1,62 @@
+name: Patch lip-sync pucker mapping
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-lipsync-pucker.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build V6 mapping
+        shell: python
+        run: |
+          from pathlib import Path
+          src = Path('voice-face-puppet-3d-compare/compare-v5.js').read_text()
+
+          # Reduce consonant-driven protrusion as well as the vowel base.
+          src = src.replace(
+            "RR:{jawScale:.90,dampen:.08,morphs:{mouthPucker:.36,mouthFunnel:.22,jawForward:.18}},\n  CH:{jawScale:.62,dampen:.30,morphs:{mouthPucker:.44,mouthFunnel:.26,mouthPress_L:.16,mouthPress_R:.16}}",
+            "RR:{jawScale:.90,dampen:.08,morphs:{mouthPucker:.14,mouthFunnel:.30,jawForward:.14}},\n  CH:{jawScale:.62,dampen:.30,morphs:{mouthPucker:.18,mouthFunnel:.34,mouthPress_L:.16,mouthPress_R:.16}}"
+          )
+
+          old_shapes = "const wlShapes={A:{o:.92,stretch:.18,funnel:0,pucker:0},I:{o:.25,stretch:1,funnel:0,pucker:0},U:{o:.18,stretch:.05,funnel:.28,pucker:1},E:{o:.48,stretch:.82,funnel:0,pucker:0},O:{o:.62,stretch:.08,funnel:1,pucker:.58}};"
+          new_shapes = "const wlShapes={A:{o:.92,stretch:.18,funnel:0,pucker:0,forward:0},I:{o:.25,stretch:1,funnel:0,pucker:0,forward:0},U:{o:.18,stretch:.05,funnel:.72,pucker:.24,forward:.12},E:{o:.48,stretch:.82,funnel:0,pucker:0,forward:0},O:{o:.62,stretch:.08,funnel:.82,pucker:.18,forward:.09}};"
+          if old_shapes not in src:
+            raise SystemExit('wlShapes signature not found')
+          src = src.replace(old_shapes, new_shapes)
+
+          old_state = "const v=clamp((wlNode.volume||0)*1.18);let o=0,stretch=0,funnel=0,pucker=0;if(sum>.0001)for(const k of Object.keys(raw)){const n=raw[k]/sum,s=wlShapes[k];o+=s.o*n;stretch+=s.stretch*n;funnel+=s.funnel*n;pucker+=s.pucker*n}morphs.jawOpen=clamp(o*v*1.05);morphs.mouthFunnel=clamp(funnel*v);morphs.mouthPucker=clamp(pucker*v);morphs.mouthStretch_L=morphs.mouthStretch_R=clamp(stretch*v);"
+          new_state = "const v=clamp((wlNode.volume||0)*1.18);let o=0,stretch=0,funnel=0,pucker=0,forward=0;if(sum>.0001)for(const k of Object.keys(raw)){const n=raw[k]/sum,s=wlShapes[k];o+=s.o*n;stretch+=s.stretch*n;funnel+=s.funnel*n;pucker+=s.pucker*n;forward+=(s.forward||0)*n}morphs.jawOpen=clamp(o*v*1.05);morphs.mouthFunnel=clamp(funnel*v);morphs.mouthPucker=Math.min(.34,clamp(pucker*v*.86));morphs.jawForward=clamp(forward*v);morphs.mouthStretch_L=morphs.mouthStretch_R=clamp(stretch*v);"
+          if old_state not in src:
+            raise SystemExit('wLipState signature not found')
+          src = src.replace(old_state, new_state)
+
+          # Final safety ceiling after consonant overlay blending.
+          old_detail = "const detail=gate.active?`${base.shape.toUpperCase()} + ${gate.active} ${Math.round(gate.strength*100)}%`:`${base.shape.toUpperCase()} + —`;"
+          new_detail = "morphs.mouthPucker=Math.min(.40,morphs.mouthPucker||0);\n  const detail=gate.active?`${base.shape.toUpperCase()} + ${gate.active} ${Math.round(gate.strength*100)}%`:`${base.shape.toUpperCase()} + —`;"
+          if old_detail not in src:
+            raise SystemExit('hybrid detail signature not found')
+          src = src.replace(old_detail, new_detail)
+
+          Path('voice-face-puppet-3d-compare/compare-v6.js').write_text(src)
+
+          index = Path('voice-face-puppet-3d-compare/index.html')
+          html = index.read_text()
+          html = html.replace('src="compare-v5.js"', 'src="compare-v6.js"')
+          html = html.replace('<span id="hudModel">HYBRID</span>', '<span id="hudModel">HYBRID V6</span>')
+          index.write_text(html)
+      - name: Commit V6
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add voice-face-puppet-3d-compare/compare-v6.js voice-face-puppet-3d-compare/index.html
+          git commit -m "Tone down FaceKit lip puckering" || exit 0
+          git push
