@@ -40,9 +40,11 @@ input[type="range"]:disabled { opacity:.27; }
 .toggleLine { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:9px; margin-top:12px; }
 .toggleLine input { accent-color:var(--red); }
 .buttonRow { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:12px; }
-.buttonRow.three { grid-template-columns:repeat(3,1fr); }
+.buttonRow.three, .buttonRow.masks { grid-template-columns:repeat(3,1fr); }
 button { min-height:31px; border:1px solid rgba(255,70,84,.28); background:rgba(255,38,56,.045); color:#bfa9ad; font:9px ui-monospace, monospace; letter-spacing:.08em; cursor:pointer; }
 button:hover, button:active { color:#fff; border-color:rgba(255,70,84,.7); background:rgba(255,38,56,.12); }
+button.active, button[aria-pressed="true"] { color:#fff; border-color:var(--red); background:rgba(255,38,56,.18); box-shadow:inset 0 0 18px rgba(255,38,56,.08), 0 0 12px rgba(255,38,56,.08); }
+.maskNote { margin-top:8px; margin-bottom:0; }
 .hint { position:fixed; z-index:4; left:24px; bottom:21px; font-size:9px; color:#68585b; letter-spacing:.1em; pointer-events:none; }
 .back { position:fixed; z-index:7; right:24px; bottom:19px; color:#8e7478; text-decoration:none; font-size:9px; letter-spacing:.1em; }
 .back:hover { color:var(--red2); }
