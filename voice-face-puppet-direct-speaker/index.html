@@ -1,63 +1,86 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#0b0c10" />
-<title>Direct Speaker Lip Sync</title>
-<link rel="stylesheet" href="../voice-face-puppet/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050507">
+<title>Direct Speaker — 3D FaceKit</title>
+<link rel="stylesheet" href="../voice-face-puppet-3d-compare/style.css">
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+}}
+</script>
 <style>
-.modelbar{display:flex;gap:7px;flex-wrap:wrap}.modelbar button,.modelbar label{flex:1;min-width:120px}.fileBtn{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;background:rgba(255,255,255,.03);font-size:11px}.fileBtn input{display:none}.bars{display:grid;grid-template-columns:60px 1fr 44px;gap:6px 8px;align-items:center;font:10px ui-monospace,SFMono-Regular,Menlo,monospace}.bar{height:7px;background:#242833;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent))}.readout{font:10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);white-space:pre-wrap}.privacy{font-size:10px;color:var(--muted);line-height:1.45}.primaryish{border-color:rgba(255,95,95,.5)}
+.fileBtn{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);padding:9px 10px;cursor:pointer;font-size:10px;letter-spacing:.04em;background:rgba(255,255,255,.03)}
+.fileBtn input{display:none}.bars{display:grid;grid-template-columns:55px 1fr 42px;gap:6px 8px;align-items:center;font:10px ui-monospace,SFMono-Regular,Menlo,monospace}.bar{height:6px;background:#242833;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent))}.privacy{font-size:9px;line-height:1.45;color:var(--muted)}
 </style>
 </head>
 <body>
-<div class="app">
-<header>
-  <div class="brand"><div class="logo"></div><div class="titleWrap"><h1>Direct Speaker Lip Sync</h1><div class="subtitle">your voice · temporal acoustic model · wLip benchmark</div></div></div>
-  <div class="topBtns"><button id="permissionBtn">Ask for mic</button><button id="micBtn" class="primary">Mic on</button><button id="drawerBtn" class="drawerBtn">Controls</button></div>
-</header>
-<main>
-<section class="stage">
-  <div class="notice" id="notice" hidden></div>
-  <div class="faceBox"><svg viewBox="0 0 600 600"><g id="headGroup">
-    <ellipse cx="300" cy="306" rx="182" ry="221" fill="rgba(255,95,95,.055)" />
-    <path class="faceStroke" d="M300 80 C190 80 132 165 132 284 C132 420 205 510 300 530 C395 510 468 420 468 284 C468 165 410 80 300 80Z" />
-    <path class="softStroke" d="M136 245 C103 232 99 304 124 337"/><path class="softStroke" d="M464 245 C497 232 501 304 476 337"/>
-    <path class="accentStroke" d="M196 224 Q238 204 270 220"/><path class="accentStroke" d="M330 220 Q362 204 404 224"/>
-    <g><path class="faceStroke" d="M190 266 Q230 240 274 266 Q230 289 190 266Z"/><path class="faceStroke" d="M326 266 Q370 240 410 266 Q370 289 326 266Z"/><circle class="iris" cx="234" cy="266" r="12"/><circle class="pupil" cx="234" cy="266" r="5"/><circle class="iris" cx="366" cy="266" r="12"/><circle class="pupil" cx="366" cy="266" r="5"/></g>
-    <path class="softStroke" d="M301 278 C294 318 288 341 304 350 C313 354 319 350 325 346" />
-    <g><path id="mouth" class="mouthFill" d="M248 392 Q300 379 352 392 Q300 404 248 392Z"/><path id="teeth" d="M255 392 Q300 384 345 392 Q300 393 255 392Z" fill="#dfe5eb" opacity="0"/><path id="upperLip" class="lipAccent" d="M248 392 Q300 382 352 392"/><path id="lowerLip" class="lipSoft" d="M248 392 Q300 406 352 392"/></g>
-    <path id="chin" class="softStroke" d="M264 465 Q300 478 336 465" opacity=".28"/>
-    <path class="accentStroke" d="M164 200 C172 116 231 72 302 80 C389 63 440 136 443 204 C401 173 363 157 318 156 C262 156 219 174 164 200Z" opacity=".8" />
-  </g></svg></div>
-  <div class="hud"><span class="pill" id="modePill">IDLE</span><span class="pill" id="modelPill">MODEL: NONE</span><span class="pill">voice <span class="meter"><span id="meterFill"></span></span></span><span class="pill" id="shapePill">REST</span><span class="pill" id="confidencePill">0%</span></div>
-</section>
-<aside id="controls">
-  <details class="section" open><summary>Model</summary><div class="sectionBody">
-    <div class="modelbar"><button id="directBtn" class="primary" disabled>Direct speaker</button><button id="wlBtn">wLipSync</button></div>
-    <div class="modelbar" style="margin-top:8px"><label class="fileBtn primaryish">Load my fitted model<input id="modelFile" type="file" accept="application/json,.json"></label><button id="clearModelBtn">Forget local model</button></div>
-    <div class="readout" id="modelReadout">No personal model loaded yet.</div>
-    <div class="privacy">The fitted model is read from a file on your device and stored only in this browser's local storage. The tester does not upload it.</div>
-  </div></details>
-  <details class="section" open><summary>Direct output</summary><div class="sectionBody">
-    <div class="bars">
-      <span>AH / A</span><span class="bar"><i id="barA"></i></span><span id="valA">0.00</span>
-      <span>EH / E</span><span class="bar"><i id="barE"></i></span><span id="valE">0.00</span>
-      <span>EE / I</span><span class="bar"><i id="barI"></i></span><span id="valI">0.00</span>
-      <span>OH / O</span><span class="bar"><i id="barO"></i></span><span id="valO">0.00</span>
-      <span>OO / U</span><span class="bar"><i id="barU"></i></span><span id="valU">0.00</span>
-    </div>
-  </div></details>
-  <details class="section" open><summary>Motion</summary><div class="sectionBody">
-    <div class="control"><label for="gain">Voice gain</label><output id="gainOut"></output><input id="gain" type="range" min="0.5" max="2.5" step="0.05" value="1.15"></div>
-    <div class="control"><label for="mouthEx">Mouth exaggeration</label><output id="mouthExOut"></output><input id="mouthEx" type="range" min="0.5" max="2.2" step="0.05" value="1.15"></div>
-    <div class="control"><label for="gate">Speech gate dBFS</label><output id="gateOut"></output><input id="gate" type="range" min="-65" max="-35" step="1" value="-50"></div>
-    <div class="control"><label for="ema">Direct smoothing</label><output id="emaOut"></output><input id="ema" type="range" min="0.08" max="0.8" step="0.01" value="0.35"></div>
-  </div></details>
-  <details class="section"><summary>Diagnostics</summary><div class="sectionBody"><div class="readout" id="diag">Checking…</div></div></details>
-  <div class="status" id="status">Load the fitted model, then turn the microphone on.</div>
-</aside><div class="scrim" id="scrim"></div>
-</main>
+<div id="app">
+  <canvas id="stage" aria-label="3D FaceKit direct speaker lip sync comparison"></canvas>
+  <header class="topbar">
+    <div><div class="eyebrow">VOICE FACE PUPPET / 3D DIRECT SPEAKER</div><h1>ICT FACEKIT <span>× YOUR VOICE</span></h1></div>
+    <div class="statusCluster"><div class="statusDot" id="statusDot"></div><div id="status">LOADING HEAD</div></div>
+  </header>
+
+  <aside class="panel">
+    <section>
+      <div class="sectionTitle"><span>01</span> OUTPUT MODE</div>
+      <div class="trackerSwitch"><button id="directBtn" class="selected" disabled>Direct speaker</button><button id="wlBtn">wLipSync</button></div>
+      <div class="readout"><div><span>ACTIVE</span><b id="activeModel">Direct speaker</b></div><div><span>SHAPE</span><b id="shapeOut">—</b></div></div>
+      <p class="small" id="modelReadout">No personal model loaded yet.</p>
+    </section>
+
+    <section>
+      <div class="sectionTitle"><span>02</span> PERSONAL MODEL</div>
+      <div class="buttonRow"><label class="fileBtn">LOAD MY FITTED MODEL<input id="modelFile" type="file" accept="application/json,.json"></label><button id="clearModelBtn">FORGET LOCAL MODEL</button></div>
+      <p class="privacy">Your fitted coefficients stay in this browser's local storage. They are not embedded in this public page.</p>
+    </section>
+
+    <section>
+      <div class="sectionTitle"><span>03</span> MICROPHONE</div>
+      <div class="buttonRow"><button id="permissionBtn">ASK FOR MIC</button><button id="micBtn">MIC ON</button></div>
+      <div class="meter"><span id="meterFill"></span></div>
+      <p class="small" id="micStatus">Load your fitted model, then turn the microphone on.</p>
+    </section>
+
+    <section>
+      <div class="sectionTitle"><span>04</span> DIRECT VOWEL OUTPUT</div>
+      <div class="bars">
+        <span>AH / A</span><span class="bar"><i id="barA"></i></span><span id="valA">0.00</span>
+        <span>EH / E</span><span class="bar"><i id="barE"></i></span><span id="valE">0.00</span>
+        <span>EE / I</span><span class="bar"><i id="barI"></i></span><span id="valI">0.00</span>
+        <span>OH / O</span><span class="bar"><i id="barO"></i></span><span id="valO">0.00</span>
+        <span>OO / U</span><span class="bar"><i id="barU"></i></span><span id="valU">0.00</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="sectionTitle"><span>05</span> FACEKIT OUTPUT</div>
+      <div class="morphRow"><span>jawOpen</span><i><em id="mJaw"></em></i></div>
+      <div class="morphRow"><span>mouthFunnel</span><i><em id="mFunnel"></em></i></div>
+      <div class="morphRow"><span>mouthPucker</span><i><em id="mPucker"></em></i></div>
+      <div class="morphRow"><span>jawForward</span><i><em id="mForward"></em></i></div>
+      <div class="morphRow"><span>mouthStretch</span><i><em id="mStretch"></em></i></div>
+      <div class="control"><label for="gain">Voice gain</label><output id="gainOut"></output><input id="gain" type="range" min="0.5" max="2.5" step="0.05" value="1.15"></div>
+      <div class="control"><label for="mouthEx">Mouth exaggeration</label><output id="mouthExOut"></output><input id="mouthEx" type="range" min="0.5" max="2.2" step="0.05" value="1.15"></div>
+      <div class="control"><label for="gate">Direct speech gate</label><output id="gateOut"></output><input id="gate" type="range" min="-65" max="-35" step="1" value="-50"></div>
+      <div class="control"><label for="ema">Direct smoothing</label><output id="emaOut"></output><input id="ema" type="range" min="0.08" max="0.8" step="0.01" value="0.35"></div>
+    </section>
+
+    <section>
+      <div class="sectionTitle"><span>06</span> VIEW</div>
+      <div class="buttonRow three"><button data-view="front">FRONT</button><button data-view="three">¾</button><button data-view="side">SIDE</button></div>
+      <label class="toggleLine"><input id="wire" type="checkbox" checked><span>Wire overlay</span></label>
+      <label class="toggleLine"><input id="drift" type="checkbox" checked><span>Subtle idle drift</span></label>
+    </section>
+  </aside>
+
+  <div class="hud"><span id="hudModel">DIRECT</span><span id="hudShape">—</span><span id="hudConfidence">0%</span></div>
+  <div class="hint">DRAG TO ORBIT · WHEEL / PINCH TO ZOOM · A/B DIRECT AGAINST WLIPSYNC</div>
 </div>
-<script type="module" src="direct.js"></script>
-</body></html>
+<script type="module" src="direct-3d.js"></script>
+</body>
+</html>
