@@ -11,7 +11,8 @@ const TARGETS=[
 const INDEX=Object.fromEntries(TARGETS.map((n,i)=>[n,i]));
 
 // TalkingHead's ARKit -> Oculus recipes, translated to ICT FaceKit's _L/_R names.
-// FaceKit has no tongueOut target, so TH and NN deliberately omit that component.
+// These remain our ideal/reference shapes; ARTICULATION_TRIM below controls how fully
+// normal speech commits to each one without changing what the viseme means.
 const VISEMES={
   sil:{},
   aa:{jawOpen:.60},
@@ -30,6 +31,26 @@ const VISEMES={
   nn:{mouthLowerDown_L:.40,mouthLowerDown_R:.40,mouthDimple_L:.30,mouthDimple_R:.30,mouthFunnel:.30,mouthPucker:.30,jawOpen:.15}
 };
 const VISEME_ORDER=['sil','PP','FF','TH','DD','kk','CH','SS','nn','RR','aa','E','I','O','U'];
+
+// Per-viseme conversational trim. Closures stay crisp; the visually theatrical
+// recipes (especially FF, E and O) are restrained more strongly.
+const ARTICULATION_TRIM={
+  sil:1,
+  PP:1.08,
+  FF:.78,
+  TH:.95,
+  DD:.96,
+  kk:.98,
+  CH:.90,
+  SS:.95,
+  nn:.98,
+  RR:.90,
+  aa:.94,
+  E:.82,
+  I:.90,
+  O:.82,
+  U:.88
+};
 
 const C=.095,V=.18,D=.07;
 const WORDS=[
@@ -81,7 +102,31 @@ function attach(root,morphIndex){const ts=meshes(root);let matched=0;baseMeshes.
 function frameModel(){const box=new THREE.Box3().setFromObject(baseRoot),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),scale=22/Math.max(size.x,size.y);baseRoot.scale.setScalar(scale);baseRoot.position.set(-center.x*scale,-center.y*scale+1.4,-center.z*scale+2.5);}
 function applyMorphs(){baseMeshes.forEach(m=>{if(!m.morphTargetInfluences)m.updateMorphTargets();if(!m.morphTargetInfluences)return;for(let i=0;i<TARGETS.length;i++)m.morphTargetInfluences[i]=current[i];});}
 
-function setViseme(name,manual=false){target.fill(0);for(const [shape,value] of Object.entries(VISEMES[name]||{})){const i=INDEX[shape];if(i!==undefined)target[i]=value;}document.querySelectorAll('[data-viseme]').forEach(b=>b.classList.toggle('active',b.dataset.viseme===name));if(manual){playing=false;document.querySelector('#word').textContent='MANUAL';document.querySelector('#phoneme').textContent='—';document.querySelector('#viseme').textContent=name;}}
+let activeViseme='sil';
+function articulationFor(name){
+  const master=Number(document.querySelector('#articulation')?.value||.70);
+  return THREE.MathUtils.clamp(master*(ARTICULATION_TRIM[name]??1),0,1.12);
+}
+function updateTargetForActiveViseme(){
+  target.fill(0);
+  const strength=articulationFor(activeViseme);
+  for(const [shape,value] of Object.entries(VISEMES[activeViseme]||{})){
+    const i=INDEX[shape];
+    if(i!==undefined)target[i]=value*strength;
+  }
+}
+function setViseme(name,manual=false){
+  activeViseme=name;
+  updateTargetForActiveViseme();
+  document.querySelectorAll('[data-viseme]').forEach(b=>b.classList.toggle('active',b.dataset.viseme===name));
+  if(manual){
+    playing=false;
+    document.querySelector('#play').classList.remove('active');
+    document.querySelector('#word').textContent='MANUAL';
+    document.querySelector('#phoneme').textContent='—';
+    document.querySelector('#viseme').textContent=name;
+  }
+}
 let eventIndex=0,playing=false,eventUntil=0;
 function showEvent(i){eventIndex=Math.max(0,Math.min(EVENTS.length-1,i));const e=EVENTS[eventIndex];setViseme(e.viseme);document.querySelector('#word').textContent=e.word||'·';document.querySelector('#phoneme').textContent=e.phoneme;document.querySelector('#viseme').textContent=e.viseme;}
 function schedule(now){const speed=Number(document.querySelector('#speed').value)||.55;eventUntil=now+EVENTS[eventIndex].duration*1000/speed;}
@@ -90,9 +135,14 @@ function pause(){playing=false;document.querySelector('#play').classList.remove(
 function step(d){pause();showEvent(eventIndex+d);}
 
 for(const name of VISEME_ORDER){const b=document.createElement('button');b.textContent=name.toUpperCase();b.dataset.viseme=name;b.disabled=true;b.addEventListener('click',()=>setViseme(name,true));document.querySelector('#visemeButtons').appendChild(b);}
-document.querySelector('#play').addEventListener('click',play);document.querySelector('#pause').addEventListener('click',pause);document.querySelector('#prev').addEventListener('click',()=>step(-1));document.querySelector('#next').addEventListener('click',()=>step(1));document.querySelector('#speed').addEventListener('input',e=>{document.querySelector('#speedOut').value=Math.round(Number(e.target.value)*100)+'%';if(playing)schedule(performance.now());});
+document.querySelector('#play').addEventListener('click',play);
+document.querySelector('#pause').addEventListener('click',pause);
+document.querySelector('#prev').addEventListener('click',()=>step(-1));
+document.querySelector('#next').addEventListener('click',()=>step(1));
+document.querySelector('#speed').addEventListener('input',e=>{document.querySelector('#speedOut').value=Math.round(Number(e.target.value)*100)+'%';if(playing)schedule(performance.now());});
+document.querySelector('#articulation').addEventListener('input',e=>{document.querySelector('#articulationOut').value=Math.round(Number(e.target.value)*100)+'%';updateTargetForActiveViseme();});
 
-async function boot(){try{status.textContent='LOADING NEUTRAL HEAD…';baseRoot=await loadObj('generic_neutral_mesh.obj');prepare(baseRoot);for(let i=0;i<TARGETS.length;i++){status.textContent=`LOADING SPEECH SHAPE ${i+1}/${TARGETS.length} · ${TARGETS[i]}`;attach(await loadObj(TARGETS[i]+'.obj'),i);await new Promise(r=>requestAnimationFrame(r));}baseMeshes.forEach(m=>m.updateMorphTargets());scene.add(baseRoot);frameModel();ready=true;document.querySelectorAll('button').forEach(b=>b.disabled=false);status.textContent='READY · PERFECT INPUT / NO MICROPHONE';showEvent(0);}catch(err){console.error(err);status.textContent='LOAD FAILED · '+err.message;}}
+async function boot(){try{status.textContent='LOADING NEUTRAL HEAD…';baseRoot=await loadObj('generic_neutral_mesh.obj');prepare(baseRoot);for(let i=0;i<TARGETS.length;i++){status.textContent=`LOADING SPEECH SHAPE ${i+1}/${TARGETS.length} · ${TARGETS[i]}`;attach(await loadObj(TARGETS[i]+'.obj'),i);await new Promise(r=>requestAnimationFrame(r));}baseMeshes.forEach(m=>m.updateMorphTargets());scene.add(baseRoot);frameModel();ready=true;document.querySelectorAll('button').forEach(b=>b.disabled=false);status.textContent='READY · PERFECT INPUT / 70% CONVERSATIONAL ARTICULATION';showEvent(0);}catch(err){console.error(err);status.textContent='LOAD FAILED · '+err.message;}}
 
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
 function animate(now){requestAnimationFrame(animate);resize();controls.update();if(playing&&now>=eventUntil){if(eventIndex<EVENTS.length-1){showEvent(eventIndex+1);schedule(now);}else pause();}let moving=false;for(let i=0;i<current.length;i++){const n=THREE.MathUtils.lerp(current[i],target[i],.22);if(Math.abs(n-current[i])>.0001)moving=true;current[i]=n;}if(moving)applyMorphs();renderer.render(scene,camera);}
