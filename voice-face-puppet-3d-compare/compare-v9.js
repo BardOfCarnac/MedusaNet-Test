@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { ConsonantGate, CONSONANTS } from './hybrid-gate-v3.js';
 import { REPLAY_FRAMES, REPLAY_MORPH_KEYS, REPLAY_DURATION } from './diagnostic-replay-v7.js';
-import { ExpressionDeck, EXPRESSION_MORPH_FILES, EXPRESSION_MOUTH_KEYS } from './expression-deck-v1.js';
+import { ExpressionDeck, EXPRESSION_MORPH_FILES, EXPRESSION_MOUTH_KEYS } from './expression-deck-v1.js?v=2';
 
 const VISEMES=['aa','E','I','O','U','PP','SS','TH','DD','FF','kk','nn','RR','CH','sil'];
 const FACEKIT='https://cdn.jsdelivr.net/gh/USC-ICT/ICT-FaceKit@master/FaceXModel/';
@@ -155,7 +155,7 @@ function applyMorphState(target){
 }
 
 $('wlBtn').onclick=()=>selectModel('wl');$('haBtn').onclick=()=>selectModel('hybrid');if($('replayBtn'))$('replayBtn').onclick=()=>diagnosticReplay.active?stopDiagnosticReplay():startDiagnosticReplay();$('permissionBtn').onclick=askMic;$('micBtn').onclick=startMic;$('silenceBtn').onclick=calibrateSilence;
-document.querySelectorAll('[data-family]').forEach(b=>b.onclick=()=>dealEmotion(b.dataset.family));$('dealEmotion').onclick=()=>dealEmotion();document.querySelectorAll('[data-intensity]').forEach(b=>b.onclick=()=>{emotionDeck.setIntensity(b.dataset.intensity);syncEmotionUI()});document.querySelectorAll('[data-emotion-mode]').forEach(b=>b.onclick=()=>{emotionDeck.setMode(b.dataset.emotionMode);syncEmotionUI()});$('emotionStrength').oninput=e=>{emotionDeck.strength=+e.target.value;$('emotionStrengthOut').textContent=`${Math.round(emotionDeck.strength*100)}%`};
+document.querySelectorAll('[data-family]').forEach(b=>b.onclick=()=>dealEmotion(b.dataset.family));$('dealEmotion').onclick=()=>dealEmotion();document.querySelectorAll('[data-intensity]').forEach(b=>b.onclick=()=>{emotionDeck.setIntensity(b.dataset.intensity);syncEmotionUI()});document.querySelectorAll('[data-emotion-mode]').forEach(b=>b.onclick=()=>{emotionDeck.setMode(b.dataset.emotionMode);syncEmotionUI()});$('emotionStrength').oninput=e=>{emotionDeck.setStrength(+e.target.value);$('emotionStrengthOut').textContent=`${Math.round(emotionDeck.strength*100)}%`};
 function setView(name){const views=portrait()?{front:[0,4,48],three:[20,4,43],side:[45,4,8]}:{front:[0,-.3,43],three:[22,1,36],side:[39,.5,5]};const [x,y,z]=views[name];camera.position.set(x,y,z);controls.target.set(0,portrait()?4:.6,3);controls.update()}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=renderer.getPixelRatio();if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
