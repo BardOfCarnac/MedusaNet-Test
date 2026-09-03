@@ -42,6 +42,7 @@ const $=id=>document.getElementById(id),clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b
 const emotionDeck=new ExpressionDeck();let expressionMouthGain=1;
 function syncEmotionUI(){
   const state=emotionDeck.snapshot();document.querySelectorAll('[data-family]').forEach(b=>b.classList.toggle('selected',b.dataset.family===state.family));document.querySelectorAll('[data-emotion-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.emotionMode===state.mode));
+  document.querySelectorAll('[data-intensity]').forEach(b=>b.classList.toggle('selected',b.dataset.intensity===state.intensity));
   if($('emotionDeal'))$('emotionDeal').textContent=state.labels.join(' · ');if($('emotionStrength'))$('emotionStrength').value=state.strength;if($('emotionStrengthOut'))$('emotionStrengthOut').textContent=`${Math.round(state.strength*100)}%`;
 }
 function dealEmotion(family=emotionDeck.family){emotionDeck.deal(family);syncEmotionUI();if(faceReady)setStatus(`DEALT / ${emotionDeck.family.toUpperCase()}`,'ready')}
@@ -154,7 +155,7 @@ function applyMorphState(target){
 }
 
 $('wlBtn').onclick=()=>selectModel('wl');$('haBtn').onclick=()=>selectModel('hybrid');if($('replayBtn'))$('replayBtn').onclick=()=>diagnosticReplay.active?stopDiagnosticReplay():startDiagnosticReplay();$('permissionBtn').onclick=askMic;$('micBtn').onclick=startMic;$('silenceBtn').onclick=calibrateSilence;
-document.querySelectorAll('[data-family]').forEach(b=>b.onclick=()=>dealEmotion(b.dataset.family));$('dealEmotion').onclick=()=>dealEmotion();document.querySelectorAll('[data-emotion-mode]').forEach(b=>b.onclick=()=>{emotionDeck.setMode(b.dataset.emotionMode);syncEmotionUI()});$('emotionStrength').oninput=e=>{emotionDeck.strength=+e.target.value;$('emotionStrengthOut').textContent=`${Math.round(emotionDeck.strength*100)}%`};
+document.querySelectorAll('[data-family]').forEach(b=>b.onclick=()=>dealEmotion(b.dataset.family));$('dealEmotion').onclick=()=>dealEmotion();document.querySelectorAll('[data-intensity]').forEach(b=>b.onclick=()=>{emotionDeck.setIntensity(b.dataset.intensity);syncEmotionUI()});document.querySelectorAll('[data-emotion-mode]').forEach(b=>b.onclick=()=>{emotionDeck.setMode(b.dataset.emotionMode);syncEmotionUI()});$('emotionStrength').oninput=e=>{emotionDeck.strength=+e.target.value;$('emotionStrengthOut').textContent=`${Math.round(emotionDeck.strength*100)}%`};
 function setView(name){const views=portrait()?{front:[0,4,48],three:[20,4,43],side:[45,4,8]}:{front:[0,-.3,43],three:[22,1,36],side:[39,.5,5]};const [x,y,z]=views[name];camera.position.set(x,y,z);controls.target.set(0,portrait()?4:.6,3);controls.update()}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=renderer.getPixelRatio();if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
