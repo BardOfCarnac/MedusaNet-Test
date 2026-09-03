@@ -10,9 +10,8 @@ const TARGETS=[
 ];
 const INDEX=Object.fromEntries(TARGETS.map((n,i)=>[n,i]));
 
-// TalkingHead's ARKit -> Oculus recipes, translated to ICT FaceKit's _L/_R names.
-// These remain our ideal/reference shapes; ARTICULATION_TRIM below controls how fully
-// normal speech commits to each one without changing what the viseme means.
+// Ideal/reference recipes. The connected-speech layer below decides whether a
+// phoneme is actually allowed to take control of the visible lips.
 const VISEMES={
   sil:{},
   aa:{jawOpen:.60},
@@ -32,51 +31,45 @@ const VISEMES={
 };
 const VISEME_ORDER=['sil','PP','FF','TH','DD','kk','CH','SS','nn','RR','aa','E','I','O','U'];
 
-// Per-viseme conversational trim. Closures stay crisp; the visually theatrical
-// recipes (especially FF, E and O) are restrained more strongly.
 const ARTICULATION_TRIM={
-  sil:1,
-  PP:1.08,
-  FF:.78,
-  TH:.95,
-  DD:.96,
-  kk:.98,
-  CH:.90,
-  SS:.95,
-  nn:.98,
-  RR:.90,
-  aa:.94,
-  E:.82,
-  I:.90,
-  O:.82,
-  U:.88
+  sil:1,PP:1.08,FF:.78,TH:.95,DD:.96,kk:.98,CH:.90,SS:.95,nn:.98,RR:.90,aa:.94,E:.82,I:.90,O:.82,U:.88
 };
 
+// Visible articulation classes:
+// ANCHOR = the lips/jaw genuinely change shape and this becomes the held posture.
+// SOFT   = a small visible bias layered onto the current posture (SH/CH/J, true E).
+// HOLD   = phoneme is real but mostly tongue/throat work; keep the existing lips.
+// GAP    = connected-speech word boundary; relax only imperceptibly rather than snap to rest.
+const ANCHOR='anchor',SOFT='soft',HOLD='hold',GAP='gap';
 const C=.095,V=.18,D=.07;
 const WORDS=[
- ['Father',[['f','FF',C],['ɑː','aa',V],['ð','TH',C],['ə','E',.13],['r','RR',C]]],
- ['packed',[['p','PP',C],['æ','aa',V],['k','kk',C],['t','DD',C]]],
- ['five',[['f','FF',C],['aɪ · open','aa',.12],['aɪ · close','I',.12],['v','FF',C]]],
- ['bright',[['b','PP',C],['r','RR',C],['aɪ · open','aa',.12],['aɪ · close','I',.12],['t','DD',C]]],
- ['blue',[['b','PP',C],['l','DD',C],['uː','U',V]]],
- ['puppets',[['p','PP',C],['ʌ','aa',.15],['p','PP',C],['ɪ','I',.13],['t','DD',C],['s','SS',C]]],
- ['in',[['ɪ','I',.14],['n','nn',C]]],
- ['a',[['ə','E',.13]]],
- ['good',[['g','kk',C],['ʊ','U',.15],['d','DD',C]]],
- ['box',[['b','PP',C],['ɒ','O',.16],['k','kk',C],['s','SS',C]]],
- ['then',[['ð','TH',C],['ɛ','E',.15],['n','nn',C]]],
- ['Joe',[['dʒ','CH',.11],['oʊ · round','O',.13],['oʊ · close','U',.13]]],
- ['chose',[['tʃ','CH',.11],['oʊ · round','O',.13],['oʊ · close','U',.13],['z','SS',C]]],
- ['three',[['θ','TH',C],['r','RR',C],['iː','I',V]]],
- ['sheep',[['ʃ','CH',.11],['iː','I',V],['p','PP',C]]],
- ['by',[['b','PP',C],['aɪ · open','aa',.12],['aɪ · close','I',.12]]],
- ['the',[['ð','TH',C],['ə','E',.13]]],
- ['old',[['oʊ · round','O',.13],['oʊ · close','U',.13],['l','DD',C],['d','DD',C]]],
- ['gate',[['g','kk',C],['eɪ · open','E',.13],['eɪ · close','I',.13],['t','DD',C]]]
+ ['Father',[['f','FF',C,ANCHOR],['ɑː','aa',V,ANCHOR],['ð','TH',C,HOLD],['ə','E',.13,HOLD],['r','RR',C,HOLD]]],
+ ['packed',[['p','PP',C,ANCHOR],['æ','aa',V,ANCHOR],['k','kk',C,HOLD],['t','DD',C,HOLD]]],
+ ['five',[['f','FF',C,ANCHOR],['aɪ · open','aa',.12,ANCHOR],['aɪ · close','I',.12,ANCHOR],['v','FF',C,ANCHOR]]],
+ ['bright',[['b','PP',C,ANCHOR],['r','RR',C,HOLD],['aɪ · open','aa',.12,ANCHOR],['aɪ · close','I',.12,ANCHOR],['t','DD',C,HOLD]]],
+ ['blue',[['b','PP',C,ANCHOR],['l','DD',C,HOLD],['uː','U',V,ANCHOR]]],
+ ['puppets',[['p','PP',C,ANCHOR],['ʌ','aa',.15,ANCHOR],['p','PP',C,ANCHOR],['ɪ','I',.13,ANCHOR],['t','DD',C,HOLD],['s','SS',C,HOLD]]],
+ // Deliberately nearly motionless for this speaker: the preceding /ɪ/ posture is simply carried through "in a".
+ ['in',[['ɪ','I',.14,HOLD],['n','nn',C,HOLD]]],
+ ['a',[['ə','E',.13,HOLD]]],
+ ['good',[['g','kk',C,HOLD],['ʊ','U',.15,ANCHOR],['d','DD',C,HOLD]]],
+ ['box',[['b','PP',C,ANCHOR],['ɒ','O',.16,ANCHOR],['k','kk',C,HOLD],['s','SS',C,HOLD]]],
+ ['then',[['ð','TH',C,HOLD],['ɛ','E',.15,SOFT],['n','nn',C,HOLD]]],
+ ['Joe',[['dʒ','CH',.11,SOFT],['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR]]],
+ ['chose',[['tʃ','CH',.11,SOFT],['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR],['z','SS',C,HOLD]]],
+ ['three',[['θ','TH',C,HOLD],['r','RR',C,HOLD],['iː','I',V,ANCHOR]]],
+ ['sheep',[['ʃ','CH',.11,SOFT],['iː','I',V,ANCHOR],['p','PP',C,ANCHOR]]],
+ ['by',[['b','PP',C,ANCHOR],['aɪ · open','aa',.12,ANCHOR],['aɪ · close','I',.12,ANCHOR]]],
+ ['the',[['ð','TH',C,HOLD],['ə','E',.13,HOLD]]],
+ ['old',[['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR],['l','DD',C,HOLD],['d','DD',C,HOLD]]],
+ ['gate',[['g','kk',C,HOLD],['eɪ · open','E',.13,SOFT],['eɪ · close','I',.13,ANCHOR],['t','DD',C,HOLD]]]
 ];
-const EVENTS=[{word:'—',phoneme:'silence',viseme:'sil',duration:.24}];
-for(const [word,seq] of WORDS){for(const [phoneme,viseme,duration] of seq)EVENTS.push({word,phoneme,viseme,duration});EVENTS.push({word:'',phoneme:'gap',viseme:'sil',duration:D});}
-EVENTS.push({word:'—',phoneme:'silence',viseme:'sil',duration:.3});
+const EVENTS=[{word:'—',phoneme:'silence',viseme:'sil',duration:.24,visual:'rest'}];
+for(const [word,seq] of WORDS){
+  for(const [phoneme,viseme,duration,visual] of seq)EVENTS.push({word,phoneme,viseme,duration,visual});
+  EVENTS.push({word:'',phoneme:'connected gap',viseme:'sil',duration:D,visual:GAP});
+}
+EVENTS.push({word:'—',phoneme:'silence',viseme:'sil',duration:.3,visual:'rest'});
 
 const canvas=document.querySelector('#stage'),status=document.querySelector('#status');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x050507);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
@@ -90,7 +83,7 @@ const darkMat=new THREE.MeshBasicMaterial({color:0x030001});
 const mouthMat=new THREE.MeshStandardMaterial({color:0x250307,roughness:1});
 const teethMat=new THREE.MeshStandardMaterial({color:0x7d343b,roughness:.9});
 const loader=new OBJLoader();let baseRoot=null,baseMeshes=[],ready=false;
-const current=new Float32Array(TARGETS.length),target=new Float32Array(TARGETS.length);
+const current=new Float32Array(TARGETS.length),target=new Float32Array(TARGETS.length),heldTarget=new Float32Array(TARGETS.length);
 
 function meshes(root){const a=[];root.traverse(o=>{if(o.isMesh)a.push(o);});return a;}
 function materialFor(m){const n=String(m?.name||'').toLowerCase();if(n.includes('sclera')||n.includes('iris')||n.includes('eyeocclusion')||n.includes('eyeblend')||n.includes('lacrimal')||n.includes('eyelash'))return darkMat.clone();if(n.includes('teeth'))return teethMat.clone();if(n.includes('gum')||n.includes('tongue')||n.includes('mouth'))return mouthMat.clone();return faceMat.clone();}
@@ -103,32 +96,28 @@ function frameModel(){const box=new THREE.Box3().setFromObject(baseRoot),size=bo
 function applyMorphs(){baseMeshes.forEach(m=>{if(!m.morphTargetInfluences)m.updateMorphTargets();if(!m.morphTargetInfluences)return;for(let i=0;i<TARGETS.length;i++)m.morphTargetInfluences[i]=current[i];});}
 
 let activeViseme='sil';
-function articulationFor(name){
-  const master=Number(document.querySelector('#articulation')?.value||.70);
-  return THREE.MathUtils.clamp(master*(ARTICULATION_TRIM[name]??1),0,1.12);
-}
-function updateTargetForActiveViseme(){
-  target.fill(0);
-  const strength=articulationFor(activeViseme);
-  for(const [shape,value] of Object.entries(VISEMES[activeViseme]||{})){
-    const i=INDEX[shape];
-    if(i!==undefined)target[i]=value*strength;
-  }
+function articulationFor(name){const master=Number(document.querySelector('#articulation')?.value||.70);return THREE.MathUtils.clamp(master*(ARTICULATION_TRIM[name]??1),0,1.12);}
+function recipeVector(name){const out=new Float32Array(TARGETS.length),strength=articulationFor(name);for(const [shape,value] of Object.entries(VISEMES[name]||{})){const i=INDEX[shape];if(i!==undefined)out[i]=value*strength;}return out;}
+function copyVector(dst,src){for(let i=0;i<dst.length;i++)dst[i]=src[i];}
+function blendVector(dst,a,b,t){for(let i=0;i<dst.length;i++)dst[i]=THREE.MathUtils.lerp(a[i],b[i],t);}
+function visualLabel(e){if(e.visual===ANCHOR)return `ANCHOR · ${e.viseme}`;if(e.visual===SOFT)return `SOFT · ${e.viseme}`;if(e.visual===HOLD)return 'HOLD';if(e.visual===GAP)return 'HOLD / RELAX';return 'REST';}
+function applyEventVisual(e){
+  activeViseme=e.viseme;
+  if(e.visual===ANCHOR){const r=recipeVector(e.viseme);copyVector(target,r);copyVector(heldTarget,r);}
+  else if(e.visual===SOFT){const r=recipeVector(e.viseme);blendVector(target,heldTarget,r,.28);copyVector(heldTarget,target);}
+  else if(e.visual===HOLD){copyVector(target,heldTarget);}
+  else if(e.visual===GAP){for(let i=0;i<heldTarget.length;i++)heldTarget[i]*=.97;copyVector(target,heldTarget);}
+  else {target.fill(0);heldTarget.fill(0);}
+  document.querySelectorAll('[data-viseme]').forEach(b=>b.classList.toggle('active',b.dataset.viseme===e.viseme));
 }
 function setViseme(name,manual=false){
   activeViseme=name;
-  updateTargetForActiveViseme();
+  const r=recipeVector(name);copyVector(target,r);copyVector(heldTarget,r);
   document.querySelectorAll('[data-viseme]').forEach(b=>b.classList.toggle('active',b.dataset.viseme===name));
-  if(manual){
-    playing=false;
-    document.querySelector('#play').classList.remove('active');
-    document.querySelector('#word').textContent='MANUAL';
-    document.querySelector('#phoneme').textContent='—';
-    document.querySelector('#viseme').textContent=name;
-  }
+  if(manual){playing=false;document.querySelector('#play').classList.remove('active');document.querySelector('#word').textContent='MANUAL';document.querySelector('#phoneme').textContent='—';document.querySelector('#viseme').textContent=name;document.querySelector('#visual').textContent='FORCED ANCHOR';}
 }
 let eventIndex=0,playing=false,eventUntil=0;
-function showEvent(i){eventIndex=Math.max(0,Math.min(EVENTS.length-1,i));const e=EVENTS[eventIndex];setViseme(e.viseme);document.querySelector('#word').textContent=e.word||'·';document.querySelector('#phoneme').textContent=e.phoneme;document.querySelector('#viseme').textContent=e.viseme;}
+function showEvent(i){eventIndex=Math.max(0,Math.min(EVENTS.length-1,i));const e=EVENTS[eventIndex];applyEventVisual(e);document.querySelector('#word').textContent=e.word||'·';document.querySelector('#phoneme').textContent=e.phoneme;document.querySelector('#viseme').textContent=e.viseme;document.querySelector('#visual').textContent=visualLabel(e);}
 function schedule(now){const speed=Number(document.querySelector('#speed').value)||.55;eventUntil=now+EVENTS[eventIndex].duration*1000/speed;}
 function play(){if(!ready)return;if(eventIndex>=EVENTS.length-1)showEvent(0);playing=true;schedule(performance.now());document.querySelector('#play').classList.add('active');}
 function pause(){playing=false;document.querySelector('#play').classList.remove('active');}
@@ -140,10 +129,10 @@ document.querySelector('#pause').addEventListener('click',pause);
 document.querySelector('#prev').addEventListener('click',()=>step(-1));
 document.querySelector('#next').addEventListener('click',()=>step(1));
 document.querySelector('#speed').addEventListener('input',e=>{document.querySelector('#speedOut').value=Math.round(Number(e.target.value)*100)+'%';if(playing)schedule(performance.now());});
-document.querySelector('#articulation').addEventListener('input',e=>{document.querySelector('#articulationOut').value=Math.round(Number(e.target.value)*100)+'%';updateTargetForActiveViseme();});
+document.querySelector('#articulation').addEventListener('input',e=>{document.querySelector('#articulationOut').value=Math.round(Number(e.target.value)*100)+'%';if(eventIndex>=0)applyEventVisual(EVENTS[eventIndex]);});
 
-async function boot(){try{status.textContent='LOADING NEUTRAL HEAD…';baseRoot=await loadObj('generic_neutral_mesh.obj');prepare(baseRoot);for(let i=0;i<TARGETS.length;i++){status.textContent=`LOADING SPEECH SHAPE ${i+1}/${TARGETS.length} · ${TARGETS[i]}`;attach(await loadObj(TARGETS[i]+'.obj'),i);await new Promise(r=>requestAnimationFrame(r));}baseMeshes.forEach(m=>m.updateMorphTargets());scene.add(baseRoot);frameModel();ready=true;document.querySelectorAll('button').forEach(b=>b.disabled=false);status.textContent='READY · PERFECT INPUT / 70% CONVERSATIONAL ARTICULATION';showEvent(0);}catch(err){console.error(err);status.textContent='LOAD FAILED · '+err.message;}}
+async function boot(){try{status.textContent='LOADING NEUTRAL HEAD…';baseRoot=await loadObj('generic_neutral_mesh.obj');prepare(baseRoot);for(let i=0;i<TARGETS.length;i++){status.textContent=`LOADING SPEECH SHAPE ${i+1}/${TARGETS.length} · ${TARGETS[i]}`;attach(await loadObj(TARGETS[i]+'.obj'),i);await new Promise(r=>requestAnimationFrame(r));}baseMeshes.forEach(m=>m.updateMorphTargets());scene.add(baseRoot);frameModel();ready=true;document.querySelectorAll('button').forEach(b=>b.disabled=false);status.textContent='READY · CONNECTED SPEECH / VISIBLE ANCHORS';showEvent(0);}catch(err){console.error(err);status.textContent='LOAD FAILED · '+err.message;}}
 
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
-function animate(now){requestAnimationFrame(animate);resize();controls.update();if(playing&&now>=eventUntil){if(eventIndex<EVENTS.length-1){showEvent(eventIndex+1);schedule(now);}else pause();}let moving=false;for(let i=0;i<current.length;i++){const n=THREE.MathUtils.lerp(current[i],target[i],.22);if(Math.abs(n-current[i])>.0001)moving=true;current[i]=n;}if(moving)applyMorphs();renderer.render(scene,camera);}
+function animate(now){requestAnimationFrame(animate);resize();controls.update();if(playing&&now>=eventUntil){if(eventIndex<EVENTS.length-1){showEvent(eventIndex+1);schedule(now);}else pause();}let moving=false;for(let i=0;i<current.length;i++){const n=THREE.MathUtils.lerp(current[i],target[i],.20);if(Math.abs(n-current[i])>.0001)moving=true;current[i]=n;}if(moving)applyMorphs();renderer.render(scene,camera);}
 boot();requestAnimationFrame(animate);
