@@ -10,8 +10,6 @@ const TARGETS=[
 ];
 const INDEX=Object.fromEntries(TARGETS.map((n,i)=>[n,i]));
 
-// Ideal/reference recipes. Connected speech below decides whether a sound gets
-// the whole pose, a small nudge, or no independent lip movement at all.
 const VISEMES={
   sil:{},
   aa:{jawOpen:.60},
@@ -32,58 +30,48 @@ const VISEMES={
 const VISEME_ORDER=['sil','PP','FF','TH','DD','kk','CH','SS','nn','RR','aa','E','I','O','U'];
 const ARTICULATION_TRIM={sil:1,PP:1.08,FF:.78,TH:.95,DD:.96,kk:.98,CH:.90,SS:.95,nn:.98,RR:.90,aa:.94,E:.82,I:.90,O:.82,U:.88};
 
-// Visible articulation classes.
-// ANCHOR: a genuine visible target (closures, open/rounded vowels).
-// SOFT: a small blend toward a normal viseme recipe.
-// MICRO: a speaker/context-specific lip nudge while preserving the held posture.
-// HOLD: internal tongue/throat articulation; lips keep the held posture.
-// GAP: tiny relaxation across a connected word boundary.
-const ANCHOR='anchor',SOFT='soft',MICRO='micro',HOLD='hold',GAP='gap';
-
-// These are deliberately small. They describe visible residue of articulation,
-// not new visemes. At the 70% default the actual movement is smaller again.
-const MICRO_PRESETS={
-  fatherDental:{label:'LOWER LIP RETRACT',relax:.08,add:{mouthRollLower:.16,mouthDimple_L:.025,mouthDimple_R:.025}},
-  weakSchwa:{label:'WEAK RELAX',relax:.12,add:{mouthRollLower:.055}},
-  rhotic:{label:'RHOTIC NUDGE',relax:.04,add:{mouthPucker:.085,mouthRollLower:.04}}
-};
+// Connected speech is not binary. ANCHOR owns the mouth; SECONDARY visibly pulls
+// the current posture toward a sound without replacing it; HOLD genuinely leaves
+// the lips alone. This is much closer to co-articulation than the old freeze model.
+const ANCHOR='anchor',SECONDARY='secondary',HOLD='hold',GAP='gap';
 
 const C=.095,V=.18,D=.07;
 const WORDS=[
  ['Father',[
    ['f','FF',C,ANCHOR],
    ['ɑː','aa',V,ANCHOR],
-   // In this speaker, the end of "father" does move: the broad /ɑː/ is retained,
-   // but the lower lip retracts/rolls slightly before a mild rhotic narrowing.
-   ['ð','TH',C,MICRO,'fatherDental'],
-   ['ə','E',.13,MICRO,'weakSchwa'],
-   ['r','RR',C,MICRO,'rhotic']
+   // User-observed articulation: the tail of "father" visibly retracts/rolls
+   // the lower lip rather than freezing after /ɑː/.
+   ['ð','TH',C,SECONDARY,.34,{mouthRollLower:.24,mouthDimple_L:.10,mouthDimple_R:.10}],
+   ['ə','E',.13,SECONDARY,.28,{mouthRollLower:.10,mouthDimple_L:.05,mouthDimple_R:.05}],
+   ['r','RR',C,SECONDARY,.36,{mouthPucker:.10,mouthRollLower:.08}]
  ]],
- ['packed',[['p','PP',C,ANCHOR],['æ','aa',V,ANCHOR],['k','kk',C,HOLD],['t','DD',C,HOLD]]],
+ ['packed',[['p','PP',C,ANCHOR],['æ','aa',V,ANCHOR],['k','kk',C,SECONDARY,.22],['t','DD',C,SECONDARY,.18]]],
  ['five',[['f','FF',C,ANCHOR],['aɪ · open','aa',.12,ANCHOR],['aɪ · close','I',.12,ANCHOR],['v','FF',C,ANCHOR]]],
- ['bright',[['b','PP',C,ANCHOR],['r','RR',C,MICRO,'rhotic'],['aɪ · open','aa',.12,ANCHOR],['aɪ · close','I',.12,ANCHOR],['t','DD',C,HOLD]]],
- ['blue',[['b','PP',C,ANCHOR],['l','DD',C,HOLD],['uː','U',V,ANCHOR]]],
- ['puppets',[['p','PP',C,ANCHOR],['ʌ','aa',.15,ANCHOR],['p','PP',C,ANCHOR],['ɪ','I',.13,ANCHOR],['t','DD',C,HOLD],['s','SS',C,HOLD]]],
- // Deliberately nearly motionless for this speaker: /ɪ n ə/ does not deserve
- // three visible poses. It carries the existing lip posture through the phrase.
+ ['bright',[['b','PP',C,ANCHOR],['r','RR',C,SECONDARY,.30],['aɪ · open','aa',.12,ANCHOR],['aɪ · close','I',.12,ANCHOR],['t','DD',C,SECONDARY,.18]]],
+ ['blue',[['b','PP',C,ANCHOR],['l','DD',C,SECONDARY,.18],['uː','U',V,ANCHOR]]],
+ ['puppets',[['p','PP',C,ANCHOR],['ʌ','aa',.15,ANCHOR],['p','PP',C,ANCHOR],['ɪ','I',.13,ANCHOR],['t','DD',C,SECONDARY,.16],['s','SS',C,SECONDARY,.14]]],
+ // This is deliberately quiet because the user's lips barely alter across "in a".
+ // It stays quiet because these events inherit the current posture, not because
+ // every tongue-heavy consonant elsewhere has been suppressed.
  ['in',[['ɪ','I',.14,HOLD],['n','nn',C,HOLD]]],
  ['a',[['ə','E',.13,HOLD]]],
- ['good',[['g','kk',C,HOLD],['ʊ','U',.15,ANCHOR],['d','DD',C,HOLD]]],
- ['box',[['b','PP',C,ANCHOR],['ɒ','O',.16,ANCHOR],['k','kk',C,HOLD],['s','SS',C,HOLD]]],
- ['then',[['ð','TH',C,HOLD],['ɛ','E',.15,SOFT],['n','nn',C,HOLD]]],
- ['Joe',[['dʒ','CH',.11,SOFT],['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR]]],
- ['chose',[['tʃ','CH',.11,SOFT],['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR],['z','SS',C,HOLD]]],
- ['three',[['θ','TH',C,HOLD],['r','RR',C,MICRO,'rhotic'],['iː','I',V,ANCHOR]]],
- ['sheep',[['ʃ','CH',.11,SOFT],['iː','I',V,ANCHOR],['p','PP',C,ANCHOR]]],
+ ['good',[['g','kk',C,SECONDARY,.20],['ʊ','U',.15,ANCHOR],['d','DD',C,SECONDARY,.18]]],
+ ['box',[['b','PP',C,ANCHOR],['ɒ','O',.16,ANCHOR],['k','kk',C,SECONDARY,.20],['s','SS',C,SECONDARY,.15]]],
+ ['then',[['ð','TH',C,SECONDARY,.27],['ɛ','E',.15,SECONDARY,.38],['n','nn',C,SECONDARY,.16]]],
+ ['Joe',[['dʒ','CH',.11,SECONDARY,.38],['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR]]],
+ ['chose',[['tʃ','CH',.11,SECONDARY,.38],['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR],['z','SS',C,SECONDARY,.15]]],
+ ['three',[['θ','TH',C,SECONDARY,.27],['r','RR',C,SECONDARY,.31],['iː','I',V,ANCHOR]]],
+ ['sheep',[['ʃ','CH',.11,SECONDARY,.34],['iː','I',V,ANCHOR],['p','PP',C,ANCHOR]]],
  ['by',[['b','PP',C,ANCHOR],['aɪ · open','aa',.12,ANCHOR],['aɪ · close','I',.12,ANCHOR]]],
- ['the',[['ð','TH',C,HOLD],['ə','E',.13,HOLD]]],
- ['old',[['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR],['l','DD',C,HOLD],['d','DD',C,HOLD]]],
- ['gate',[['g','kk',C,HOLD],['eɪ · open','E',.13,SOFT],['eɪ · close','I',.13,ANCHOR],['t','DD',C,HOLD]]]
+ ['the',[['ð','TH',C,SECONDARY,.20],['ə','E',.13,HOLD]]],
+ ['old',[['oʊ · round','O',.13,ANCHOR],['oʊ · close','U',.13,ANCHOR],['l','DD',C,SECONDARY,.18],['d','DD',C,SECONDARY,.17]]],
+ ['gate',[['g','kk',C,SECONDARY,.20],['eɪ · open','E',.13,SECONDARY,.38],['eɪ · close','I',.13,ANCHOR],['t','DD',C,SECONDARY,.18]]]
 ];
 
 const EVENTS=[{word:'—',phoneme:'silence',viseme:'sil',duration:.24,visual:'rest'}];
 for(const [word,seq] of WORDS){
-  for(const [phoneme,viseme,duration,visual,micro] of seq)EVENTS.push({word,phoneme,viseme,duration,visual,micro});
+  for(const [phoneme,viseme,duration,visual,weight,overlay] of seq)EVENTS.push({word,phoneme,viseme,duration,visual,weight,overlay});
   EVENTS.push({word:'',phoneme:'connected gap',viseme:'sil',duration:D,visual:GAP});
 }
 EVENTS.push({word:'—',phoneme:'silence',viseme:'sil',duration:.3,visual:'rest'});
@@ -119,31 +107,38 @@ function articulationFor(name){return THREE.MathUtils.clamp(masterArticulation()
 function recipeVector(name){const out=new Float32Array(TARGETS.length),strength=articulationFor(name);for(const [shape,value] of Object.entries(VISEMES[name]||{})){const i=INDEX[shape];if(i!==undefined)out[i]=value*strength;}return out;}
 function copyVector(dst,src){for(let i=0;i<dst.length;i++)dst[i]=src[i];}
 function blendVector(dst,a,b,t){for(let i=0;i<dst.length;i++)dst[i]=THREE.MathUtils.lerp(a[i],b[i],t);}
-function microVector(name){
-  const p=MICRO_PRESETS[name],out=new Float32Array(heldTarget),master=masterArticulation();
-  if(!p)return out;
-  for(let i=0;i<out.length;i++)out[i]*=(1-(p.relax||0));
-  for(const [shape,value] of Object.entries(p.add||{})){
-    const i=INDEX[shape];if(i!==undefined)out[i]=THREE.MathUtils.clamp(out[i]+value*master,0,1.15);
+function secondaryVector(e){
+  const recipe=recipeVector(e.viseme),out=new Float32Array(TARGETS.length);
+  blendVector(out,heldTarget,recipe,e.weight??.28);
+  const master=masterArticulation();
+  for(const [shape,value] of Object.entries(e.overlay||{})){
+    const i=INDEX[shape];
+    if(i!==undefined)out[i]=THREE.MathUtils.clamp(out[i]+value*master,0,1.15);
   }
   return out;
 }
 function visualLabel(e){
   if(e.visual===ANCHOR)return `ANCHOR · ${e.viseme}`;
-  if(e.visual===SOFT)return `SOFT · ${e.viseme}`;
-  if(e.visual===MICRO)return `MICRO · ${MICRO_PRESETS[e.micro]?.label||e.viseme}`;
+  if(e.visual===SECONDARY)return `SECONDARY ${Math.round((e.weight??.28)*100)}% · ${e.viseme}`;
   if(e.visual===HOLD)return 'HOLD';
-  if(e.visual===GAP)return 'HOLD / RELAX';
+  if(e.visual===GAP)return 'CONNECTED';
   return 'REST';
 }
 function applyEventVisual(e){
   activeViseme=e.viseme;
-  if(e.visual===ANCHOR){const r=recipeVector(e.viseme);copyVector(target,r);copyVector(heldTarget,r);}
-  else if(e.visual===SOFT){const r=recipeVector(e.viseme);blendVector(target,heldTarget,r,.28);copyVector(heldTarget,target);}
-  else if(e.visual===MICRO){const r=microVector(e.micro);copyVector(target,r);}
-  else if(e.visual===HOLD){copyVector(target,heldTarget);}
-  else if(e.visual===GAP){for(let i=0;i<heldTarget.length;i++)heldTarget[i]*=.97;copyVector(target,heldTarget);}
-  else {target.fill(0);heldTarget.fill(0);}
+  if(e.visual===ANCHOR){
+    const r=recipeVector(e.viseme);copyVector(target,r);copyVector(heldTarget,r);
+  }else if(e.visual===SECONDARY){
+    const r=secondaryVector(e);copyVector(target,r);copyVector(heldTarget,r);
+  }else if(e.visual===HOLD){
+    copyVector(target,heldTarget);
+  }else if(e.visual===GAP){
+    // Speech stays connected; do not reset the mouth between words.
+    for(let i=0;i<heldTarget.length;i++)heldTarget[i]*=.985;
+    copyVector(target,heldTarget);
+  }else{
+    target.fill(0);heldTarget.fill(0);
+  }
   document.querySelectorAll('[data-viseme]').forEach(b=>b.classList.toggle('active',b.dataset.viseme===e.viseme));
 }
 function setViseme(name,manual=false){
@@ -167,7 +162,7 @@ document.querySelector('#next').addEventListener('click',()=>step(1));
 document.querySelector('#speed').addEventListener('input',e=>{document.querySelector('#speedOut').value=Math.round(Number(e.target.value)*100)+'%';if(playing)schedule(performance.now());});
 document.querySelector('#articulation').addEventListener('input',e=>{document.querySelector('#articulationOut').value=Math.round(Number(e.target.value)*100)+'%';if(eventIndex>=0)applyEventVisual(EVENTS[eventIndex]);});
 
-async function boot(){try{status.textContent='LOADING NEUTRAL HEAD…';baseRoot=await loadObj('generic_neutral_mesh.obj');prepare(baseRoot);for(let i=0;i<TARGETS.length;i++){status.textContent=`LOADING SPEECH SHAPE ${i+1}/${TARGETS.length} · ${TARGETS[i]}`;attach(await loadObj(TARGETS[i]+'.obj'),i);await new Promise(r=>requestAnimationFrame(r));}baseMeshes.forEach(m=>m.updateMorphTargets());scene.add(baseRoot);frameModel();ready=true;document.querySelectorAll('button').forEach(b=>b.disabled=false);status.textContent='READY · CONNECTED SPEECH / MICRO-ARTICULATION';showEvent(0);}catch(err){console.error(err);status.textContent='LOAD FAILED · '+err.message;}}
+async function boot(){try{status.textContent='LOADING NEUTRAL HEAD…';baseRoot=await loadObj('generic_neutral_mesh.obj');prepare(baseRoot);for(let i=0;i<TARGETS.length;i++){status.textContent=`LOADING SPEECH SHAPE ${i+1}/${TARGETS.length} · ${TARGETS[i]}`;attach(await loadObj(TARGETS[i]+'.obj'),i);await new Promise(r=>requestAnimationFrame(r));}baseMeshes.forEach(m=>m.updateMorphTargets());scene.add(baseRoot);frameModel();ready=true;document.querySelectorAll('button').forEach(b=>b.disabled=false);status.textContent='READY · CONNECTED SPEECH / CO-ARTICULATION';showEvent(0);}catch(err){console.error(err);status.textContent='LOAD FAILED · '+err.message;}}
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
-function animate(now){requestAnimationFrame(animate);resize();controls.update();if(playing&&now>=eventUntil){if(eventIndex<EVENTS.length-1){showEvent(eventIndex+1);schedule(now);}else pause();}let moving=false;for(let i=0;i<current.length;i++){const n=THREE.MathUtils.lerp(current[i],target[i],.20);if(Math.abs(n-current[i])>.0001)moving=true;current[i]=n;}if(moving)applyMorphs();renderer.render(scene,camera);}
+function animate(now){requestAnimationFrame(animate);resize();controls.update();if(playing&&now>=eventUntil){if(eventIndex<EVENTS.length-1){showEvent(eventIndex+1);schedule(now);}else pause();}let moving=false;for(let i=0;i<current.length;i++){const n=THREE.MathUtils.lerp(current[i],target[i],.24);if(Math.abs(n-current[i])>.0001)moving=true;current[i]=n;}if(moving)applyMorphs();renderer.render(scene,camera);}
 boot();requestAnimationFrame(animate);
