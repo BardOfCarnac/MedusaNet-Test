@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { ConsonantGate, CONSONANTS } from './hybrid-gate-v3.js';
 import { REPLAY_FRAMES, REPLAY_MORPH_KEYS, REPLAY_DURATION } from './diagnostic-replay-v7.js';
-import { ExpressionDeck, EXPRESSION_MORPH_FILES, EXPRESSION_MOUTH_KEYS } from './expression-deck-v1.js?v=2';
+import { ExpressionDeck, EXPRESSION_MORPH_FILES, EXPRESSION_MOUTH_KEYS } from './expression-deck-v1.js?v=3';
 
 const VISEMES=['aa','E','I','O','U','PP','SS','TH','DD','FF','kk','nn','RR','CH','sil'];
 const FACEKIT='https://cdn.jsdelivr.net/gh/USC-ICT/ICT-FaceKit@master/FaceXModel/';
