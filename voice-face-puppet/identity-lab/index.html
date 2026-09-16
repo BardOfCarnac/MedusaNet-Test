@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050507">
+<title>FaceKit Identity Space Lab</title>
+<style>
+:root{color-scheme:dark;--bg:#050507;--panel:rgba(8,9,12,.94);--line:rgba(255,62,82,.25);--red:#ff3347;--text:#eee;--muted:#9d8589}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}#app{position:fixed;inset:0}canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;pointer-events:none;background:linear-gradient(to bottom,rgba(5,5,7,.86),transparent)}.eyebrow,.tiny{font-size:10px;letter-spacing:.12em;color:var(--muted)}h1{font-size:17px;margin:4px 0 0;font-weight:600}.status{font-size:10px;color:#d7bcc0;text-align:right;max-width:44vw}.panel{position:absolute;left:10px;bottom:10px;width:min(420px,calc(100vw - 20px));max-height:72vh;overflow:auto;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px);padding:12px}.modeHead{display:flex;justify-content:space-between;gap:12px;align-items:end}.modeNum{font-size:28px;line-height:1}.modeName{font-size:11px;color:var(--muted)}.value{font-size:20px;text-align:right}input[type=range]{width:100%;accent-color:var(--red)}.row{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}button,textarea{font:inherit;color:#ddd;background:#110b0e;border:1px solid var(--line)}button{padding:9px 10px;min-height:38px}button.active{border-color:var(--red);box-shadow:0 0 16px rgba(255,51,71,.16)}button.fav{color:#ffd86b}.row button{flex:1}.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:10px}.grid button{padding:7px 0;min-height:31px;font-size:9px}.grid button.visited{background:#171015}.grid button.selected{border-color:var(--red);color:white}.grid button.starred::after{content:'★';font-size:7px;margin-left:2px;color:#ffd86b}.section{border-top:1px solid rgba(255,255,255,.07);margin-top:10px;padding-top:10px}.note{font-size:10px;line-height:1.45;color:var(--muted)}textarea{width:100%;min-height:52px;resize:vertical;padding:8px;margin-top:7px}.views{position:absolute;right:10px;bottom:10px;display:flex;gap:5px;flex-direction:column}.views button{min-width:74px;background:rgba(8,9,12,.88)}@media(max-width:700px){.panel{max-height:55vh}.views{bottom:auto;top:72px}.top{padding:10px}.status{max-width:42vw}.grid{grid-template-columns:repeat(10,1fr);gap:3px}.grid button{min-height:29px;padding:5px 0}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app">
+<canvas id="stage"></canvas>
+<header class="top"><div><div class="eyebrow">VOICE FACE PUPPET / ICT FACEKIT</div><h1>IDENTITY SPACE LAB</h1></div><div class="status" id="status">LOADING NEUTRAL HEAD…</div></header>
+<section class="panel">
+  <div class="modeHead"><div><div class="modeNum" id="modeNum">000</div><div class="modeName">PCA IDENTITY AXIS</div></div><div><div class="tiny">COEFFICIENT</div><div class="value" id="valueOut">+0.85</div></div></div>
+  <input id="weight" type="range" min="-1" max="1" step="0.01" value="0.85">
+  <div class="row"><button id="prev">← PREV</button><button id="neutral">NEUTRAL</button><button id="sweep">SWEEP ±</button><button id="next">NEXT →</button></div>
+  <div class="row"><button id="fav">☆ STAR MODE</button><button id="resetView">RESET VIEW</button></div>
+  <div class="section"><div class="tiny">100 PCA MODES · TAP ONE TO LOAD</div><div class="grid" id="grid"></div></div>
+  <div class="section"><div class="tiny">NOTES FOR THIS AXIS</div><textarea id="notes" placeholder="e.g. broader jaw / shorter mid-face / eye spacing…"></textarea><div class="note">Positive shows the supplied PCA target. Negative extrapolates through the neutral head in the opposite direction. The axes are statistical, not authored semantic sliders, so name what you actually see.</div></div>
+</section>
+<div class="views"><button data-view="front">FRONT</button><button data-view="three" class="active">¾ VIEW</button><button data-view="side">SIDE</button><button id="wire">WIRE</button></div>
+</div>
+<script type="module" src="identity-lab.js?v=1"></script>
+</body></html>
